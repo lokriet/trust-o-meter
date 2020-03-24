@@ -1,38 +1,54 @@
-import React from 'react';
+import { StitchUser } from 'mongodb-stitch-browser-sdk';
 import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
+
 import {
+  getCurrentUser,
   hasLoggedInUser,
   loginAnonymous,
-  logoutCurrentUser,
-  getCurrentUser
-} from '../../stitch/authentication';
+  logoutCurrentUser
+} from '../../../stitch/authentication';
 
-type ContextProps = {
-  isLoggedIn: boolean,
-  currentUser: any,
-  actions: { 
-    handleAnonymousLogin: any, 
-    handleLogout: any 
+interface AuthState {
+  isLoggedIn: boolean;
+  currentUser: StitchUser | null | undefined;
+  actions: {
+    handleAnonymousLogin: (...args: any[]) => any;
+    handleLogout: (...args: any[]) => any;
   };
-};
+}
 
-const StitchAuthContext = React.createContext<Partial<ContextProps>>({});
+// Create a React Context that lets us expose and access auth state
+// without passing props through many levels of the component tree
+const StitchAuthContext = React.createContext<AuthState>({
+  isLoggedIn: false,
+  currentUser: null,
+  actions: {
+    handleAnonymousLogin: () => {},
+    handleLogout: () => {}
+  }
+});
 
-export const useStitchAuth = () => {
+// Create a React Hook that lets us get data from our auth context
+export function useStitchAuth() {
   const context = React.useContext(StitchAuthContext);
   if (!context) {
     throw new Error(`useStitchAuth must be used within a StitchAuthProvider`);
   }
+  console.log(context);
   return context;
-};
+}
 
-export const StitchAuthProvider = (props: any): JSX.Element => {
+// Create a component that controls auth state and exposes it via
+// the React Context we created.
+export function StitchAuthProvider(props) {
   const [authState, setAuthState] = React.useState({
     isLoggedIn: hasLoggedInUser(),
     currentUser: getCurrentUser()
   });
 
-  const handleAnonymousLogin = async () => {
+  // Authentication Actions
+  const handleAnonymousLogin = useCallback(async () => {
     const { isLoggedIn } = authState;
     if (!isLoggedIn) {
       const loggedInUser = await loginAnonymous();
@@ -42,9 +58,9 @@ export const StitchAuthProvider = (props: any): JSX.Element => {
         currentUser: loggedInUser
       });
     }
-  };
+  }, [authState]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     const { isLoggedIn } = authState;
     if (isLoggedIn) {
       await logoutCurrentUser();
@@ -56,7 +72,7 @@ export const StitchAuthProvider = (props: any): JSX.Element => {
     } else {
       console.log(`can't handleLogout when no user is logged in`);
     }
-  };
+  }, [authState]);
 
   // We useMemo to improve performance by eliminating some re-renders
   const authInfo = React.useMemo(() => {
@@ -67,13 +83,19 @@ export const StitchAuthProvider = (props: any): JSX.Element => {
       actions: { handleAnonymousLogin, handleLogout }
     };
     return value;
-  }, [authState.isLoggedIn]);
+  }, [authState, handleAnonymousLogin, handleLogout]);
+  // const { isLoggedIn, currentUser } = authState;
+  //   const authInfo = {
+  //     isLoggedIn,
+  //     currentUser,
+  //     actions: { handleAnonymousLogin, handleLogout }
+  //   };
   return (
     <StitchAuthContext.Provider value={authInfo}>
       {props.children}
     </StitchAuthContext.Provider>
   );
-};
+}
 StitchAuthProvider.propTypes = {
   children: PropTypes.element
 };
