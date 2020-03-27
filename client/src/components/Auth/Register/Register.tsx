@@ -7,16 +7,17 @@ import * as Yup from 'yup';
 import * as actions from '../../../store/actions';
 import { State } from '../../../store/reducers/state';
 import { Error } from '../../UI/Error/Error';
-import classes from './Login.module.css';
+import classes from './Register.module.css';
 
-interface LoginProps {
+interface RegisterProps {
   isLoggedIn: boolean;
   error: string | null;
   redirectPath: string;
   loading: boolean;
 }
 
-const Login = (props: LoginProps) => {
+const Register = (props: RegisterProps) => {
+
   const [redirectPath] = useState(props.redirectPath);
   const dispatch = useDispatch();
 
@@ -25,17 +26,19 @@ const Login = (props: LoginProps) => {
     dispatch(actions.authInit());
   }, [dispatch]);
 
-  const handleSubmit = useCallback((formValues) => {
-    dispatch(
-      actions.loginWithEmailAndPassword(formValues.email, formValues.password)
-    );
-  }, [dispatch]);
+  const handleSubmit = useCallback(
+    (formValues) => {
+      dispatch(actions.registerWithEmailAndPassword(formValues.email, formValues.password));
+    },
+    [dispatch]
+  );
 
   let form = (
     <Formik
       initialValues={{
         email: '',
-        password: ''
+        password: '',
+        confirmPassword: ''
       }}
       validationSchema={Yup.object({
         email: Yup.string()
@@ -43,18 +46,22 @@ const Login = (props: LoginProps) => {
           .email('Invalid email address'),
         password: Yup.string()
           .required('Required')
-          .min(6, 'Must be at least 6 characters long')
+          .min(6, 'Must be at least 6 characters long'),
+        confirmPassword: Yup.string()
+          .required('Required')
+          .oneOf([Yup.ref('password')], "Passwords don't match")
       })}
       onSubmit={(values, { setSubmitting }) =>
         handleSubmit(values)
       }
     >
-      <Form className={classes.LoginForm}>
+      <Form className={classes.RegisterForm}>
         <Field
           name="email"
           type="text"
           placeholder="E-mail"
           autoComplete="username"
+          // component={FormikInput}
         />
         <Error><ErrorMessage name="email" /></Error>
 
@@ -62,28 +69,37 @@ const Login = (props: LoginProps) => {
           name="password"
           type="password"
           placeholder="Password"
-          autoComplete="current-password"
+          autoComplete="new-password"
+          // component={FormikInput}
         />
         <Error><ErrorMessage name="password" /></Error>
+
+        <Field
+          name="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          placeholder="Confirm password"
+          // component={FormikInput}
+        />
+        <Error><ErrorMessage name="confirmPassword" /></Error>
 
         {props.error ? <Error>{props.error}</Error> : null}
 
         <button type="submit" disabled={props.loading}>
-          Login
+          Register
         </button>
 
         <div>
-          Don't have an account?
-          <Link to={'/register'}>Register</Link>
+          Already have an account?
+          <Link to="/login">Login</Link>
         </div>
       </Form>
     </Formik>
   );
-
   return props.isLoggedIn ? <Redirect to={redirectPath} /> : form;
 };
 
-const mapStateToProps = (state: State): LoginProps => {
+const mapStateToProps = (state: State): RegisterProps => {
   return {
     isLoggedIn: state.auth.isLoggedIn,
     error: state.auth.error,
@@ -92,4 +108,4 @@ const mapStateToProps = (state: State): LoginProps => {
   };
 };
 
-export default connect(mapStateToProps)(Login);
+export default connect(mapStateToProps)(Register);

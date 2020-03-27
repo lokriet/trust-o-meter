@@ -8,5 +8,6 @@ const mongoClient: RemoteMongoClient = app.getServiceClient(
 );
 
 const profiles: RemoteMongoCollection<any> = mongoClient.db("trust-o-meter-dev").collection("profiles");
+const pics: RemoteMongoCollection<any> = mongoClient.db("trust-o-meter-dev").collection("pics");
 
-export { profiles };
+export { profiles, pics };
