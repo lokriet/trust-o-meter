@@ -7,7 +7,7 @@ const mongoClient: RemoteMongoClient = app.getServiceClient(
   "mongodb-atlas"
 );
 
-const profiles: RemoteMongoCollection<any> = mongoClient.db("trust-o-meter-dev").collection("profiles");
-const pics: RemoteMongoCollection<any> = mongoClient.db("trust-o-meter-dev").collection("pics");
+const profiles: RemoteMongoCollection<any> = mongoClient.db("trust-o-meter").collection("profiles");
+const contacts: RemoteMongoCollection<any> = mongoClient.db("trust-o-meter").collection("contacts");
 
-export { profiles, pics };
+export { profiles, contacts };

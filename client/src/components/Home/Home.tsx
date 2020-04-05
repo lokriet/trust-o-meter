@@ -1,7 +1,9 @@
 import React, { useCallback } from 'react';
-import withAuthCheck from '../../hoc/withAuthCheck';
 import { useDispatch } from 'react-redux';
-import * as actions from '../../store/actions/index';
+import { Link } from 'react-router-dom';
+
+import withAuthCheck from '../../hoc/withAuthCheck';
+import * as actions from '../../store/actions';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -12,6 +14,8 @@ const Home = () => {
   return (
     <div>
       <button onClick={handleLogout}>Logout</button>
+      <button><Link to="/editProfile">Edit Profile</Link></button>
+      <button><Link to="/findContacts">Find new contacts</Link></button>
     </div>
   );
 };

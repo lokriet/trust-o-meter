@@ -23,3 +23,5 @@
 /client/yarn-error.log*
 /client/public/suspicious.svg
 /client/public/suspicious.ico
+client/src/firebase/firebase-config.ts
+client/package-lock.json
