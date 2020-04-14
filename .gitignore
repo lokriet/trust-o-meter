@@ -2,6 +2,7 @@
 
 # dependencies
 /client/node_modules
+/server/node_modules
 /client/.pnp
 /client/.pnp.js
 
@@ -23,5 +24,20 @@
 /client/yarn-error.log*
 /client/public/suspicious.svg
 /client/public/suspicious.ico
-client/src/firebase/firebase-config.ts
-client/package-lock.json
+/client/src/firebase/firebase-config.ts
+/client/package-lock.json
+
+/server/dist
+/server/.vscode
+/server/package-lock.json
+/server/nodemon.json
+/server/1.txt
+/server/Image1.png
+server/src/config/settings.ts
+stitchApp/stitch.json
+stitchApp/auth_providers/anon-user.json
+stitchApp/auth_providers/api-key.json
+stitchApp/auth_providers/local-userpass.json
+stitchApp/services/mongodb-atlas/config.json
+stitchApp/services/mongodb-atlas/rules/trust-o-meter.contacts.json
+stitchApp/services/mongodb-atlas/rules/trust-o-meter.profiles.json

@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { State } from '../store/reducers/state';
+
 import Spinner from '../components/UI/Spinner/Spinner';
 import * as actions from '../store/actions';
+import { State } from '../store/reducers/state';
 
 interface AuthCheckProps {
   isLoggedIn: boolean;
   initialAuthCheckDone: boolean;
 }
 
-const withAuthCheck = WrappedComponent => {
+const withAuthCheck = (WrappedComponent) => {
   return connect(mapStateToProps)((props: any) => {
     const dispatch = useDispatch();
     const history = useHistory();

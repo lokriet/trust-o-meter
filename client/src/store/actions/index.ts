@@ -15,6 +15,8 @@ export {
 } from './profile';
 
 export {
+  fetchUserContacts,
+
   searchContacts,
   contactsOperationReset,
   createContactRequest

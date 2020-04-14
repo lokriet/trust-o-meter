@@ -13,7 +13,6 @@ import EditProfile from './components/Profile/EditProfile/EditProfile';
 import Spinner from './components/UI/Spinner/Spinner';
 import * as actions from './store/actions';
 import { State } from './store/reducers/state';
-import { generateIdentificator } from './util/util';
 
 interface AppProps {
   isLoggedIn: boolean;
@@ -27,7 +26,6 @@ interface AppProps {
 
 const App = (props: AppProps) => {
   const dispatch = useDispatch();
-  generateIdentificator();
 
   // authenticate
   useEffect(() => {
@@ -53,6 +51,13 @@ const App = (props: AppProps) => {
     props.initialProfileCheckDone,
     props.profileLoadingError
   ]);
+
+  // contacts init
+  useEffect(() => {
+    if (props.isLoggedIn && props.initialProfileCheckDone && props.profileExists) {
+      dispatch(actions.fetchUserContacts());
+    }
+  }, [dispatch, props.initialProfileCheckDone, props.isLoggedIn, props.profileExists]);
 
   let view;
   if (

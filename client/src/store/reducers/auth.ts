@@ -17,7 +17,7 @@ const initialState: AuthState = {
   initialCheckDone: false,
   error: null,
   redirectPath: '/',
-  loading: false
+  loading: false,
 };
 
 export const authReducer = (
@@ -31,13 +31,13 @@ export const authReducer = (
         isLoggedIn: action.isLoggedIn,
         currentUser: action.user,
         initialCheckDone: true,
-        error: null
+        error: null,
       };
 
     case actionTypes.auth.SET_AUTH_REDIRECT_PATH:
       return {
         ...state,
-        redirectPath: action.path
+        redirectPath: action.path,
       };
 
     case actionTypes.auth.AUTH_SUCCESS:
@@ -46,7 +46,7 @@ export const authReducer = (
         isLoggedIn: true,
         currentUser: action.user,
         error: null,
-        loading: false
+        loading: false,
       };
 
     case actionTypes.auth.AUTH_FAILED:
@@ -55,7 +55,7 @@ export const authReducer = (
         isLoggedIn: false,
         currentUser: null,
         error: action.error,
-        loading: false
+        loading: false,
       };
 
     case actionTypes.auth.LOGOUT_SUCCESS:
@@ -64,7 +64,7 @@ export const authReducer = (
         isLoggedIn: false,
         currentUser: null,
         error: null,
-        loading: false
+        loading: false,
       };
 
     default:

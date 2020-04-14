@@ -18,12 +18,15 @@ const Avatar = ({
   const [avatarUrl, setAvatarUrl] = useState(field.value);
   const onAvatarChanged = props.onAvatarChanged || (() => {});
 
-  const avatarUploadedHandler = url => {
-    setAvatarUrl(url);
+  const avatarUploadedHandler = useCallback(
+    (url) => {
+      setAvatarUrl(url);
 
-    onAvatarChanged(url);
-    form.setFieldValue(field.name, url);
-  };
+      onAvatarChanged(url);
+      form.setFieldValue(field.name, url);
+    },
+    [field.name, onAvatarChanged, form]
+  );
 
   const avatarDeletedHandler = () => {
     setAvatarUrl(null);
@@ -38,7 +41,7 @@ const Avatar = ({
   const [fileName, setFileName] = useState<string | null>(null);
 
   const startUploadImageHandler = useCallback(
-    event => {
+    (event) => {
       const file = event.target.files[0];
 
       if (file == null) {
@@ -60,7 +63,7 @@ const Avatar = ({
           file,
           {
             width: maxWidth,
-            height: maxHeight
+            height: maxHeight,
           },
           (blob, didItResize, newSize) => {
             const uploadTask = firebaseApp.doUploadImage(blob, file.name);
@@ -70,7 +73,7 @@ const Avatar = ({
 
             uploadTask.on(
               'state_changed',
-              snapshot => {
+              (snapshot) => {
                 setProgress(
                   (snapshot.bytesTransferred / snapshot.totalBytes) * 100
                 );
@@ -115,7 +118,7 @@ const Avatar = ({
                 // Upload completed successfully, now we can get the download URL
                 uploadTask.snapshot.ref
                   .getDownloadURL()
-                  .then(function(downloadURL) {
+                  .then(function (downloadURL) {
                     setIsUploading(false);
                     setStatusMessage(null);
                     setErrorMessage(null);
@@ -135,7 +138,7 @@ const Avatar = ({
         setProgress(null);
       }
     },
-    [firebaseApp, avatarUploadedHandler]
+    [avatarUploadedHandler]
   );
 
   const imgSrc = avatarUrl == null || avatarUrl === '' ? defaultImg : avatarUrl;

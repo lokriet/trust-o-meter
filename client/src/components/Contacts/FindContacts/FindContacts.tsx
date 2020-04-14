@@ -4,7 +4,7 @@ import { connect, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import withAuthCheck from '../../../hoc/withAuthCheck';
-import { ContactSideStatus } from '../../../stitch/model/contactSide';
+import { ContactSideStatus, ContactSide } from '../../../stitch/model/contactSide';
 import * as actions from '../../../store/actions';
 import { Profile } from '../../../store/model/profile';
 import { State } from '../../../store/reducers/state';
@@ -13,7 +13,7 @@ import { Error } from '../../UI/Error/Error';
 import Spinner from '../../UI/Spinner/Spinner';
 
 interface FindContactsProps {
-  contacts: Partial<Profile>[];
+  searchResult: Partial<Profile>[];
   loading: boolean;
   addingSuccess: boolean;
   error: string | null;
@@ -41,12 +41,12 @@ const FindContacts = (props: FindContactsProps) => {
   const handleAddContact = useCallback(
     (contact: Partial<Profile>) => {
       if (props.user != null) {        
-        const newContact = {
-          otherSideIdentificator: contact.identificator,
+        const newContact: Partial<ContactSide> = {
+          otherSideProfileId: contact._id,
+          otherSideProfile: contact,
           linkId: generateIdentificator(),
           ownerId: props.user.id,
           status: ContactSideStatus.WantToLink,
-          // trustPoints: new BSON.Int32(0),
           trustPoints: 0,
           customName: ''
         };
@@ -55,7 +55,7 @@ const FindContacts = (props: FindContactsProps) => {
         setAddRequestSent(true);
       }
     },
-    [],
+    [dispatch, props.user],
   )
 
   let contactsList;
@@ -63,15 +63,15 @@ const FindContacts = (props: FindContactsProps) => {
     contactsList = <Spinner />
   } else if (props.error) {
     contactsList = <Error>{props.error}</Error>
-  } else if (searchRequestSent && props.contacts.length === 0) {
+  } else if (searchRequestSent && props.searchResult.length === 0) {
     contactsList = <div>No contacts found</div>
   } else {
     contactsList = (
       <>
-      {props.contacts.map(contact => (
+      {props.searchResult.map(contact => (
         <div key={contact._id}>
           <div>
-            {contact.avatarUrl == null || contact.avatarUrl === '' ? null : <img src={contact.avatarUrl} />}
+            {contact.avatarUrl == null || contact.avatarUrl === '' ? null : <img src={contact.avatarUrl} alt={contact.username} />}
           </div>
           <div>{contact.username}</div>
           <button onClick={() => handleAddContact(contact)}>Add</button>
@@ -100,7 +100,7 @@ FindContacts.propTypes = {};
 const mapStateToProps = (state: State) => {
   return {
     user: state.auth.currentUser,
-    contacts: state.contacts.contacts,
+    searchResult: state.contacts.searchResult,
     loading: state.contacts.loading,
     addingSuccess: state.contacts.contactOperationFinished,
     error: state.contacts.error
