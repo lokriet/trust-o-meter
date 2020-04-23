@@ -12,6 +12,7 @@ interface ConfirmEmailProps {
   waitingForEmailConfirmation: boolean;
   loading: boolean;
   error: string | null;
+  resendSuccess: boolean;
 }
 
 const ConfirmEmail = (props: ConfirmEmailProps): JSX.Element => {
@@ -20,10 +21,14 @@ const ConfirmEmail = (props: ConfirmEmailProps): JSX.Element => {
   const { activationToken } = useParams();
 
   useEffect(() => {
+    dispatch(actions.authInit());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (props.waitingForEmailConfirmation) {
       dispatch(actions.confirmEmail(activationToken));
     }
-  }, [dispatch]);
+  }, [dispatch, props.waitingForEmailConfirmation, activationToken]);
 
   const handleResendConfirmationEmail = useCallback(() => {
     setAttemptingToResend(true);
@@ -52,7 +57,7 @@ const ConfirmEmail = (props: ConfirmEmailProps): JSX.Element => {
         ) : null}
       </>
     );
-  } else if (attemptingToResend) {
+  } else if (attemptingToResend && props.resendSuccess) {
     view = <p>Email resent. Please check your inbox</p>;
   }
 
@@ -63,7 +68,8 @@ const mapStateToProps = (state: State): ConfirmEmailProps => {
   return {
     waitingForEmailConfirmation: state.auth.waitingForEmailConfirmation,
     loading: state.auth.loading,
-    error: state.auth.error
+    error: state.auth.error,
+    resendSuccess: state.auth.activationEmailSent
   };
 };
 

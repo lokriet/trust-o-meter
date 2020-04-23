@@ -90,6 +90,8 @@ router.post(
  */
 router.post('/loginWithGoogle', authController.loginWithGoogle);
 
+router.post('/loginWithFacebook', authController.loginWithFacebook);
+
 /**
  * Get user and profile details
  * GET /auth/details
@@ -119,6 +121,6 @@ router.post('/confirmEmail', isAuthenticated, authController.confirmEmail);
 
 router.post('/sendPasswordResetEmail', authController.sendPasswordResetEmail);
 
-
+router.post('/resetPassword', authController.resetPassword);
 
 export default router;

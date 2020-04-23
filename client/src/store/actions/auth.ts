@@ -17,7 +17,9 @@ export const AuthActionTypes = {
 
   AUTH_OPERATION_FAILED: 'AUTH_OPERATION_FAILED',
 
-  RESEND_EMAIL_SUCCESS: 'RESEND_EMAIL_SUCCESS',
+  PASSWORD_RESET_SUCCESS: 'PASSWORD_RESET_SUCCESS',
+  REQUEST_PASSWORD_RESET_SUCCESS: 'REQUEST_PASSWORD_RESET_SUCCESS',
+  RESEND_CONFIRMATION_EMAIL_SUCCESS: 'RESEND_CONFIRMATION_EMAIL_SUCCESS',
   CONFIRM_EMAIL_SUCCESS: 'CONFIRM_EMAIL_SUCCESS'
 };
 
@@ -102,6 +104,19 @@ export const loginWithGoogle = (googleTokenId: string) => {
   });
 };
 
+export const loginWithFacebook = (facebookUserId: string, facebookAccessToken: string) => {
+  return auth('http://localhost:3001/auth/loginWithFacebook', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      userId: facebookUserId,
+      accessToken: facebookAccessToken
+    })
+  });
+};
+
 const auth = (authUrl: string, fetchParams: any) => {
   return async (dispatch: (...args: any[]) => void) => {
     try {
@@ -161,7 +176,7 @@ export const sendConfirmationEmail = () => {
       if (response.status !== 200) {
         dispatch(authOperationFailed('Failed to resend confirmation error'));
       } else {
-        dispatch(resendEmailSuccess());
+        dispatch(resendConfirmationEmailSuccess());
       }
     } catch (error) {
       console.log('Failed to resend confirmation error');
@@ -201,28 +216,57 @@ export const confirmEmail = (confirmationToken: string) => {
 export const requestPasswordReset = (email: string) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
-      // dispatch(authOperationStart());
-      // const token = getState().auth.token;
-      // const response = await fetch(
-      //   'http://localhost:3001/auth/confirmEmail',
-      //   {
-      //     method: 'POST',
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //       'Content-Type': 'application/json'
-      //     },
-      //     body: JSON.stringify({
-      //       confirmationToken
-      //     })
-      //   }
-      // );
-      // if (response.status !== 200) {
-      //   dispatch(authOperationFailed('Email confirmation failed'));
-      // } else {
-      //   dispatch(confirmEmailSuccess());
-      // }
+      dispatch(authOperationStart());
+      const response = await fetch(
+        'http://localhost:3001/auth/sendPasswordResetEmail',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email
+          })
+        }
+      );
+      if (response.status === 200) {
+        dispatch(requestPasswordResetSuccess());
+      } else if (response.status === 422) {
+        const responseData = await response.json();
+        dispatch(authOperationFailed(responseData.data[0].errorMessage));
+      } else {
+        dispatch(authOperationFailed('Password reset request failed'));
+      }
     } catch (error) {
       dispatch(authOperationFailed('Password reset request failed'));
+    }
+  };
+}
+
+export const resetPassword = (password: string, resetPasswordToken: string) => {
+  return async (dispatch: (...args: any[]) => void, getState: () => State) => {
+    try {
+      dispatch(authOperationStart());
+      const response = await fetch(
+        'http://localhost:3001/auth/resetPassword',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            password,
+            resetPasswordToken
+          })
+        }
+      );
+      if (response.status === 200) {
+        dispatch(passwordResetSuccess());
+      } else {
+        dispatch(authOperationFailed('Password reset failed'));
+      }
+    } catch (error) {
+      dispatch(authOperationFailed('Password reset failed'));
     }
   };
 }
@@ -240,7 +284,7 @@ export const setAuthRedirectPath = (path: string) => {
   };
 };
 
-export const loginSuccess = (
+const loginSuccess = (
   token: string,
   waitingForEmailConfirmation: boolean
 ) => {
@@ -251,20 +295,20 @@ export const loginSuccess = (
   };
 };
 
-export const loginFailed = (error: string) => {
+const loginFailed = (error: string) => {
   return {
     type: AuthActionTypes.AUTH_FAILED,
     error
   };
 };
 
-export const logoutSuccess = () => {
+const logoutSuccess = () => {
   return {
     type: AuthActionTypes.LOGOUT_SUCCESS
   };
 };
 
-export const initialAuthCheckSuccess = (
+const initialAuthCheckSuccess = (
   isLoggedIn: boolean,
   token: string | null,
   waitingForEmailConfirmation: boolean
@@ -277,26 +321,38 @@ export const initialAuthCheckSuccess = (
   };
 };
 
-export const authOperationStart = () => {
+const authOperationStart = () => {
   return {
     type: AuthActionTypes.AUTH_OPERATION_START
   };
 };
 
-export const authOperationFailed = (error: string) => {
+const authOperationFailed = (error: string) => {
   return {
     type: AuthActionTypes.AUTH_OPERATION_FAILED,
     error
   };
 };
 
-export const resendEmailSuccess = () => {
+const resendConfirmationEmailSuccess = () => {
   return {
-    type: AuthActionTypes.RESEND_EMAIL_SUCCESS
+    type: AuthActionTypes.RESEND_CONFIRMATION_EMAIL_SUCCESS
   };
 };
 
-export const confirmEmailSuccess = () => {
+const requestPasswordResetSuccess = () => {
+  return {
+    type: AuthActionTypes.REQUEST_PASSWORD_RESET_SUCCESS
+  };
+};
+
+const passwordResetSuccess = () => {
+  return {
+    type: AuthActionTypes.PASSWORD_RESET_SUCCESS
+  };
+};
+
+const confirmEmailSuccess = () => {
   return {
     type: AuthActionTypes.CONFIRM_EMAIL_SUCCESS
   };

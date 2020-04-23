@@ -1,5 +1,6 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
+import FacebookLogin from 'react-facebook-login';
 import { GoogleLogin } from 'react-google-login';
 import { connect, useDispatch } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
@@ -20,10 +21,12 @@ interface LoginProps {
 const Login = (props: LoginProps) => {
   const [redirectPath] = useState(props.redirectPath);
   const [googleError, setGoogleError] = useState(false);
+  const [facebookError, setFacebookError] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
     setGoogleError(false);
+    setFacebookError(false);
     dispatch(actions.setAuthRedirectPath('/'));
     dispatch(actions.authInit());
   }, [dispatch]);
@@ -40,6 +43,7 @@ const Login = (props: LoginProps) => {
   const handleGoogleLoginSuccess = useCallback(
     (response: any) => {
       setGoogleError(false);
+      setFacebookError(false);
       dispatch(actions.loginWithGoogle(response.tokenId));
     },
     [dispatch]
@@ -48,6 +52,23 @@ const Login = (props: LoginProps) => {
   const handleGoogleLoginError = useCallback((response: any) => {
     console.log(response);
     setGoogleError(true);
+    setFacebookError(false);
+  }, []);
+
+  const handleFacebookLoginSuccess = useCallback(
+    (response: any) => {
+      setGoogleError(false);
+      setFacebookError(false);
+      dispatch(actions.loginWithFacebook(response.userID, response.accessToken));
+      console.log(response);
+    },
+    [dispatch]
+  );
+
+  const handleFacebookLoginError = useCallback((response: any) => {
+    console.log(response);
+    setGoogleError(false);
+    setFacebookError(true);
   }, []);
 
   let form = (
@@ -64,8 +85,7 @@ const Login = (props: LoginProps) => {
       })}
       onSubmit={(values, { setSubmitting }) => handleSubmit(values)}
     >
-      {
-        form => 
+      {(form) => (
         <Form className={classes.LoginForm}>
           <Field
             name="email"
@@ -87,11 +107,16 @@ const Login = (props: LoginProps) => {
             <ErrorMessage name="password" />
           </Error>
 
-          <Link to={`/requestPasswordReset?email=${form.values.email}`}>Forgot password?</Link>
+          <Link to={`/requestPasswordReset?email=${form.values.email}`}>
+            Forgot password?
+          </Link>
 
           {props.error ? <Error>{props.error}</Error> : null}
           {googleError ? (
-            <Error>Login with google failed. Please try again</Error>
+            <Error>Login with Google failed. Please try again</Error>
+          ) : null}
+          {facebookError ? (
+            <Error>Login with Facebook failed. Please try again</Error>
           ) : null}
 
           <button type="submit" disabled={props.loading}>
@@ -106,12 +131,19 @@ const Login = (props: LoginProps) => {
             cookiePolicy={'single_host_origin'}
             isSignedIn={false}
           />
+          <FacebookLogin
+            appId="231998444544391"
+            autoLoad={false}
+            fields="name"
+            callback={handleFacebookLoginSuccess}
+            onFailure={handleFacebookLoginError}
+          />
           <div>
             Don't have an account?
-            <Link to='/register'>Register</Link>
+            <Link to="/register">Register</Link>
           </div>
         </Form>
-      }
+      )}
     </Formik>
   );
 

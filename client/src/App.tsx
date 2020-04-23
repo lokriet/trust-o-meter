@@ -15,6 +15,7 @@ import EditProfile from './components/Profile/EditProfile/EditProfile';
 import Spinner from './components/UI/Spinner/Spinner';
 import * as actions from './store/actions';
 import { State } from './store/reducers/state';
+import PasswordReset from './components/Auth/PasswordResest/PasswordReset';
 
 interface AppProps {
   location: any;
@@ -27,8 +28,6 @@ interface AppProps {
 
 const App = (props: AppProps): JSX.Element => {
   const dispatch = useDispatch();
-  // let url: string = useLocation().pathname;
-  // console.log('url', props.location);
 
   // authenticate
   useEffect(() => {
@@ -70,6 +69,7 @@ const App = (props: AppProps): JSX.Element => {
         <Route path="/emailConfirmation" component={EmailConfirmation} />
         <Route path="/activateAccount/:activationToken" component={ConfirmEmail} />
         {props.isLoggedIn ? null : <Route path="/requestPasswordReset" component={PasswordResetRequest} />}
+        {props.isLoggedIn ? null : <Route path="/resetPassword/:resetPasswordToken" component={PasswordReset} />}
       </Switch>
     );
   }

@@ -28,6 +28,12 @@ const UserSchema = new Schema({
     sparse: true
   },
 
+  facebookId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+
   profile: {
     type: Schema.Types.ObjectId,
     ref: 'Profile',
@@ -55,6 +61,7 @@ interface IUserSchema extends Document {
   passwordResetIdentificator?: string;
 
   googleId?: string;
+  facebookId?: string;
 }
 
 interface IUserBase extends IUserSchema {

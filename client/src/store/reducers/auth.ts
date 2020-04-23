@@ -8,6 +8,10 @@ export interface AuthState {
   initialCheckDone: boolean;
   redirectPath: string;
   loading: boolean;
+
+  passwordReset: boolean;
+  resetPasswordEmailSent: boolean;
+  activationEmailSent: boolean;
 }
 
 const initialState: AuthState = {
@@ -17,7 +21,11 @@ const initialState: AuthState = {
   initialCheckDone: false,
   error: null,
   redirectPath: '/',
-  loading: false
+  loading: false,
+
+  passwordReset: false,
+  resetPasswordEmailSent: false,
+  activationEmailSent: false
 };
 
 export const authReducer = (
@@ -29,7 +37,10 @@ export const authReducer = (
       return {
         ...state,
         loading: false,
-        error: null
+        error: null,
+        passwordReset: false,
+        resetPasswordEmailSent: false,
+        activationEmailSent: false
       };
     case actionTypes.auth.INITIAL_AUTH_CHECK_SUCCESS:
       return {
@@ -83,11 +94,26 @@ export const authReducer = (
         error: null,
         loading: true
       };
-    case actionTypes.auth.RESEND_EMAIL_SUCCESS:
+    case actionTypes.auth.RESEND_CONFIRMATION_EMAIL_SUCCESS:
       return {
         ...state,
         error: null,
-        loading: false
+        loading: false,
+        activationEmailSent: true
+      };
+    case actionTypes.auth.REQUEST_PASSWORD_RESET_SUCCESS:
+      return {
+        ...state,
+        error: null,
+        loading: false,
+        resetPasswordEmailSent: true
+      };
+    case actionTypes.auth.PASSWORD_RESET_SUCCESS:
+      return {
+        ...state,
+        error: null,
+        loading: false,
+        passwordReset: true
       };
     case actionTypes.auth.CONFIRM_EMAIL_SUCCESS:
       return {

@@ -1,6 +1,7 @@
 import { NextFunction, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
 
 import Profile, { IProfile } from '../model/Profile';
 import User, { IUser } from '../model/User';
@@ -9,11 +10,15 @@ import logger from '../util/logger';
 import mailSender from '../util/mailSender';
 import { createAuthToken, generateIdentificator } from '../util/utils';
 import {
+  facebookLoginErrorSchema,
+  facebookLoginRequestSchema,
   loginWithEmailPasswordErrorSchema,
   loginWithEmailPasswordRequestSchema,
   registerWithEmailPasswordErrorSchema,
   registerWithEmailPasswordRequestSchema,
-  resetPasswordRequestSchema
+  resetPasswordErrorSchema,
+  resetPasswordRequestSchema,
+  sendResetPasswordEmailRequestSchema,
 } from '../validators/auth';
 import { convertError } from '../validators/validationError';
 
@@ -141,7 +146,7 @@ export const loginWithEmailAndPassword = async (
   }
 };
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export const loginWithGoogle = async (
   req: any,
   res: Response,
@@ -160,7 +165,7 @@ export const loginWithGoogle = async (
       );
     }
 
-    const response = await client.verifyIdToken({
+    const response = await googleClient.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID
     });
@@ -204,6 +209,66 @@ export const loginWithGoogle = async (
   }
 };
 
+export const loginWithFacebook = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const requestData = req.body;
+    const validationResponse = facebookLoginRequestSchema.validate(
+      requestData,
+      {
+        abortEarly: false
+      }
+    );
+
+    if (validationResponse.error) {
+      return next(
+        httpErrors.validationError(
+          convertError(validationResponse.error, facebookLoginErrorSchema)
+        )
+      );
+    }
+
+    const authCheckResponse = await fetch(
+      `https://graph.facebook.com/${requestData.userId}/?fields=id,name&access_token=${requestData.accessToken}`
+    );
+    const authCheckResponseData = await authCheckResponse.json();
+    let user = await User.findOne({ facebookId: authCheckResponseData.id });
+    let profile: IProfile;
+    if (!user) {
+      profile = new Profile({
+        initialized: false,
+        username: authCheckResponseData.name,
+        identificator: generateIdentificator()
+      });
+      profile = await profile.save();
+
+      user = new User({
+        facebookId: authCheckResponseData.id,
+        profile: profile._id
+      });
+      await user.save();
+    } else {
+      profile = await Profile.findById(user.profile);
+    }
+
+    const payload: AuthTokenPayload = {
+      userId: user._id
+    };
+
+    const token = createAuthToken(payload);
+    res.status(200).json({
+      token,
+      waitingForEmailConfirmation: false,
+      profile: profile.toUserProfile(true)
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getAuthDetails = async (
   req: any,
   res: Response,
@@ -222,11 +287,11 @@ export const getAuthDetails = async (
   }
 };
 
-const doSendConfirmationEmail = (userEmail: string, userId: any) => {
+const doSendConfirmationEmail = async (userEmail: string, userId: any) => {
   const payload = {
     identificator: generateIdentificator()
   };
-  User.findByIdAndUpdate(userId, {
+  await User.findByIdAndUpdate(userId, {
     confirmationIdentificator: payload.identificator
   });
   const mailToken = jwt.sign(payload, process.env.CONFIRMATION_TOKEN_SECRET, {
@@ -240,7 +305,7 @@ const doSendConfirmationEmail = (userEmail: string, userId: any) => {
     html: `
           <h1>Please use the following link to activate your account</h1>
           <p>${process.env.CLIENT_URL}/activateAccount/${mailToken}</p>
-          <p>This link will expire in 3 hours. You can re-send a new activation link from the application.</p>
+          <p>This link will expire in 3 hours. You can request a new activation link from the application.</p>
           <hr />
           <p>This email may contain sensetive information</p>
           <p>${process.env.CLIENT_URL}</p>
@@ -289,7 +354,7 @@ export const confirmEmail = async (
         confirmationToken,
         process.env.CONFIRMATION_TOKEN_SECRET
       );
-      const confirmationIdentificator = decodedToken.confirmationIdentificator;
+      const confirmationIdentificator = decodedToken.identificator;
       if (confirmationIdentificator !== user.confirmationIdentificator) {
         return next(
           httpErrors.validationError([
@@ -317,7 +382,7 @@ export const sendPasswordResetEmail = async (
   next: NextFunction
 ) => {
   try {
-    const response = resetPasswordRequestSchema.validate(req.body);
+    const response = sendResetPasswordEmailRequestSchema.validate(req.body);
     if (response.error) {
       return next(
         httpErrors.validationError([
@@ -348,9 +413,8 @@ export const sendPasswordResetEmail = async (
       passwordResetIdentificator
     };
 
-    User.findByIdAndUpdate(user._id, {
-      passwordResetIdentificator
-    });
+    user.passwordResetIdentificator = passwordResetIdentificator;
+    await user.save();
 
     const mailToken = jwt.sign(payload, process.env.PASSWORD_RESET_SECRET, {
       expiresIn: '3h'
@@ -363,7 +427,7 @@ export const sendPasswordResetEmail = async (
       html: `
             <h1>Please use the following link to reset your password</h1>
             <p>${process.env.CLIENT_URL}/resetPassword/${mailToken}</p>
-            <p>This link will expire in 3 hours. You can re-send a new link from the application.</p>
+            <p>This link will expire in 3 hours. You can request a new link from the application.</p>
             <hr />
             <p>This email may contain sensetive information</p>
             <p>${process.env.CLIENT_URL}</p>
@@ -377,3 +441,47 @@ export const sendPasswordResetEmail = async (
   }
 };
 
+export const resetPassword = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const requestData = req.body;
+    const response = resetPasswordRequestSchema.validate(requestData, {
+      abortEarly: false
+    });
+
+    if (response.error) {
+      return next(
+        httpErrors.validationError(
+          convertError(response.error, resetPasswordErrorSchema)
+        )
+      );
+    }
+
+    const decodedToken: any = jwt.verify(
+      requestData.resetPasswordToken,
+      process.env.PASSWORD_RESET_SECRET
+    );
+    const passwordResetIdentificator = decodedToken.passwordResetIdentificator;
+    const user: IUser = await User.findOne({ passwordResetIdentificator });
+    if (!user) {
+      return next(
+        httpErrors.validationError([
+          {
+            fieldName: 'resetPasswordToken',
+            errorMessage: 'token is invalid'
+          }
+        ])
+      );
+    }
+    user.password = requestData.password;
+    user.passwordResetIdentificator = null;
+    await user.save();
+
+    res.status(200).send();
+  } catch (error) {
+    next(error);
+  }
+};

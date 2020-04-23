@@ -5,10 +5,12 @@ export {
   registerWithEmailAndPassword,
   loginWithEmailAndPassword,
   loginWithGoogle,
+  loginWithFacebook,
   logout,
   sendConfirmationEmail,
   confirmEmail,
-  requestPasswordReset
+  requestPasswordReset,
+  resetPassword
 } from './auth';
 
 export {
