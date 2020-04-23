@@ -1,11 +1,13 @@
 import './App.css';
 
-import { StitchUser } from 'mongodb-stitch-browser-sdk';
 import React, { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
 
+import ConfirmEmail from './components/Auth/EmailConfirmation/ConfirmEmail';
+import EmailConfirmation from './components/Auth/EmailConfirmation/EmailConfirmation';
 import Login from './components/Auth/Login/Login';
+import PasswordResetRequest from './components/Auth/PasswordResest/PasswordResetRequest';
 import Register from './components/Auth/Register/Register';
 import FindContacts from './components/Contacts/FindContacts/FindContacts';
 import Home from './components/Home/Home';
@@ -15,17 +17,18 @@ import * as actions from './store/actions';
 import { State } from './store/reducers/state';
 
 interface AppProps {
+  location: any;
   isLoggedIn: boolean;
   initialAuthCheckDone: boolean;
-  user: StitchUser | null;
-
-  initialProfileCheckDone: boolean;
-  profileExists: boolean;
-  profileLoadingError: string | null;
+  waitingForEmailConfirmation: boolean;
+  profileInitialized: boolean;
+  profileLoaded: boolean;
 }
 
-const App = (props: AppProps) => {
+const App = (props: AppProps): JSX.Element => {
   const dispatch = useDispatch();
+  // let url: string = useLocation().pathname;
+  // console.log('url', props.location);
 
   // authenticate
   useEffect(() => {
@@ -34,43 +37,28 @@ const App = (props: AppProps) => {
     }
   }, [props.isLoggedIn, props.initialAuthCheckDone, dispatch]);
 
-  // profile init
-  useEffect(() => {
-    if (
-      props.isLoggedIn &&
-      props.user &&
-      !props.initialProfileCheckDone &&
-      !props.profileLoadingError
-    ) {
-      dispatch(actions.fetchProfile(props.user.id));
-    }
-  }, [
-    dispatch,
-    props.isLoggedIn,
-    props.user,
-    props.initialProfileCheckDone,
-    props.profileLoadingError
-  ]);
+  // // contacts init
+  // useEffect(() => {
+  //   if (
+  //     props.isLoggedIn &&
+  //     props.profileInitialized
+  //   ) {
+  //     dispatch(actions.fetchUserContacts());
+  //   }
+  // }, [
+  //   dispatch,
+  //   props.isLoggedIn,
+  //   props.profileInitialized,
+  // ]);
 
-  // contacts init
-  useEffect(() => {
-    if (props.isLoggedIn && props.initialProfileCheckDone && props.profileExists) {
-      dispatch(actions.fetchUserContacts());
-    }
-  }, [dispatch, props.initialProfileCheckDone, props.isLoggedIn, props.profileExists]);
-
-  let view;
+  let view: JSX.Element;
+  let redirect: JSX.Element | null = null;
   if (
     !props.initialAuthCheckDone ||
     (props.isLoggedIn &&
-      !props.profileLoadingError &&
-      !props.initialProfileCheckDone)
+      !props.profileLoaded)
   ) {
     view = <Spinner />;
-  } else if (props.profileLoadingError) {
-    view = <div>Something went wrong :(</div>;
-  } else if (props.isLoggedIn && !props.profileExists) {
-    view = <EditProfile />;
   } else {
     view = (
       <Switch>
@@ -79,23 +67,40 @@ const App = (props: AppProps) => {
         <Route path="/login" component={Login} />
         <Route path="/editProfile" component={EditProfile} />
         <Route path="/findContacts" component={FindContacts} />
+        <Route path="/emailConfirmation" component={EmailConfirmation} />
+        <Route path="/activateAccount/:activationToken" component={ConfirmEmail} />
+        {props.isLoggedIn ? null : <Route path="/requestPasswordReset" component={PasswordResetRequest} />}
       </Switch>
     );
   }
 
-  return <BrowserRouter>{view}</BrowserRouter>;
+  if (props.isLoggedIn && !props.location.pathname.startsWith('/activateAccount/')) {
+    if (props.waitingForEmailConfirmation) {
+      console.log('redirecting');
+      redirect = <Redirect to="/emailConfirmation" />;
+    } else if (!props.profileInitialized) {
+      console.log('redirecting');
+      redirect = <Redirect to="/editProfile" />;
+    }
+  }
+
+  return (
+    <>
+      {view} 
+      {redirect}
+    </>
+  );
 };
 
-const mapStateToProps = (state: State): AppProps => {
+const mapStateToProps = (state: State): Partial<AppProps> => {
   return {
     isLoggedIn: state.auth.isLoggedIn,
     initialAuthCheckDone: state.auth.initialCheckDone,
-    user: state.auth.currentUser,
-
-    initialProfileCheckDone: state.profile.initialCheckDone,
-    profileExists: state.profile.profile != null,
-    profileLoadingError: state.profile.error
+    profileLoaded: state.profile.profile != null,
+    profileInitialized:
+      state.profile.profile != null && state.profile.profile.initialized !== undefined && state.profile.profile.initialized,
+    waitingForEmailConfirmation: state.auth.waitingForEmailConfirmation
   };
 };
 
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps)(withRouter(App));

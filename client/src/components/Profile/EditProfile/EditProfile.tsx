@@ -14,7 +14,6 @@ import Avatar from './Avatar/Avatar';
 import classes from './EditProfile.module.css';
 
 interface ProfileProps {
-  user: StitchUser | null;
   profile: Profile | null;
   error: string | null;
   loading: boolean;
@@ -27,25 +26,25 @@ const EditProfile = (props: ProfileProps) => {
 
   const handleSubmit = useCallback(
     formValues => {
-      if (isNew && props.user != null) {
-        dispatch(
-          actions.createProfile({
-            avatarUrl: formValues.avatarUrl,
-            username: formValues.username,
-            ownerId: props.user.id,
-            identificator: generateIdentificator()
-          })
-        );
-      } else {
-        dispatch(
-          actions.updateProfile(props.profile?._id, {
-            ...props.profile,
-            ...formValues
-          })
-        );
-      }
+      // if (isNew /*&& props.user != null*/) {
+        // dispatch(
+        //   actions.createProfile({
+        //     avatarUrl: formValues.avatarUrl,
+        //     username: formValues.username,
+        //     ownerId: props.user.id,
+        //     identificator: generateIdentificator()
+        //   })
+        // );
+      // } else {
+        // dispatch(
+        //   actions.updateProfile(props.profile?._id, {
+        //     ...props.profile,
+        //     ...formValues
+        //   })
+        // );
+      // }
     },
-    [dispatch, isNew, props.user, props.profile]
+    [dispatch, isNew, /*props.user, */props.profile]
   );
 
   const handleAvatarChange = useCallback(
@@ -88,13 +87,13 @@ const EditProfile = (props: ProfileProps) => {
         </Error>
 
         <div className={classes.RadioButtonsGroup}>
-          <Field type="radio" name="gender" id="female" value={Gender.F} />
+          <Field type="radio" name="gender" id="female" value={Gender.Female} />
           <label htmlFor="female">She</label>
 
-          <Field type="radio" name="gender" id="male" value={Gender.M} />
+          <Field type="radio" name="gender" id="male" value={Gender.Male} />
           <label htmlFor="male">He</label>
 
-          <Field type="radio" name="gender" id="other" value={Gender.T} />
+          <Field type="radio" name="gender" id="other" value={Gender.Other} />
           <label htmlFor="other">Them</label>
 
           <Error>
@@ -115,7 +114,6 @@ const EditProfile = (props: ProfileProps) => {
 
 const mapStateToProps = (state: State): ProfileProps => {
   return {
-    user: state.auth.currentUser,
     profile: state.profile.profile,
     error: state.profile.error,
     loading: state.auth.loading

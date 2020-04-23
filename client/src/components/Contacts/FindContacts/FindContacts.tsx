@@ -17,7 +17,6 @@ interface FindContactsProps {
   loading: boolean;
   addingSuccess: boolean;
   error: string | null;
-  user: StitchUser | null;
 }
 
 const FindContacts = (props: FindContactsProps) => {
@@ -40,22 +39,22 @@ const FindContacts = (props: FindContactsProps) => {
 
   const handleAddContact = useCallback(
     (contact: Partial<Profile>) => {
-      if (props.user != null) {        
-        const newContact: Partial<ContactSide> = {
-          otherSideProfileId: contact._id,
-          otherSideProfile: contact,
-          linkId: generateIdentificator(),
-          ownerId: props.user.id,
-          status: ContactSideStatus.WantToLink,
-          trustPoints: 0,
-          customName: ''
-        };
+      // if (props.user != null) {        
+      //   const newContact: Partial<ContactSide> = {
+      //     otherSideProfileId: contact._id,
+      //     otherSideProfile: contact,
+      //     linkId: generateIdentificator(),
+      //     ownerId: props.user.id,
+      //     status: ContactSideStatus.WantToLink,
+      //     trustPoints: 0,
+      //     customName: ''
+      //   };
 
-        dispatch(actions.createContactRequest(newContact));
-        setAddRequestSent(true);
-      }
+      //   dispatch(actions.createContactRequest(newContact));
+      //   setAddRequestSent(true);
+      // }
     },
-    [dispatch, props.user],
+    [dispatch],
   )
 
   let contactsList;
@@ -68,7 +67,7 @@ const FindContacts = (props: FindContactsProps) => {
   } else {
     contactsList = (
       <>
-      {props.searchResult.map(contact => (
+      {/* {props.searchResult.map(contact => (
         <div key={contact._id}>
           <div>
             {contact.avatarUrl == null || contact.avatarUrl === '' ? null : <img src={contact.avatarUrl} alt={contact.username} />}
@@ -76,7 +75,7 @@ const FindContacts = (props: FindContactsProps) => {
           <div>{contact.username}</div>
           <button onClick={() => handleAddContact(contact)}>Add</button>
         </div>
-      ))}
+      ))} */}
       </>
     );
   }
@@ -99,7 +98,6 @@ FindContacts.propTypes = {};
 
 const mapStateToProps = (state: State) => {
   return {
-    user: state.auth.currentUser,
     searchResult: state.contacts.searchResult,
     loading: state.contacts.loading,
     addingSuccess: state.contacts.contactOperationFinished,

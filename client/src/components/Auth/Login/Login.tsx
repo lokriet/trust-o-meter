@@ -1,5 +1,6 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
+import { GoogleLogin } from 'react-google-login';
 import { connect, useDispatch } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import * as Yup from 'yup';
@@ -18,18 +19,36 @@ interface LoginProps {
 
 const Login = (props: LoginProps) => {
   const [redirectPath] = useState(props.redirectPath);
+  const [googleError, setGoogleError] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    setGoogleError(false);
     dispatch(actions.setAuthRedirectPath('/'));
     dispatch(actions.authInit());
   }, [dispatch]);
 
-  const handleSubmit = useCallback((formValues) => {
-    dispatch(
-      actions.loginWithEmailAndPassword(formValues.email, formValues.password)
-    );
-  }, [dispatch]);
+  const handleSubmit = useCallback(
+    (formValues) => {
+      dispatch(
+        actions.loginWithEmailAndPassword(formValues.email, formValues.password)
+      );
+    },
+    [dispatch]
+  );
+
+  const handleGoogleLoginSuccess = useCallback(
+    (response: any) => {
+      setGoogleError(false);
+      dispatch(actions.loginWithGoogle(response.tokenId));
+    },
+    [dispatch]
+  );
+
+  const handleGoogleLoginError = useCallback((response: any) => {
+    console.log(response);
+    setGoogleError(true);
+  }, []);
 
   let form = (
     <Formik
@@ -38,45 +57,61 @@ const Login = (props: LoginProps) => {
         password: ''
       }}
       validationSchema={Yup.object({
-        email: Yup.string()
-          .required('Required')
-          .email('Invalid email address'),
+        email: Yup.string().required('Required').email('Invalid email address'),
         password: Yup.string()
           .required('Required')
           .min(6, 'Must be at least 6 characters long')
       })}
-      onSubmit={(values, { setSubmitting }) =>
-        handleSubmit(values)
-      }
+      onSubmit={(values, { setSubmitting }) => handleSubmit(values)}
     >
-      <Form className={classes.LoginForm}>
-        <Field
-          name="email"
-          type="text"
-          placeholder="E-mail"
-          autoComplete="username"
-        />
-        <Error><ErrorMessage name="email" /></Error>
+      {
+        form => 
+        <Form className={classes.LoginForm}>
+          <Field
+            name="email"
+            type="text"
+            placeholder="E-mail"
+            autoComplete="username"
+          />
+          <Error>
+            <ErrorMessage name="email" />
+          </Error>
 
-        <Field
-          name="password"
-          type="password"
-          placeholder="Password"
-          autoComplete="current-password"
-        />
-        <Error><ErrorMessage name="password" /></Error>
+          <Field
+            name="password"
+            type="password"
+            placeholder="Password"
+            autoComplete="current-password"
+          />
+          <Error>
+            <ErrorMessage name="password" />
+          </Error>
 
-        {props.error ? <Error>{props.error}</Error> : null}
+          <Link to={`/requestPasswordReset?email=${form.values.email}`}>Forgot password?</Link>
 
-        <button type="submit" disabled={props.loading}>
-          Login
-        </button>
+          {props.error ? <Error>{props.error}</Error> : null}
+          {googleError ? (
+            <Error>Login with google failed. Please try again</Error>
+          ) : null}
 
-        <div>
-          Don't have an account?
-          <Link to={'/register'}>Register</Link>
-        </div>
-      </Form>
+          <button type="submit" disabled={props.loading}>
+            Login
+          </button>
+
+          <GoogleLogin
+            clientId="695540773830-ji5ld1tf3aprsgdd49fveaonq3mko2u4.apps.googleusercontent.com"
+            buttonText="Login"
+            onSuccess={handleGoogleLoginSuccess}
+            onFailure={handleGoogleLoginError}
+            cookiePolicy={'single_host_origin'}
+            isSignedIn={false}
+          />
+          <div>
+            Don't have an account?
+            <Link to='/register'>Register</Link>
+          </div>
+        </Form>
+      }
     </Formik>
   );
 

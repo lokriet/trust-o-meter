@@ -86,136 +86,136 @@ export const fetchUserContacts = () => {
     try {
       dispatch(contactsFetchingStart());
       const profile = getState().profile.profile;
-      const user = getState().auth.currentUser;
+      const user = null;//getState().auth.currentUser;
       if (!user || !profile) {
         return;
       }
 
-      const contactSides: ContactSide[] = await contacts
-        .aggregate([
-          {
-            $match: {
-              $or: [
-                {
-                  ownerId: user.id,
-                },
-                {
-                  otherSideIdentificator: profile.identificator,
-                },
-              ],
-            },
-          },
+      // const contactSides: ContactSide[] = await contacts
+      //   .aggregate([
+      //     {
+      //       $match: {
+      //         $or: [
+      //           {
+      //             ownerId: user.id,
+      //           },
+      //           {
+      //             otherSideIdentificator: profile.identificator,
+      //           },
+      //         ],
+      //       },
+      //     },
 
-          {
-            $lookup: {
-              from: 'profiles',
-              let: {
-                profileId: '$item.otherSideProfileId',
-              },
-              pipeline: [
-                {
-                  $match: {
-                    _id: 'profileId',
-                  },
-                },
-                {
-                  $project: {
-                    ownerId: 0,
-                  },
-                },
-              ],
-              as: 'otherSideProfile',
-            },
-          },
+      //     {
+      //       $lookup: {
+      //         from: 'profiles',
+      //         let: {
+      //           profileId: '$item.otherSideProfileId',
+      //         },
+      //         pipeline: [
+      //           {
+      //             $match: {
+      //               _id: 'profileId',
+      //             },
+      //           },
+      //           {
+      //             $project: {
+      //               ownerId: 0,
+      //             },
+      //           },
+      //         ],
+      //         as: 'otherSideProfile',
+      //       },
+      //     },
 
-          {
-            $lookup: {
-              from: 'profiles',
-              let: {
-                profileOwnerId: '$item.ownerId',
-              },
-              pipeline: [
-                {
-                  $match: {
-                    ownerId: 'profileOwnerId',
-                  },
-                },
-                {
-                  $project: {
-                    ownerId: 0,
-                  },
-                },
-              ],
-              as: 'ownerProfile',
-            },
-          },
-        ])
-        .toArray();
+      //     {
+      //       $lookup: {
+      //         from: 'profiles',
+      //         let: {
+      //           profileOwnerId: '$item.ownerId',
+      //         },
+      //         pipeline: [
+      //           {
+      //             $match: {
+      //               ownerId: 'profileOwnerId',
+      //             },
+      //           },
+      //           {
+      //             $project: {
+      //               ownerId: 0,
+      //             },
+      //           },
+      //         ],
+      //         as: 'ownerProfile',
+      //       },
+      //     },
+      //   ])
+      //   .toArray();
 
-      const contactPairs: any = {};
-      contactSides.forEach((contactSide: ContactSide) => {
-        let contactPair = contactPairs[contactSide.linkId] || {};
-        if (contactSide.ownerId === user.id) {
-          contactPair.me = contactSide;
-        } else {
-          contactPair.them = contactSide;
-        }
-      });
+      // const contactPairs: any = {};
+      // contactSides.forEach((contactSide: ContactSide) => {
+      //   let contactPair = contactPairs[contactSide.linkId] || {};
+      //   if (contactSide.ownerId === user.id) {
+      //     contactPair.me = contactSide;
+      //   } else {
+      //     contactPair.them = contactSide;
+      //   }
+      // });
 
       let incomingRequests: Contact[] = [];
       let outgoingRequests: Contact[] = [];
       let confirmedContacts: Contact[] = [];
 
-      Object.keys(contactPairs).forEach((linkId) => {
-        const contactPair: {
-          me: ContactSide | undefined;
-          them: ContactSide | undefined;
-        } = contactPairs[linkId];
-        if (
-          !contactPair.me &&
-          contactPair.them &&
-          contactPair.them.status === ContactSideStatus.WantToLink
-        ) {
-          const contact = {
-            status: ContactStatus.IncomingRequest,
-            contactProfile: contactPair.them.ownerProfile[0],
-            myCustomName: null,
-            contactCustomName: contactPair.them.customName,
-            myTrustPoints: 0,
-            contactTrustPoints: 0,
-          };
-          incomingRequests.push(contact);
-        } else if (
-          !contactPair.them &&
-          contactPair.me &&
-          contactPair.me.status === ContactSideStatus.WantToLink
-        ) {
-          const contact = {
-            status: ContactStatus.OutgoingRequest,
-            contactProfile: contactPair.me.otherSideProfile[0],
-            myCustomName: contactPair.me.customName,
-            contactCustomName: null,
-            myTrustPoints: 0,
-            contactTrustPoints: 0,
-          };
-          outgoingRequests.push(contact);
-        } else if (
-          contactPair.me &&
-          contactPair.them &&
-          contactPair.me.status === ContactSideStatus.WantToLink &&
-          contactPair.them.status === ContactSideStatus.WantToLink
-        ) {
-          const contact = {
-            status: ContactStatus.Connected,
-            contactProfile: contactPair.me.otherSideProfile[0],
-            myCustomName: contactPair.me.customName,
-            contactCustomName: contactPair.them.customName,
-            myTrustPoints: contactPair.me.trustPoints || 0,
-            contactTrustPoints: contactPair.them.trustPoints || 0,
-          };
-          confirmedContacts.push(contact);
-        }
-      });
+      // Object.keys(contactPairs).forEach((linkId) => {
+      //   const contactPair: {
+      //     me: ContactSide | undefined;
+      //     them: ContactSide | undefined;
+      //   } = contactPairs[linkId];
+      //   if (
+      //     !contactPair.me &&
+      //     contactPair.them &&
+      //     contactPair.them.status === ContactSideStatus.WantToLink
+      //   ) {
+      //     const contact = {
+      //       status: ContactStatus.IncomingRequest,
+      //       contactProfile: contactPair.them.ownerProfile[0],
+      //       myCustomName: null,
+      //       contactCustomName: contactPair.them.customName,
+      //       myTrustPoints: 0,
+      //       contactTrustPoints: 0,
+      //     };
+      //     incomingRequests.push(contact);
+      //   } else if (
+      //     !contactPair.them &&
+      //     contactPair.me &&
+      //     contactPair.me.status === ContactSideStatus.WantToLink
+      //   ) {
+      //     const contact = {
+      //       status: ContactStatus.OutgoingRequest,
+      //       contactProfile: contactPair.me.otherSideProfile[0],
+      //       myCustomName: contactPair.me.customName,
+      //       contactCustomName: null,
+      //       myTrustPoints: 0,
+      //       contactTrustPoints: 0,
+      //     };
+      //     outgoingRequests.push(contact);
+      //   } else if (
+      //     contactPair.me &&
+      //     contactPair.them &&
+      //     contactPair.me.status === ContactSideStatus.WantToLink &&
+      //     contactPair.them.status === ContactSideStatus.WantToLink
+      //   ) {
+      //     const contact = {
+      //       status: ContactStatus.Connected,
+      //       contactProfile: contactPair.me.otherSideProfile[0],
+      //       myCustomName: contactPair.me.customName,
+      //       contactCustomName: contactPair.them.customName,
+      //       myTrustPoints: contactPair.me.trustPoints || 0,
+      //       contactTrustPoints: contactPair.them.trustPoints || 0,
+      //     };
+      //     confirmedContacts.push(contact);
+      //   }
+      // });
       dispatch(contactsFetchingSuccess({confirmedContacts, incomingRequests, outgoingRequests}));
     } catch (error) {
       dispatch(

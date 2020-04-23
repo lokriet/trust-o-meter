@@ -1,6 +1,8 @@
 import debugServer from 'debug';
 import http from 'http';
 
+import logger from './logger';
+
 const debug = debugServer('server:server');
 
 export const normalizePort = (val: string) => {
@@ -30,15 +32,11 @@ export const onError = (port: any) => {
     // handle specific listen errors with friendly messages
     switch (error.code) {
       case 'EACCES':
-        // tslint:disable-next-line: no-console
-        console.error(bind + ' requires elevated privileges');
+        logger.error(bind + ' requires elevated privileges');
         process.exit(1);
-        break;
       case 'EADDRINUSE':
-        // tslint:disable-next-line: no-console
-        console.error(bind + ' is already in use');
+        logger.error(bind + ' is already in use');
         process.exit(1);
-        break;
       default:
         throw error;
     }

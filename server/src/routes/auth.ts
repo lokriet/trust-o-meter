@@ -1,59 +1,124 @@
-import passport from 'passport';
-import settings from '../config/settings';
-import passportFunc from '../config/passport';
 import express from 'express';
-import jwt from 'jsonwebtoken';
-import User from '../model/User';
 
-passportFunc(passport);
+import * as authController from '../controllers/auth';
+import isAuthenticated from '../middleware/auth';
+
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
-  if (!req.body.username || !req.body.password) {
-    res.json({ success: false, msg: 'Please pass username and password.' });
-  } else {
-    const newUser = new User({
-      username: req.body.username,
-      password: req.body.password,
-    });
+/**
+ * POST /auth/registerWithEmailPassword
+ * request:
+ * {
+ *   email: string,
+ *   password: string
+ * }
+ *
+ * response:
+ * code: 201
+ * {
+ *   token: string
+ *   waitingForEmailConfirmation: true
+ *   profile: {
+ *     initialized: false
+ *     identificator: string
+ *   }
+ * }
+ *
+ * code 422 - validation error
+ * code 500 - internal error
+ */
+router.post(
+  '/registerWithEmailPassword',
+  authController.registerWithEmailAndPassword
+);
 
-    try {
-      await newUser.save();
-      res.json({ success: true, msg: 'Successful created new user.' });
-    } catch (err) {
-      // TODO
-      return res.json({ success: false, msg: 'Username already exists.' });
-    }
-  }
-});
+/**
+ * POST /auth/loginWithEmailPassword
+ * request:
+ * {
+ *   email: string,
+ *   password: string
+ * }
+ *
+ * response:
+ * code: 200
+ * {
+ *   token: string
+ *   waitingForEmailConfirmation: boolean
+ *   profile: {
+ *     initialized: boolean
+ *     identificator: string
+ *     username?: string
+ *     avatarUrl?: string
+ *     gender?: string ('F'/'M'/'O')
+ *   }
+ * }
+ *
+ * code 401 - authentication failed
+ * code 422 - validation error
+ * code 500 - internal error
+ */
+router.post(
+  '/loginWithEmailPassword',
+  authController.loginWithEmailAndPassword
+);
 
-router.post('/login', async (req, res, next) => {
-  try {
-    const user: any = await User.findOne({
-      username: req.body.username,
-    });
-    if (!user) {
-      res.status(401).send({ success: false, msg: 'Authentication failed' });
-    } else {
-      try {
-        const isMatch = await user.comparePassword(req.body.password);
-        if (isMatch) {
-          const token = jwt.sign(user.toJSON(), settings.secret);
-          // TODO
-          res.json({ success: true, token });
-        } else {
-          res
-            .status(401)
-            .send({ success: false, msg: 'Authentication failed' });
-        }
-      } catch (matchError) {
-        res.status(401).send({ success: false, msg: 'Authentication failed' });
-      }
-    }
-  } catch (dbError) {
-    // TODO
-    next(dbError);
-  }
-});
+/**
+ * POST /auth/loginWithGoogle
+ * request:
+ * {
+ *   idToken: string
+ * }
+ *
+ * response:
+ * code: 200
+ * {
+ *   token: string
+ *   waitingForEmailConfirmation: false
+ *   profile: {
+ *     initialized: boolean
+ *     identificator: string
+ *     username?: string
+ *     avatarUrl?: string
+ *     gender?: string ('F'/'M'/'O')
+ *   }
+ * }
+ *
+ * code 401 - authentication failed
+ * code 422 - validation error
+ * code 500 - internal error
+ */
+router.post('/loginWithGoogle', authController.loginWithGoogle);
+
+/**
+ * Get user and profile details
+ * GET /auth/details
+ *
+ * response:
+ * code: 200
+ * {
+ *   waitingForEmailConfirmation: boolean
+ *   profile: {
+ *     initialized: boolean
+ *     identificator: string
+ *     username?: string
+ *     avatarUrl?: string
+ *     gender?: string ('F'/'M'/'O')
+ *   }
+ * }
+ *
+ * code 401 - not authenticated
+ * code 500 - internal error
+ */
+router.get('/details', isAuthenticated, authController.getAuthDetails);
+
+
+router.get('/sendConfirmationEmail', isAuthenticated, authController.sendConfirmationEmail);
+
+router.post('/confirmEmail', isAuthenticated, authController.confirmEmail);
+
+router.post('/sendPasswordResetEmail', authController.sendPasswordResetEmail);
+
+
 
 export default router;

@@ -1,41 +1,21 @@
 import { profiles } from '../../stitch/mongodb';
 import { Profile } from '../model/profile';
+import { State } from '../reducers/state';
 
 export const ProfileActionTypes = {
   PROFILE_OPERATION_START: 'PROFILE_OPERATION_START',
   PROFILE_OPERATION_SUCCESS: 'PROFILE_OPERATION_SUCCESS',
   PROFILE_OPERATION_FAILED: 'PROFILE_OPERATION_FAILED',
+  SET_PROFILE: 'SET_PROFILE',
   RESET_PROFILE_STORE: 'RESET_PROFILE_STORE'
 };
 
-export const fetchProfile = (ownerId: string) => {
-  return async (dispatch: (...args: any[]) => void) => {
-    try {
-      dispatch(profileOperationStart());
-      const profile = await profiles.findOne({ ownerId: ownerId });
-      console.log(profile);
-      dispatch(profileOperationSuccess(profile));
-    } catch (error) {
-      console.log('fetch profile failed', error);
-      dispatch(profileOperationFailed());
-    }
-  };
-};
-
-export const createProfile = (profileData: Partial<Profile>) => {
-  return async (dispatch: (...args: any[]) => void) => {
-    try {
-      dispatch(profileOperationStart());
-      const result = await profiles.insertOne({ ...profileData });
-      const profile = await profiles.findOne({ _id: result.insertedId });
-      console.log('in actions', result, profile);
-      dispatch(profileOperationSuccess(profile));
-    } catch (error) {
-      console.log('fetch profile failed', error);
-      dispatch(profileOperationFailed());
-    }
-  };
-};
+export const setProfile = (profile: Profile) => {
+  return {
+    type: ProfileActionTypes.SET_PROFILE,
+    profile
+  }
+}
 
 export const updateProfile = (profileId: string, profileData: Partial<Profile>) => {
   return async (dispatch: (...args: any[]) => void) => {
@@ -48,7 +28,7 @@ export const updateProfile = (profileId: string, profileData: Partial<Profile>) 
       dispatch(profileOperationSuccess(updatedProfile));
     } catch (error) {
       console.log('update profile failed', error);
-      dispatch(profileOperationFailed());
+      dispatch(profileOperationFailed('Profile update failed'));
     }
   };
 }
@@ -59,14 +39,14 @@ const profileOperationStart = () => {
   }
 }
 
-const profileOperationFailed = () => {
+const profileOperationFailed = (error: string) => {
   return {
-    type: ProfileActionTypes.PROFILE_OPERATION_FAILED
+    type: ProfileActionTypes.PROFILE_OPERATION_FAILED,
+    error
   };
 };
 
-const profileOperationSuccess = (profile) => {
-  console.log('in actions dispatching success', profile);
+const profileOperationSuccess = (profile: Profile) => {
   return {
     type: ProfileActionTypes.PROFILE_OPERATION_SUCCESS,
     profile

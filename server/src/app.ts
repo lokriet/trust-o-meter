@@ -1,34 +1,38 @@
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import express, { RequestHandler, Response, NextFunction } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
+import expressPino from 'express-pino-logger';
 import helmet from 'helmet';
 import http from 'http';
-import logger from 'morgan';
+import morganLogger from 'morgan';
 
+import authRouter from './routes/auth';
+import profileRouter from './routes/profile';
 import * as connectionUtils from './util/connectionUtils';
+import initDatabase from './util/database';
 import * as httpErrors from './util/httpErrors';
+import logger from './util/logger';
 import * as responseCodes from './util/responseCodes';
 
-import initDatabase from './util/database';
 initDatabase();
 
-// const indexRouter = require('./routes/index');
 const app = express();
 
 const isDev = process.env.NODE_ENV === 'development';
 const isProd = process.env.NODE_ENV === 'production';
 
 if (isProd) {
-  // tslint:disable-next-line: no-console
-  console.log("I'm in production!");
+  logger.info("I'm in production!");
   app.use(compression());
   app.use(helmet());
 }
 if (isDev) {
-  // tslint:disable-next-line: no-console
-  console.log('Running dev server');
-  app.use(logger('dev'));
+  logger.info('Running dev server');
+  app.use(morganLogger('dev'));
 }
+
+const expressLogger = expressPino({ logger });
+app.use(expressLogger);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -44,17 +48,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use('/', indexRouter);
+app.use('/auth', authRouter);
+app.use('/profile', profileRouter);
 
-
-app.use((req: any, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   throw httpErrors.pageNotFoundError();
 });
 
 // error handler
-app.use((err: any, req: any, res: Response, next: NextFunction) => {
-  // tslint:disable-next-line: no-console
-  console.log(err);
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  logger.debug(err);
 
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -63,7 +66,7 @@ app.use((err: any, req: any, res: Response, next: NextFunction) => {
   res.status(statusCode).json({
     statusCode,
     responseCode: err.responseCode || responseCodes.INTERNAL_SERVER_ERROR,
-    message: err.message,
+    message: statusCode === 500 ? 'Internal server error' : err.message,
     data: err.data
   });
 });

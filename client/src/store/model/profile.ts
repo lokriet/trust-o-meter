@@ -1,15 +1,14 @@
 
 export enum Gender {
-  M = 'He',
-  F = 'She',
-  T = 'Them'
+  Male = 'M',
+  Female = 'F',
+  Other = 'O'
 }
 
 export interface Profile {
-  _id: any;
-  ownerId: string;
+  initialized?: boolean;
   identificator: string;
-  username: string;
-  avatarUrl: string | null;
-  gender: Gender;
+  username?: string;
+  avatarUrl?: string;
+  gender?: Gender;
 };

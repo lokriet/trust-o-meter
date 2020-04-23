@@ -17,7 +17,6 @@ interface RegisterProps {
 }
 
 const Register = (props: RegisterProps) => {
-
   const [redirectPath] = useState(props.redirectPath);
   const dispatch = useDispatch();
 

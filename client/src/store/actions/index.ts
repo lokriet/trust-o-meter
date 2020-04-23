@@ -2,14 +2,17 @@ export {
   checkInitialAuthState,
   authInit,
   setAuthRedirectPath,
-  loginWithEmailAndPassword,
   registerWithEmailAndPassword,
-  logout
+  loginWithEmailAndPassword,
+  loginWithGoogle,
+  logout,
+  sendConfirmationEmail,
+  confirmEmail,
+  requestPasswordReset
 } from './auth';
 
 export {
-  createProfile,
-  fetchProfile,
+  setProfile,
   updateProfile,
   resetProfileStore
 } from './profile';

@@ -1,10 +1,9 @@
-import { StitchUser } from 'mongodb-stitch-browser-sdk';
-
 import * as actionTypes from '../actions/actionTypes';
 
 export interface AuthState {
   isLoggedIn: boolean;
-  currentUser: StitchUser | null;
+  token: string | null;
+  waitingForEmailConfirmation: boolean;
   error: string | null;
   initialCheckDone: boolean;
   redirectPath: string;
@@ -13,11 +12,12 @@ export interface AuthState {
 
 const initialState: AuthState = {
   isLoggedIn: false,
-  currentUser: null,
+  token: null,
+  waitingForEmailConfirmation: false,
   initialCheckDone: false,
   error: null,
   redirectPath: '/',
-  loading: false,
+  loading: false
 };
 
 export const authReducer = (
@@ -25,46 +25,82 @@ export const authReducer = (
   action: any
 ): AuthState => {
   switch (action.type) {
+    case actionTypes.auth.AUTH_INIT:
+      return {
+        ...state,
+        loading: false,
+        error: null
+      };
     case actionTypes.auth.INITIAL_AUTH_CHECK_SUCCESS:
       return {
         ...state,
         isLoggedIn: action.isLoggedIn,
-        currentUser: action.user,
+        token: action.token,
+        waitingForEmailConfirmation: action.waitingForEmailConfirmation,
         initialCheckDone: true,
-        error: null,
+        error: null
       };
 
     case actionTypes.auth.SET_AUTH_REDIRECT_PATH:
       return {
         ...state,
-        redirectPath: action.path,
+        redirectPath: action.path
       };
 
     case actionTypes.auth.AUTH_SUCCESS:
       return {
         ...state,
         isLoggedIn: true,
-        currentUser: action.user,
+        token: action.token,
+        waitingForEmailConfirmation: action.waitingForEmailConfirmation,
         error: null,
-        loading: false,
+        loading: false
       };
 
     case actionTypes.auth.AUTH_FAILED:
       return {
         ...state,
         isLoggedIn: false,
-        currentUser: null,
+        token: null,
+        waitingForEmailConfirmation: false,
         error: action.error,
-        loading: false,
+        loading: false
       };
 
     case actionTypes.auth.LOGOUT_SUCCESS:
       return {
         ...state,
         isLoggedIn: false,
-        currentUser: null,
+        token: null,
+        waitingForEmailConfirmation: false,
+        error: null,
+        loading: false
+      };
+
+    case actionTypes.auth.AUTH_OPERATION_START:
+      return {
+        ...state,
+        error: null,
+        loading: true
+      };
+    case actionTypes.auth.RESEND_EMAIL_SUCCESS:
+      return {
+        ...state,
+        error: null,
+        loading: false
+      };
+    case actionTypes.auth.CONFIRM_EMAIL_SUCCESS:
+      return {
+        ...state,
         error: null,
         loading: false,
+        waitingForEmailConfirmation: false
+      };
+    case actionTypes.auth.AUTH_OPERATION_FAILED:
+      return {
+        ...state,
+        error: action.error,
+        loading: false
       };
 
     default:

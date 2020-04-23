@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import logger from './logger';
 
 const initDatabase = () => {
   // Removes the warning with promises
@@ -20,8 +21,7 @@ const initDatabase = () => {
     mongoose.set('useCreateIndex', true);
   }
   mongoose.connection
-    // tslint:disable-next-line: no-console
-    .once('open', () => console.log('MongoDB Running'))
+    .once('open', () => logger.info('MongoDB Running'))
     .on('error', (e) => {
       throw e;
     });
