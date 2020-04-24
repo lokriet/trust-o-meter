@@ -38,6 +38,13 @@ export const sendResetPasswordEmailRequestSchema = Joi.object().keys({
   email: Joi.string().email().required()
 });
 
+export const sendResetPasswordEmailErrorSchema: ServerValidationError[] = [
+  {
+    fieldName: 'email',
+    errorMessage: 'Please enter a correct email.',
+  }
+];
+
 export const resetPasswordRequestSchema = Joi.object().keys({
   password: Joi.string().min(6).max(200).required(),
   resetPasswordToken: Joi.string().required()

@@ -30,7 +30,6 @@ export const profileReducer = (
         error: null,
       };
     case actionTypes.profile.PROFILE_OPERATION_SUCCESS:
-      console.log('in reducer, profile operation success?');
       return {
         ...state,
         loading: false,
@@ -41,8 +40,7 @@ export const profileReducer = (
       return {
         ...state,
         loading: false,
-        error: action.error,
-        profile: null,
+        error: action.error
       };
     case actionTypes.profile.RESET_PROFILE_STORE:
       return initialState;

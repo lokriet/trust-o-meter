@@ -59,7 +59,9 @@ const Login = (props: LoginProps) => {
     (response: any) => {
       setGoogleError(false);
       setFacebookError(false);
-      dispatch(actions.loginWithFacebook(response.userID, response.accessToken));
+      dispatch(
+        actions.loginWithFacebook(response.userID, response.accessToken)
+      );
       console.log(response);
     },
     [dispatch]
@@ -72,79 +74,82 @@ const Login = (props: LoginProps) => {
   }, []);
 
   let form = (
-    <Formik
-      initialValues={{
-        email: '',
-        password: ''
-      }}
-      validationSchema={Yup.object({
-        email: Yup.string().required('Required').email('Invalid email address'),
-        password: Yup.string()
-          .required('Required')
-          .min(6, 'Must be at least 6 characters long')
-      })}
-      onSubmit={(values, { setSubmitting }) => handleSubmit(values)}
-    >
-      {(form) => (
-        <Form className={classes.LoginForm}>
-          <Field
-            name="email"
-            type="text"
-            placeholder="E-mail"
-            autoComplete="username"
-          />
-          <Error>
-            <ErrorMessage name="email" />
-          </Error>
+    <>
+      <Formik
+        initialValues={{
+          email: '',
+          password: ''
+        }}
+        validationSchema={Yup.object({
+          email: Yup.string()
+            .required('Required')
+            .email('Invalid email address'),
+          password: Yup.string()
+            .required('Required')
+            .min(6, 'Must be at least 6 characters long')
+        })}
+        onSubmit={(values, { setSubmitting }) => handleSubmit(values)}
+      >
+        {(form) => (
+          <Form className={classes.LoginForm}>
+            <Field
+              name="email"
+              type="text"
+              placeholder="E-mail"
+              autoComplete="username"
+            />
+            <Error>
+              <ErrorMessage name="email" />
+            </Error>
 
-          <Field
-            name="password"
-            type="password"
-            placeholder="Password"
-            autoComplete="current-password"
-          />
-          <Error>
-            <ErrorMessage name="password" />
-          </Error>
+            <Field
+              name="password"
+              type="password"
+              placeholder="Password"
+              autoComplete="current-password"
+            />
+            <Error>
+              <ErrorMessage name="password" />
+            </Error>
 
-          <Link to={`/requestPasswordReset?email=${form.values.email}`}>
-            Forgot password?
-          </Link>
+            <Link to={`/requestPasswordReset?email=${form.values.email}`}>
+              Forgot password?
+            </Link>
 
-          {props.error ? <Error>{props.error}</Error> : null}
-          {googleError ? (
-            <Error>Login with Google failed. Please try again</Error>
-          ) : null}
-          {facebookError ? (
-            <Error>Login with Facebook failed. Please try again</Error>
-          ) : null}
+            {props.error ? <Error>{props.error}</Error> : null}
+            {googleError ? (
+              <Error>Login with Google failed. Please try again</Error>
+            ) : null}
+            {facebookError ? (
+              <Error>Login with Facebook failed. Please try again</Error>
+            ) : null}
 
-          <button type="submit" disabled={props.loading}>
-            Login
-          </button>
-
-          <GoogleLogin
-            clientId="695540773830-ji5ld1tf3aprsgdd49fveaonq3mko2u4.apps.googleusercontent.com"
-            buttonText="Login"
-            onSuccess={handleGoogleLoginSuccess}
-            onFailure={handleGoogleLoginError}
-            cookiePolicy={'single_host_origin'}
-            isSignedIn={false}
-          />
-          <FacebookLogin
-            appId="231998444544391"
-            autoLoad={false}
-            fields="name"
-            callback={handleFacebookLoginSuccess}
-            onFailure={handleFacebookLoginError}
-          />
-          <div>
-            Don't have an account?
-            <Link to="/register">Register</Link>
-          </div>
-        </Form>
-      )}
-    </Formik>
+            <button type="submit" disabled={props.loading}>
+              Login
+            </button>
+          </Form>
+        )}
+      </Formik>
+      <GoogleLogin
+        clientId="695540773830-ji5ld1tf3aprsgdd49fveaonq3mko2u4.apps.googleusercontent.com"
+        buttonText="Login"
+        onSuccess={handleGoogleLoginSuccess}
+        onFailure={handleGoogleLoginError}
+        cookiePolicy={'single_host_origin'}
+        isSignedIn={false}
+      />
+      <FacebookLogin
+        appId="231998444544391"
+        autoLoad={false}
+        fields="name"
+        callback={handleFacebookLoginSuccess}
+        onFailure={handleFacebookLoginError}
+      />
+      <div>
+        Don't have an account?
+        <Link to="/register">Register</Link>
+      </div>
+    </>
   );
 
   return props.isLoggedIn ? <Redirect to={redirectPath} /> : form;

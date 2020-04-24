@@ -133,7 +133,7 @@ const auth = (authUrl: string, fetchParams: any) => {
         dispatch(loginSuccess(token, resultData.waitingForEmailConfirmation));
       } else {
         dispatch(
-          loginFailed(result.status !== 500 ? resultData.msg : internalError)
+          loginFailed(result.status !== 500 ? resultData.message : internalError)
         );
       }
     } catch (error) {

@@ -90,6 +90,31 @@ router.post(
  */
 router.post('/loginWithGoogle', authController.loginWithGoogle);
 
+/**
+ * POST /auth/loginWithFacebook
+ * request:
+ * {
+ *   userId: string
+ *   accessToken: string
+ * }
+ *
+ * response:
+ * code: 200
+ * {
+ *   token: string
+ *   waitingForEmailConfirmation: false
+ *   profile: {
+ *     initialized: boolean
+ *     identificator: string
+ *     username?: string
+ *     avatarUrl?: string
+ *     gender?: string ('F'/'M'/'O')
+ *   }
+ * }
+ *
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post('/loginWithFacebook', authController.loginWithFacebook);
 
 /**
@@ -114,13 +139,62 @@ router.post('/loginWithFacebook', authController.loginWithFacebook);
  */
 router.get('/details', isAuthenticated, authController.getAuthDetails);
 
+/**
+ * GET '/auth/sendConfirmationEmail'
+ *
+ * response
+ * code 200 - OK
+ * code 401 - not authenticated
+ * code 500 - internal error
+ */
+router.get(
+  '/sendConfirmationEmail',
+  isAuthenticated,
+  authController.sendConfirmationEmail
+);
 
-router.get('/sendConfirmationEmail', isAuthenticated, authController.sendConfirmationEmail);
-
+/**
+ * POST '/auth/confirmEmail'
+ * request:
+ * {
+ *   confirmationToken: string
+ * }
+ *
+ * response
+ * code 200 - OK
+ * code 401 - not authenticated
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post('/confirmEmail', isAuthenticated, authController.confirmEmail);
 
+/**
+ * POST '/auth/sendPasswordResetEmail'
+ * request:
+ * {
+ *   email: string
+ * }
+ *
+ * response:
+ * code 200 - OK
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post('/sendPasswordResetEmail', authController.sendPasswordResetEmail);
 
+/**
+ * POST '/auth/resetPassword'
+ * request:
+ * {
+ *   password: string
+ *   resetPasswordToken: string
+ * }
+ *
+ * response:
+ * code 200 - OK
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post('/resetPassword', authController.resetPassword);
 
 export default router;

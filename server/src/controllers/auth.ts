@@ -18,9 +18,10 @@ import {
   registerWithEmailPasswordRequestSchema,
   resetPasswordErrorSchema,
   resetPasswordRequestSchema,
+  sendResetPasswordEmailErrorSchema,
   sendResetPasswordEmailRequestSchema,
 } from '../validators/auth';
-import { convertError } from '../validators/validationError';
+import { validateAndConvert } from '../validators/validationError';
 
 export interface AuthTokenPayload {
   userId: string;
@@ -33,19 +34,9 @@ export const registerWithEmailAndPassword = async (
 ) => {
   try {
     const requestData = req.body;
-    const response = registerWithEmailPasswordRequestSchema.validate(
-      requestData,
-      {
-        abortEarly: false
-      }
-    );
-
-    if (response.error) {
-      return next(
-        httpErrors.validationError(
-          convertError(response.error, registerWithEmailPasswordErrorSchema)
-        )
-      );
+    const httpError = validateAndConvert(requestData, registerWithEmailPasswordRequestSchema, registerWithEmailPasswordErrorSchema);
+    if (httpError) {
+      return next(httpError);
     }
 
     let newUser: IUser = await User.findOne({ email: requestData.email });
@@ -104,16 +95,9 @@ export const loginWithEmailAndPassword = async (
 ) => {
   try {
     const requestData = req.body;
-    const response = loginWithEmailPasswordRequestSchema.validate(requestData, {
-      abortEarly: false
-    });
-
-    if (response.error) {
-      return next(
-        httpErrors.validationError(
-          convertError(response.error, loginWithEmailPasswordErrorSchema)
-        )
-      );
+    const httpError = validateAndConvert(requestData, loginWithEmailPasswordRequestSchema, loginWithEmailPasswordErrorSchema);
+    if (httpError) {
+      return next(httpError);
     }
 
     const user: IUser = await User.findOne({ email: requestData.email });
@@ -216,25 +200,18 @@ export const loginWithFacebook = async (
 ) => {
   try {
     const requestData = req.body;
-    const validationResponse = facebookLoginRequestSchema.validate(
-      requestData,
-      {
-        abortEarly: false
-      }
-    );
-
-    if (validationResponse.error) {
-      return next(
-        httpErrors.validationError(
-          convertError(validationResponse.error, facebookLoginErrorSchema)
-        )
-      );
+    const httpError = validateAndConvert(requestData, facebookLoginRequestSchema, facebookLoginErrorSchema);
+    if (httpError) {
+      return next(httpError);
     }
 
     const authCheckResponse = await fetch(
       `https://graph.facebook.com/${requestData.userId}/?fields=id,name&access_token=${requestData.accessToken}`
     );
     const authCheckResponseData = await authCheckResponse.json();
+
+    logger.debug(authCheckResponseData);
+
     let user = await User.findOne({ facebookId: authCheckResponseData.id });
     let profile: IProfile;
     if (!user) {
@@ -382,16 +359,9 @@ export const sendPasswordResetEmail = async (
   next: NextFunction
 ) => {
   try {
-    const response = sendResetPasswordEmailRequestSchema.validate(req.body);
-    if (response.error) {
-      return next(
-        httpErrors.validationError([
-          {
-            fieldName: 'email',
-            errorMessage: 'Please enter a correct email.'
-          }
-        ])
-      );
+    const httpError = validateAndConvert(req.body, sendResetPasswordEmailRequestSchema, sendResetPasswordEmailErrorSchema);
+    if (httpError) {
+      return next(httpError);
     }
 
     const email = req.body.email;
@@ -448,16 +418,9 @@ export const resetPassword = async (
 ) => {
   try {
     const requestData = req.body;
-    const response = resetPasswordRequestSchema.validate(requestData, {
-      abortEarly: false
-    });
-
-    if (response.error) {
-      return next(
-        httpErrors.validationError(
-          convertError(response.error, resetPasswordErrorSchema)
-        )
-      );
+    const httpError = validateAndConvert(requestData, resetPasswordRequestSchema, resetPasswordErrorSchema);
+    if (httpError) {
+      return next(httpError);
     }
 
     const decodedToken: any = jwt.verify(

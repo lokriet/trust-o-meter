@@ -1,4 +1,3 @@
-import { profiles } from '../../stitch/mongodb';
 import { Profile } from '../model/profile';
 import { State } from '../reducers/state';
 
@@ -17,15 +16,27 @@ export const setProfile = (profile: Profile) => {
   }
 }
 
-export const updateProfile = (profileId: string, profileData: Partial<Profile>) => {
-  return async (dispatch: (...args: any[]) => void) => {
+export const updateProfile = (profileData: Partial<Profile>) => {
+  return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       dispatch(profileOperationStart());
-      const result = await profiles.updateOne({ _id: profileId }, profileData);
-      const updatedProfile = await profiles.findOne({ _id: profileId });
+      const token = getState().auth.token;
+      const result = await fetch('http://localhost:3001/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(profileData)
+      });
 
-      console.log('updated profile', result, updatedProfile);
-      dispatch(profileOperationSuccess(updatedProfile));
+      if (result.status === 200) {
+        const resultData = await result.json();
+        dispatch(profileOperationSuccess(resultData));
+      } else {
+        dispatch(profileOperationFailed('Profile update failed'));
+      }
+
     } catch (error) {
       console.log('update profile failed', error);
       dispatch(profileOperationFailed('Profile update failed'));
