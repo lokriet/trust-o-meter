@@ -26,7 +26,7 @@ const EditProfile = (props: ProfileProps) => {
     if (isNew && props.profile && props.profile.initialized) {
       history.push('/');
     }
-  }, [props.profile])
+  }, [props.profile, isNew, history]);
 
   const dispatch = useDispatch();
 
@@ -52,7 +52,9 @@ const EditProfile = (props: ProfileProps) => {
 
   const form = (
     <>
-      {isNew ? <div>Awesome! Before we go on, please tell us about yourself!</div> : null}
+      {isNew ? (
+        <div>Awesome! Before we go on, please tell us about yourself!</div>
+      ) : null}
 
       <Formik
         initialValues={{
@@ -104,11 +106,9 @@ const EditProfile = (props: ProfileProps) => {
             </Error>
           </div>
 
-          {isNew ? null : 
-          <div>
-            Your identificator is: {props.profile?.identificator}
-          </div>
-          }
+          {isNew ? null : (
+            <div>Your identificator is: {props.profile?.identificator}</div>
+          )}
 
           {props.error ? <Error>{props.error}</Error> : null}
 

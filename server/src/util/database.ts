@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 import logger from './logger';
 
 const initDatabase = () => {
@@ -9,14 +10,14 @@ const initDatabase = () => {
     mongoose.connect(process.env.MONGO_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useFindAndModify: false,
+      useFindAndModify: false
     });
     mongoose.set('useCreateIndex', true);
   } catch (err) {
     mongoose.createConnection(process.env.MONGO_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useFindAndModify: false,
+      useFindAndModify: false
     });
     mongoose.set('useCreateIndex', true);
   }
@@ -25,6 +26,26 @@ const initDatabase = () => {
     .on('error', (e) => {
       throw e;
     });
+
+  if (process.env.NODE_ENV === 'development') {
+    mongoose.set(
+      'debug',
+      (collectionName: string, method: string, query: any, doc: any) => {
+        logger.debug(
+          `${collectionName}.${method}\n${JSON.stringify(
+            query,
+            null,
+            2
+          )}`
+        );
+        logger.debug(JSON.stringify(
+          doc,
+          null,
+          2
+        ));
+      }
+    );
+  }
 };
 
 export default initDatabase;

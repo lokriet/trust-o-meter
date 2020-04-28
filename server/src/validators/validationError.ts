@@ -7,6 +7,10 @@ export interface ServerValidationError {
   errorMessage: string;
 }
 
+export const singleValidationError = (fieldName: string, errorMessage: string): ServerValidationError[] => {
+  return [{fieldName, errorMessage}];
+};
+
 export const validateAndConvert = (dataToValidate: any, validationSchema: Joi.Schema, errorsSchema: ServerValidationError[]): HttpError | null => {
   const validationResult = validationSchema.validate(dataToValidate, {abortEarly: false});
   if (validationResult.error) {

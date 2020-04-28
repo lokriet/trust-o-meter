@@ -1,23 +1,23 @@
-import React, { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { connect } from 'react-redux';
 
 import withAuthCheck from '../../hoc/withAuthCheck';
-import * as actions from '../../store/actions';
+import { State } from '../../store/reducers/state';
+import ContactsList from '../Contacts/ContactsList/ContactsList';
 
-const Home = () => {
-  const dispatch = useDispatch();
-  const handleLogout = useCallback(() => {
-    dispatch(actions.logout());
-  }, [dispatch]);
+interface HomeProps {
+  isLoggedIn: boolean
+}
 
-  return (
-    <div>
-      <button onClick={handleLogout}>Logout</button>
-      <button><Link to="/editProfile">Edit Profile</Link></button>
-      <button><Link to="/findContacts">Find new contacts</Link></button>
-    </div>
-  );
+const Home = (props: HomeProps) => {
+  return props.isLoggedIn ? <ContactsList /> : <div></div>;
+
 };
 
-export default withAuthCheck(Home);
+const mapStateToProps = (state: State): HomeProps => {
+  return {
+    isLoggedIn: state.auth.isLoggedIn
+  };
+};
+
+export default connect(mapStateToProps)(withAuthCheck(Home));

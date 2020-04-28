@@ -152,6 +152,7 @@ const Login = (props: LoginProps) => {
     </>
   );
 
+  //console.log(`is logged in ${props.isLoggedIn} redirect path ${redirectPath}`);
   return props.isLoggedIn ? <Redirect to={redirectPath} /> : form;
 };
 

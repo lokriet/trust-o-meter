@@ -24,5 +24,6 @@ export {
 
   searchContacts,
   contactsOperationReset,
-  createContactRequest
+  createContactRequest,
+  resetContactsStore
 } from './contacts';

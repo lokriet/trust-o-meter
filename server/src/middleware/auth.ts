@@ -15,6 +15,7 @@ const isAuthenticated = async (req: any, res: any, next: any) => {
   try {
     const decodedToken: AuthTokenPayload = jwt.verify(token, process.env.AUTH_TOKEN_SECRET) as AuthTokenPayload;
     req.userId = decodedToken.userId;
+    req.profileId = decodedToken.profileId;
   } catch (err) {
     next(httpErrors.notAuthenticatedError());
   }

@@ -1,4 +1,4 @@
-import { ServerValidationError } from '../validators/validationError';
+import { ServerValidationError, singleValidationError } from '../validators/validationError';
 import * as responseCodes from './responseCodes';
 
 export class HttpError extends Error {
@@ -37,3 +37,7 @@ export const validationError = (
   error.data = errorData;
   return error;
 };
+
+export const customValidationError = (fieldName: string, errorMessage: string): HttpError => {
+  return validationError(singleValidationError(fieldName, errorMessage));
+}

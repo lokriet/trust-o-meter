@@ -7,15 +7,17 @@ import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
 import ConfirmEmail from './components/Auth/EmailConfirmation/ConfirmEmail';
 import EmailConfirmation from './components/Auth/EmailConfirmation/EmailConfirmation';
 import Login from './components/Auth/Login/Login';
+import PasswordReset from './components/Auth/PasswordResest/PasswordReset';
 import PasswordResetRequest from './components/Auth/PasswordResest/PasswordResetRequest';
 import Register from './components/Auth/Register/Register';
 import FindContacts from './components/Contacts/FindContacts/FindContacts';
 import Home from './components/Home/Home';
+import Navigation from './components/Navigation/Navigation';
 import EditProfile from './components/Profile/EditProfile/EditProfile';
 import Spinner from './components/UI/Spinner/Spinner';
 import * as actions from './store/actions';
+import { Profile } from './store/model/profile';
 import { State } from './store/reducers/state';
-import PasswordReset from './components/Auth/PasswordResest/PasswordReset';
 
 interface AppProps {
   location: any;
@@ -35,20 +37,6 @@ const App = (props: AppProps): JSX.Element => {
       dispatch(actions.checkInitialAuthState());
     }
   }, [props.isLoggedIn, props.initialAuthCheckDone, dispatch]);
-
-  // // contacts init
-  // useEffect(() => {
-  //   if (
-  //     props.isLoggedIn &&
-  //     props.profileInitialized
-  //   ) {
-  //     dispatch(actions.fetchUserContacts());
-  //   }
-  // }, [
-  //   dispatch,
-  //   props.isLoggedIn,
-  //   props.profileInitialized,
-  // ]);
 
   let view: JSX.Element;
   let redirect: JSX.Element | null = null;
@@ -78,14 +66,15 @@ const App = (props: AppProps): JSX.Element => {
     if (props.waitingForEmailConfirmation) {
       console.log('redirecting');
       redirect = <Redirect to="/emailConfirmation" />;
-    } else if (!props.profileInitialized) {
-      console.log('redirecting');
+    } else if (props.profileLoaded && !props.profileInitialized) {
+      console.log('redirecting to edit');
       redirect = <Redirect to="/editProfile" />;
     }
   }
 
   return (
     <>
+      <Navigation />
       {view} 
       {redirect}
     </>

@@ -1,6 +1,4 @@
-import { ContactSide, ContactSideStatus } from '../../stitch/model/contactSide';
-import { contacts, profiles } from '../../stitch/mongodb';
-import { Contact, ContactStatus } from '../model/contact';
+import { Contact } from '../model/contact';
 import { Profile } from '../model/profile';
 import { State } from '../reducers/state';
 
@@ -17,45 +15,37 @@ export const ContactsActionTypes = {
   CONTACT_REQUEST_SUCCESS: 'CONTACT_REQUEST_SUCCESS',
   CONTACTS_OPERATION_FAILED: 'CONTACTS_OPERATION_FAILED',
 
-  RESET_CONTACTS_STORE: 'RESET_CONTACTS_STORE',
+  RESET_CONTACTS_STORE: 'RESET_CONTACTS_STORE'
 };
 
 export const searchContacts = (searchString: string) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
-      if (searchString !== '' && searchString != null) {
-        dispatch(contactsSearchStart());
-        const profile = getState().profile.profile;
-        if (!profile) {
-          return;
-        }
+      dispatch(contactsSearchStart());
+      const token = getState().auth.token;
+      const response = await fetch('http://localhost:3001/contacts/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ searchString })
+      });
+      const responseData = await response.json();
 
-        let contacts = await profiles
-          .find(
-            {
-              $or: [
-                {
-                  identificator: new RegExp('^' + searchString + '$', 'i'),
-                },
-                { username: new RegExp(searchString, 'i') },
-              ],
-            },
-            {
-              projection: {
-                ownerId: 0,
-              },
-            }
+      if (response.status === 200) {
+        dispatch(contactsSearchSuccess(responseData));
+      } else if (response.status === 422) {
+        dispatch(contactsSearchFailed(responseData[0].errorMessage));
+      } else {
+        console.log('dispatching error');
+        dispatch(
+          contactsSearchFailed(
+            response.status === 500
+              ? 'Contacts search failed. Please try again'
+              : responseData.message
           )
-          .toArray();
-
-        const existingContactIdentificators = getState().contacts.confirmedContacts.map((item: Contact) => item.contactProfile.identificator);
-        getState().contacts.incomingRequests.forEach((item: Contact) => existingContactIdentificators.push(item.contactProfile.identificator));
-        getState().contacts.outgoingRequests.forEach((item: Contact) =>  existingContactIdentificators.push(item.contactProfile.identificator));
-
-        contacts = contacts.filter(
-          (item) => item.identificator !== profile.identificator && !existingContactIdentificators.includes(item.identificator)
         );
-        dispatch(contactsSearchSuccess(contacts));
       }
     } catch (error) {
       console.log(error);
@@ -66,13 +56,33 @@ export const searchContacts = (searchString: string) => {
   };
 };
 
-export const createContactRequest = (contactSide: Partial<ContactSide>) => {
+export const createContactRequest = (contactIdentificator: string) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
-      const dbContactSide = {...contactSide};
-      delete dbContactSide.otherSideProfile;
-      await contacts.insertOne({ ...dbContactSide });
-      dispatch(contactRequestSuccess(contactSide));
+      const token = getState().auth.token;
+      const response = await fetch('http://localhost:3001/contacts/request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({identificator: contactIdentificator})
+      });
+
+      const responseData = await response.json();
+      if (response.status === 200) {
+        dispatch(contactRequestSuccess(responseData));
+      } else if (response.status === 422) {
+        dispatch(contactsOperationFailed(responseData[0].errorMessage));
+      } else {
+        dispatch(
+          contactsOperationFailed(
+            response.status === 500
+              ? 'Friend request failed. Please try again'
+              : responseData.message
+          )
+        );
+      }
     } catch (error) {
       dispatch(
         contactsOperationFailed('Friend request failed. Please try again')
@@ -85,138 +95,20 @@ export const fetchUserContacts = () => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       dispatch(contactsFetchingStart());
-      const profile = getState().profile.profile;
-      const user = null;//getState().auth.currentUser;
-      if (!user || !profile) {
-        return;
+      const token = getState().auth.token;
+      const response = await fetch('http://localhost:3001/contacts', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const responseData = await response.json();
+      if (response.status === 200) {
+        dispatch(
+          contactsFetchingSuccess(responseData)
+        );
+      } else {
+        contactsFetchingFailed('Friend request failed. Please try again');
       }
-
-      // const contactSides: ContactSide[] = await contacts
-      //   .aggregate([
-      //     {
-      //       $match: {
-      //         $or: [
-      //           {
-      //             ownerId: user.id,
-      //           },
-      //           {
-      //             otherSideIdentificator: profile.identificator,
-      //           },
-      //         ],
-      //       },
-      //     },
-
-      //     {
-      //       $lookup: {
-      //         from: 'profiles',
-      //         let: {
-      //           profileId: '$item.otherSideProfileId',
-      //         },
-      //         pipeline: [
-      //           {
-      //             $match: {
-      //               _id: 'profileId',
-      //             },
-      //           },
-      //           {
-      //             $project: {
-      //               ownerId: 0,
-      //             },
-      //           },
-      //         ],
-      //         as: 'otherSideProfile',
-      //       },
-      //     },
-
-      //     {
-      //       $lookup: {
-      //         from: 'profiles',
-      //         let: {
-      //           profileOwnerId: '$item.ownerId',
-      //         },
-      //         pipeline: [
-      //           {
-      //             $match: {
-      //               ownerId: 'profileOwnerId',
-      //             },
-      //           },
-      //           {
-      //             $project: {
-      //               ownerId: 0,
-      //             },
-      //           },
-      //         ],
-      //         as: 'ownerProfile',
-      //       },
-      //     },
-      //   ])
-      //   .toArray();
-
-      // const contactPairs: any = {};
-      // contactSides.forEach((contactSide: ContactSide) => {
-      //   let contactPair = contactPairs[contactSide.linkId] || {};
-      //   if (contactSide.ownerId === user.id) {
-      //     contactPair.me = contactSide;
-      //   } else {
-      //     contactPair.them = contactSide;
-      //   }
-      // });
-
-      let incomingRequests: Contact[] = [];
-      let outgoingRequests: Contact[] = [];
-      let confirmedContacts: Contact[] = [];
-
-      // Object.keys(contactPairs).forEach((linkId) => {
-      //   const contactPair: {
-      //     me: ContactSide | undefined;
-      //     them: ContactSide | undefined;
-      //   } = contactPairs[linkId];
-      //   if (
-      //     !contactPair.me &&
-      //     contactPair.them &&
-      //     contactPair.them.status === ContactSideStatus.WantToLink
-      //   ) {
-      //     const contact = {
-      //       status: ContactStatus.IncomingRequest,
-      //       contactProfile: contactPair.them.ownerProfile[0],
-      //       myCustomName: null,
-      //       contactCustomName: contactPair.them.customName,
-      //       myTrustPoints: 0,
-      //       contactTrustPoints: 0,
-      //     };
-      //     incomingRequests.push(contact);
-      //   } else if (
-      //     !contactPair.them &&
-      //     contactPair.me &&
-      //     contactPair.me.status === ContactSideStatus.WantToLink
-      //   ) {
-      //     const contact = {
-      //       status: ContactStatus.OutgoingRequest,
-      //       contactProfile: contactPair.me.otherSideProfile[0],
-      //       myCustomName: contactPair.me.customName,
-      //       contactCustomName: null,
-      //       myTrustPoints: 0,
-      //       contactTrustPoints: 0,
-      //     };
-      //     outgoingRequests.push(contact);
-      //   } else if (
-      //     contactPair.me &&
-      //     contactPair.them &&
-      //     contactPair.me.status === ContactSideStatus.WantToLink &&
-      //     contactPair.them.status === ContactSideStatus.WantToLink
-      //   ) {
-      //     const contact = {
-      //       status: ContactStatus.Connected,
-      //       contactProfile: contactPair.me.otherSideProfile[0],
-      //       myCustomName: contactPair.me.customName,
-      //       contactCustomName: contactPair.them.customName,
-      //       myTrustPoints: contactPair.me.trustPoints || 0,
-      //       contactTrustPoints: contactPair.them.trustPoints || 0,
-      //     };
-      //     confirmedContacts.push(contact);
-      //   }
-      // });
-      dispatch(contactsFetchingSuccess({confirmedContacts, incomingRequests, outgoingRequests}));
     } catch (error) {
       dispatch(
         contactsFetchingFailed('Friend request failed. Please try again')
@@ -227,66 +119,66 @@ export const fetchUserContacts = () => {
 
 const contactsFetchingStart = () => {
   return {
-    type: ContactsActionTypes.CONTACTS_FETCHING_START,
+    type: ContactsActionTypes.CONTACTS_FETCHING_START
   };
 };
 
-const contactsFetchingSuccess = (params: {
-  confirmedContacts: Contact[];
-  incomingRequests: Contact[];
-  outgoingRequests: Contact[];
-}) => {
+const contactsFetchingSuccess = (contacts: Contact[]) => {
   return {
     type: ContactsActionTypes.CONTACTS_FETCHING_SUCCESS,
-    confirmedContacts: params.confirmedContacts,
-    incomingRequests: params.incomingRequests,
-    outgoingRequests: params.outgoingRequests,
+    contacts
   };
 };
 
 const contactsFetchingFailed = (error: string) => {
   return {
     type: ContactsActionTypes.CONTACTS_FETCHING_FAILED,
-    error,
+    error
   };
 };
 
 const contactsSearchStart = () => {
   return {
-    type: ContactsActionTypes.CONTACTS_SEARCH_START,
+    type: ContactsActionTypes.CONTACTS_SEARCH_START
   };
 };
 
-const contactsSearchSuccess = (contacts: Partial<Profile>[]) => {
+const contactsSearchSuccess = (contacts: Profile[]) => {
   return {
     type: ContactsActionTypes.CONTACTS_SEARCH_SUCCESS,
-    contacts,
+    contacts
   };
 };
 
 const contactsSearchFailed = (error: string) => {
   return {
     type: ContactsActionTypes.CONTACTS_SEARCH_FAILED,
-    error,
+    error
   };
 };
 
 export const contactsOperationReset = () => {
   return {
-    type: ContactsActionTypes.CONTACTS_OPERATION_RESET,
+    type: ContactsActionTypes.CONTACTS_OPERATION_RESET
   };
 };
 
-const contactRequestSuccess = (contactSide) => {
+const contactRequestSuccess = (requestedContact: Contact) => {
   return {
     type: ContactsActionTypes.CONTACT_REQUEST_SUCCESS,
-    contactSide
+    requestedContact
   };
 };
 
 const contactsOperationFailed = (error: string) => {
   return {
     type: ContactsActionTypes.CONTACTS_OPERATION_FAILED,
-    error,
+    error
+  };
+};
+
+export const resetContactsStore = () => {
+  return {
+    type: ContactsActionTypes.RESET_CONTACTS_STORE
   };
 };

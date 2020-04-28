@@ -1,19 +1,16 @@
-import { StitchUser } from 'mongodb-stitch-browser-sdk';
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import withAuthCheck from '../../../hoc/withAuthCheck';
-import { ContactSideStatus, ContactSide } from '../../../stitch/model/contactSide';
 import * as actions from '../../../store/actions';
 import { Profile } from '../../../store/model/profile';
 import { State } from '../../../store/reducers/state';
-import { generateIdentificator } from '../../../util/util';
 import { Error } from '../../UI/Error/Error';
 import Spinner from '../../UI/Spinner/Spinner';
 
 interface FindContactsProps {
-  searchResult: Partial<Profile>[];
+  searchResult: Profile[];
   loading: boolean;
   addingSuccess: boolean;
   error: string | null;
@@ -21,7 +18,6 @@ interface FindContactsProps {
 
 const FindContacts = (props: FindContactsProps) => {
   const [searchString, setSearchString] = useState('');
-  const [addRequestSent, setAddRequestSent] = useState(false);
   const [searchRequestSent, setSearchRequestSent] = useState(false);
   const dispatch = useDispatch();
 
@@ -37,22 +33,15 @@ const FindContacts = (props: FindContactsProps) => {
     }
   }, [dispatch, searchString]);
 
-  const handleAddContact = useCallback(
-    (contact: Partial<Profile>) => {
-      // if (props.user != null) {        
-      //   const newContact: Partial<ContactSide> = {
-      //     otherSideProfileId: contact._id,
-      //     otherSideProfile: contact,
-      //     linkId: generateIdentificator(),
-      //     ownerId: props.user.id,
-      //     status: ContactSideStatus.WantToLink,
-      //     trustPoints: 0,
-      //     customName: ''
-      //   };
+  const handleKeyDown = useCallback((event) => {
+    if (event.keyCode === 13) { // enter
+      handleFindContacts();
+    }
+  }, [handleFindContacts]);
 
-      //   dispatch(actions.createContactRequest(newContact));
-      //   setAddRequestSent(true);
-      // }
+  const handleAddContact = useCallback(
+    (contact: Profile) => {
+      dispatch(actions.createContactRequest(contact.identificator));
     },
     [dispatch],
   )
@@ -60,35 +49,34 @@ const FindContacts = (props: FindContactsProps) => {
   let contactsList;
   if (props.loading) {
     contactsList = <Spinner />
-  } else if (props.error) {
-    contactsList = <Error>{props.error}</Error>
   } else if (searchRequestSent && props.searchResult.length === 0) {
     contactsList = <div>No contacts found</div>
   } else {
     contactsList = (
       <>
-      {/* {props.searchResult.map(contact => (
-        <div key={contact._id}>
+      {props.searchResult.map(contact => (
+        <div key={contact.identificator}>
           <div>
             {contact.avatarUrl == null || contact.avatarUrl === '' ? null : <img src={contact.avatarUrl} alt={contact.username} />}
           </div>
           <div>{contact.username}</div>
           <button onClick={() => handleAddContact(contact)}>Add</button>
         </div>
-      ))} */}
+      ))}
       </>
     );
   }
-  return (addRequestSent && props.addingSuccess && !props.error) ? 
+  return (searchRequestSent && props.addingSuccess && !props.error) ? 
   <Redirect to="/" /> :
   (
     <div>
       <input
         value={searchString}
         onChange={event => setSearchString(event.target.value)}
+        onKeyDown={event => handleKeyDown(event)}
       />
       <button onClick={handleFindContacts}>Find</button>
-
+      {props.error ? <Error>{props.error}</Error> : null}
       {contactsList}
     </div>
   );
@@ -96,7 +84,7 @@ const FindContacts = (props: FindContactsProps) => {
 
 FindContacts.propTypes = {};
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: State): FindContactsProps => {
   return {
     searchResult: state.contacts.searchResult,
     loading: state.contacts.loading,

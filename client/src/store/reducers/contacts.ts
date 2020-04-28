@@ -6,7 +6,7 @@ export interface ContactsState {
   confirmedContacts: Contact[];
   incomingRequests: Contact[];
   outgoingRequests: Contact[];
-  searchResult: Partial<Profile>[];
+  searchResult: Profile[];
   error: string | null;
   loading: boolean;
   contactOperationFinished: boolean;
@@ -19,7 +19,7 @@ const initialState: ContactsState = {
   searchResult: [],
   error: null,
   loading: false,
-  contactOperationFinished: false,
+  contactOperationFinished: false
 };
 
 export const contactsReducer = (
@@ -56,18 +56,37 @@ const contactsFetchingStart = (state: ContactsState, action) => {
   return {
     ...state,
     loading: true,
-    error: null,
+    error: null
   };
 };
 
 const contactsFetchingSuccess = (state: ContactsState, action) => {
+  const newConfirmedContacts: Contact[] = [];
+  const newOutgoingRequests: Contact[] = [];
+  const newIncomingRequests: Contact[] = [];
+
+  action.contacts.forEach((contact: Contact) => {
+    switch (contact.status) {
+      case ContactStatus.Connected:
+      case ContactStatus.ContactDeleted:
+        newConfirmedContacts.push(contact);
+        break;
+      case ContactStatus.OutgoingRequest:
+      case ContactStatus.RequestDenied:
+        newOutgoingRequests.push(contact);
+        break;
+      case ContactStatus.IncomingRequest:
+        newIncomingRequests.push(contact);
+    }
+  });
+
   return {
     ...state,
-    confirmedContacts: action.confirmedContacts,
-    outgoingRequests: action.outgoingRequests,
-    incomingRequests: action.incomingRequests,
+    confirmedContacts: newConfirmedContacts,
+    outgoingRequests: newOutgoingRequests,
+    incomingRequests: newIncomingRequests,
     loading: false,
-    error: null,
+    error: null
   };
 };
 
@@ -75,7 +94,7 @@ const contactsFetchingFailed = (state: ContactsState, action) => {
   return {
     ...state,
     loading: false,
-    error: action.error,
+    error: action.error
   };
 };
 
@@ -83,7 +102,7 @@ const contactsSearchStart = (state: ContactsState, action) => {
   return {
     ...state,
     loading: true,
-    error: null,
+    error: null
   };
 };
 
@@ -92,7 +111,7 @@ const contactsSearchSuccess = (state: ContactsState, action) => {
     ...state,
     searchResult: action.contacts,
     loading: false,
-    error: null,
+    error: null
   };
 };
 
@@ -100,7 +119,7 @@ const contactsSearchFailed = (state: ContactsState, action) => {
   return {
     ...state,
     loading: false,
-    error: action.error,
+    error: action.error
   };
 };
 
@@ -109,6 +128,8 @@ const contactsOperationReset = (state: ContactsState, action) => {
     ...state,
     contactOperationFinished: false,
     error: null,
+    loading: false,
+    searchResult: []
   };
 };
 
@@ -121,20 +142,11 @@ const contactsOperationReset = (state: ContactsState, action) => {
 // };
 
 const contactRequestSuccess = (state: ContactsState, action) => {
-  const requestedContact = {
-    status: ContactStatus.OutgoingRequest,
-    contactProfile: action.contactSide.otherSideProfile,
-    myCustomName: null,
-    contactCustomName: null,
-    myTrustPoints: 0,
-    contactTrustPoints: 0,
-  };
-
   return {
     ...state,
     contactOperationFinished: true,
     error: null,
-    outgoingRequests: [...state.outgoingRequests, requestedContact],
+    outgoingRequests: [...state.outgoingRequests, action.requestedContact]
   };
 };
 
@@ -142,6 +154,6 @@ const contactsOperationFailed = (state: ContactsState, action) => {
   return {
     ...state,
     contactOperationFinished: false,
-    error: action.error,
+    error: action.error
   };
 };

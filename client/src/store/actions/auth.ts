@@ -154,6 +154,7 @@ export const logout = () => {
       localStorage.removeItem('jwtToken');
       //TODO reset other stores
       dispatch(actions.resetProfileStore());
+      dispatch(actions.resetContactsStore());
       dispatch(logoutSuccess());
     }
   };

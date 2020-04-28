@@ -25,6 +25,7 @@ import { validateAndConvert } from '../validators/validationError';
 
 export interface AuthTokenPayload {
   userId: string;
+  profileId: string;
 }
 
 export const registerWithEmailAndPassword = async (
@@ -34,7 +35,11 @@ export const registerWithEmailAndPassword = async (
 ) => {
   try {
     const requestData = req.body;
-    const httpError = validateAndConvert(requestData, registerWithEmailPasswordRequestSchema, registerWithEmailPasswordErrorSchema);
+    const httpError = validateAndConvert(
+      requestData,
+      registerWithEmailPasswordRequestSchema,
+      registerWithEmailPasswordErrorSchema
+    );
     if (httpError) {
       return next(httpError);
     }
@@ -42,12 +47,10 @@ export const registerWithEmailAndPassword = async (
     let newUser: IUser = await User.findOne({ email: requestData.email });
     if (newUser) {
       return next(
-        httpErrors.validationError([
-          {
-            fieldName: 'email',
-            errorMessage: 'User with this email already exists'
-          }
-        ])
+        httpErrors.customValidationError(
+          'email',
+          'User with this email already exists'
+        )
       );
     }
     let newProfile: IProfile = new Profile({
@@ -75,7 +78,8 @@ export const registerWithEmailAndPassword = async (
     }
 
     const payload: AuthTokenPayload = {
-      userId: newUser._id
+      userId: newUser._id,
+      profileId: newProfile._id
     };
     const token = createAuthToken(payload);
     return res.status(201).json({
@@ -95,7 +99,11 @@ export const loginWithEmailAndPassword = async (
 ) => {
   try {
     const requestData = req.body;
-    const httpError = validateAndConvert(requestData, loginWithEmailPasswordRequestSchema, loginWithEmailPasswordErrorSchema);
+    const httpError = validateAndConvert(
+      requestData,
+      loginWithEmailPasswordRequestSchema,
+      loginWithEmailPasswordErrorSchema
+    );
     if (httpError) {
       return next(httpError);
     }
@@ -117,7 +125,8 @@ export const loginWithEmailAndPassword = async (
     const profile: IProfile = await Profile.findById(user.profile);
 
     const payload: AuthTokenPayload = {
-      userId: user._id
+      userId: user._id,
+      profileId: profile._id
     };
     const token = createAuthToken(payload);
     res.status(200).json({
@@ -140,12 +149,7 @@ export const loginWithGoogle = async (
     const idToken = req.body.idToken;
     if (!idToken) {
       return next(
-        httpErrors.validationError([
-          {
-            fieldName: 'idToken',
-            errorMessage: 'idToken is required'
-          }
-        ])
+        httpErrors.customValidationError('idToken', 'idToken is required')
       );
     }
 
@@ -176,7 +180,8 @@ export const loginWithGoogle = async (
       }
 
       const payload: AuthTokenPayload = {
-        userId: user._id
+        userId: user._id,
+        profileId: profile._id
       };
 
       const token = createAuthToken(payload);
@@ -200,16 +205,20 @@ export const loginWithFacebook = async (
 ) => {
   try {
     const requestData = req.body;
-    const httpError = validateAndConvert(requestData, facebookLoginRequestSchema, facebookLoginErrorSchema);
+    const httpError = validateAndConvert(
+      requestData,
+      facebookLoginRequestSchema,
+      facebookLoginErrorSchema
+    );
     if (httpError) {
       return next(httpError);
     }
 
-    const authCheckResponse = await fetch(
-      `https://graph.facebook.com/${requestData.userId}/?fields=id,name&access_token=${requestData.accessToken}`
-    );
+    const fbUrl = `https://graph.facebook.com/${requestData.userId}/?fields=id,name&access_token=${requestData.accessToken}`;
+    const authCheckResponse = await fetch(fbUrl);
     const authCheckResponseData = await authCheckResponse.json();
 
+    logger.debug(fbUrl);
     logger.debug(authCheckResponseData);
 
     let user = await User.findOne({ facebookId: authCheckResponseData.id });
@@ -232,7 +241,8 @@ export const loginWithFacebook = async (
     }
 
     const payload: AuthTokenPayload = {
-      userId: user._id
+      userId: user._id,
+      profileId: profile._id
     };
 
     const token = createAuthToken(payload);
@@ -316,12 +326,10 @@ export const confirmEmail = async (
     const confirmationToken = req.body.confirmationToken;
     if (!confirmationToken) {
       return next(
-        httpErrors.validationError([
-          {
-            fieldName: 'confirmationToken',
-            errorMessage: 'confirmationToken is required'
-          }
-        ])
+        httpErrors.customValidationError(
+          'confirmationToken',
+          'confirmationToken is required'
+        )
       );
     }
 
@@ -334,12 +342,10 @@ export const confirmEmail = async (
       const confirmationIdentificator = decodedToken.identificator;
       if (confirmationIdentificator !== user.confirmationIdentificator) {
         return next(
-          httpErrors.validationError([
-            {
-              fieldName: 'confirmationToken',
-              errorMessage: 'token is invalid'
-            }
-          ])
+          httpErrors.customValidationError(
+            'confirmationToken',
+            'token is invalid'
+          )
         );
       } else {
         user.confirmationIdentificator = null;
@@ -359,7 +365,11 @@ export const sendPasswordResetEmail = async (
   next: NextFunction
 ) => {
   try {
-    const httpError = validateAndConvert(req.body, sendResetPasswordEmailRequestSchema, sendResetPasswordEmailErrorSchema);
+    const httpError = validateAndConvert(
+      req.body,
+      sendResetPasswordEmailRequestSchema,
+      sendResetPasswordEmailErrorSchema
+    );
     if (httpError) {
       return next(httpError);
     }
@@ -368,12 +378,10 @@ export const sendPasswordResetEmail = async (
     const user: IUser = await User.findOne({ email });
     if (!user) {
       return next(
-        httpErrors.validationError([
-          {
-            fieldName: 'email',
-            errorMessage: 'User with this email does not exist.'
-          }
-        ])
+        httpErrors.customValidationError(
+          'email',
+          'User with this email does not exist.'
+        )
       );
     }
 
@@ -418,7 +426,11 @@ export const resetPassword = async (
 ) => {
   try {
     const requestData = req.body;
-    const httpError = validateAndConvert(requestData, resetPasswordRequestSchema, resetPasswordErrorSchema);
+    const httpError = validateAndConvert(
+      requestData,
+      resetPasswordRequestSchema,
+      resetPasswordErrorSchema
+    );
     if (httpError) {
       return next(httpError);
     }
@@ -431,12 +443,10 @@ export const resetPassword = async (
     const user: IUser = await User.findOne({ passwordResetIdentificator });
     if (!user) {
       return next(
-        httpErrors.validationError([
-          {
-            fieldName: 'resetPasswordToken',
-            errorMessage: 'token is invalid'
-          }
-        ])
+        httpErrors.customValidationError(
+          'resetPasswordToken',
+          'token is invalid'
+        )
       );
     }
     user.password = requestData.password;
