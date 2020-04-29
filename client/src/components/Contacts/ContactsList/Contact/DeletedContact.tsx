@@ -1,21 +1,31 @@
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
+import * as actions from '../../../../store/actions';
 import { Contact } from '../../../../store/model/contact';
 import Avatar from '../../../UI/Avatar/Avatar';
+import { Error } from '../../../UI/Error/Error';
 
 interface DeletedContactProps {
   contact: Contact;
+  error: string | null;
 }
 
 const DeletedContact = (props: DeletedContactProps) => {
-  const handleConfirmDeletedContact = useCallback(
-    () => {
-      // TODO
-      console.log('Ok..')
-    },
-    [],
-  )
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+
+  const handleConfirmDeletedContact = useCallback(() => {
+    setLoading(true);
+    dispatch(
+      actions.confirmSeenDeletedContact(
+        props.contact.contactProfile.identificator,
+        () => setLoading(false)
+      )
+    );
+  }, [props.contact, dispatch]);
+
   return (
     <div>
       <Avatar
@@ -32,13 +42,15 @@ const DeletedContact = (props: DeletedContactProps) => {
           '<noname>'}
       </div>
       <div>This person deleted you from their friend list</div>
-      <button onClick={handleConfirmDeletedContact}>OK</button>
+      {props.error ? <Error>{props.error}</Error> : null}
+      <button onClick={handleConfirmDeletedContact} disabled={loading}>OK</button>
     </div>
   );
 };
 
 DeletedContact.propTypes = {
-  contact: PropTypes.object
+  contact: PropTypes.object,
+  error: PropTypes.string
 };
 
 export default DeletedContact;

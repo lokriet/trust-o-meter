@@ -15,7 +15,7 @@ export enum ContactStatus {
 
 export interface Contact {
   status: ContactStatus;
-  contactProfile: Partial<Profile>;
+  contactProfile: Profile;
   myCustomName: string | null;
   contactCustomName: string | null;
   myTrustPoints: number;

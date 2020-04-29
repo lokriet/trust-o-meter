@@ -25,5 +25,12 @@ export {
   searchContacts,
   contactsOperationReset,
   createContactRequest,
-  resetContactsStore
+  resetContactsStore,
+
+  approveContactRequest,
+  rejectContactRequest,
+  confirmSeenRejectedRequest,
+  withdrawContactRequest,
+  deleteContact,
+  confirmSeenDeletedContact
 } from './contacts';

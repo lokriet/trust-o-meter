@@ -15,6 +15,14 @@ export const ContactsActionTypes = {
   CONTACT_REQUEST_SUCCESS: 'CONTACT_REQUEST_SUCCESS',
   CONTACTS_OPERATION_FAILED: 'CONTACTS_OPERATION_FAILED',
 
+  CONTACT_ITEM_OPERATION_FAILED: 'CONTACT_ITEM_OPERATION_FAILED',
+  CONTACT_APPROVE_SUCCESS: 'CONTACT_APPROVE_SUCCESS',
+  CONTACT_REJECT_SUCCESS: 'CONTACT_REJECT_SUCCESS',
+  REQUEST_WITHDRAW_SUCCESS: 'REQUEST_WITHDRAW_SUCCESS',
+  REJECTED_REQUEST_SEEN_SUCCESS: 'REJECTED_REQUEST_SEEN_SUCCESS',
+  CONTACT_DELETE_SUCCESS: 'CONTACT_DELETE_SUCCESS',
+  DELETED_CONTACT_SEEN_SUCCESS: 'DELETED_CONTACT_SEEN_SUCCESS',
+
   RESET_CONTACTS_STORE: 'RESET_CONTACTS_STORE'
 };
 
@@ -36,7 +44,7 @@ export const searchContacts = (searchString: string) => {
       if (response.status === 200) {
         dispatch(contactsSearchSuccess(responseData));
       } else if (response.status === 422) {
-        dispatch(contactsSearchFailed(responseData[0].errorMessage));
+        dispatch(contactsSearchFailed(responseData.data[0].errorMessage));
       } else {
         console.log('dispatching error');
         dispatch(
@@ -66,14 +74,14 @@ export const createContactRequest = (contactIdentificator: string) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({identificator: contactIdentificator})
+        body: JSON.stringify({ identificator: contactIdentificator })
       });
 
       const responseData = await response.json();
       if (response.status === 200) {
         dispatch(contactRequestSuccess(responseData));
       } else if (response.status === 422) {
-        dispatch(contactsOperationFailed(responseData[0].errorMessage));
+        dispatch(contactsOperationFailed(responseData.data[0].errorMessage));
       } else {
         dispatch(
           contactsOperationFailed(
@@ -103,16 +111,152 @@ export const fetchUserContacts = () => {
       });
       const responseData = await response.json();
       if (response.status === 200) {
-        dispatch(
-          contactsFetchingSuccess(responseData)
-        );
+        dispatch(contactsFetchingSuccess(responseData));
       } else {
-        contactsFetchingFailed('Friend request failed. Please try again');
+        dispatch(
+          contactsFetchingFailed('Friend request failed. Please try again')
+        );
       }
     } catch (error) {
       dispatch(
         contactsFetchingFailed('Friend request failed. Please try again')
       );
+    }
+  };
+};
+
+export const approveContactRequest = (
+  contactIdentificator: string,
+  onOperationDone: any
+) => {
+  return contactStatusChange({
+    contactIdentificator,
+    onOperationDone,
+    errorMessage:
+      'Failed to approve friend request. Please check your internet connection and refresh the page before trying again.',
+    operationUrl: 'http://localhost:3001/contacts/approve',
+    hasResponseData: true,
+    successAction: contactApproveSuccess
+  });
+};
+
+export const rejectContactRequest = (
+  contactIdentificator: string,
+  onOperationDone: any
+) => {
+  return contactStatusChange({
+    contactIdentificator,
+    onOperationDone,
+    errorMessage:
+      'Failed to reject friend request. Please check your internet connection and refresh the page before trying again.',
+    operationUrl: 'http://localhost:3001/contacts/reject',
+    hasResponseData: false,
+    successAction: contactRejectSuccess
+  });
+};
+
+export const withdrawContactRequest = (
+  contactIdentificator: string,
+  onOperationDone: any
+) => {
+  return contactStatusChange({
+    contactIdentificator,
+    onOperationDone,
+    errorMessage: 'Failed to withdraw friend request. Please check your internet connection and refresh the page before trying again.',
+    operationUrl: 'http://localhost:3001/contacts/withdraw',
+    hasResponseData: false,
+    successAction: requestWithdrawSuccess
+  })
+}
+
+export const confirmSeenRejectedRequest = (
+  contactIdentificator: string,
+  onOperationDone: any
+) => {
+  return contactStatusChange({
+    contactIdentificator,
+    onOperationDone,
+    errorMessage: 'Operation failed. Please check your internet connection and refresh the page before trying again.',
+    operationUrl: 'http://localhost:3001/contacts/seenRequestReject',
+    hasResponseData: false,
+    successAction: confirmSeenRejectedRequestSuccess
+  })
+}
+
+export const deleteContact = (
+  contactIdentificator: string,
+  onOperationDone: any
+) => {
+  return contactStatusChange({
+    contactIdentificator,
+    onOperationDone,
+    errorMessage: 'Failed to delete contact. Please check your internet connection and refresh the page before trying again.',
+    operationUrl: 'http://localhost:3001/contacts/delete',
+    hasResponseData: false,
+    successAction: contactDeleteSuccess
+  })
+}
+
+export const confirmSeenDeletedContact = (
+  contactIdentificator: string,
+  onOperationDone: any
+) => {
+  return contactStatusChange({
+    contactIdentificator,
+    onOperationDone,
+    errorMessage: 'Operation failed. Please check your internet connection and refresh the page before trying again.',
+    operationUrl: 'http://localhost:3001/contacts/seenContactDelete',
+    hasResponseData: false,
+    successAction: confirmSeenDeletedContactSuccess
+  })
+}
+
+const contactStatusChange = (props: {
+  contactIdentificator: string;
+  errorMessage: string;
+  operationUrl: string;
+  successAction: any;
+  hasResponseData: boolean;
+  onOperationDone: any;
+}) => {
+  return async (dispatch: (...args: any[]) => void, getState: () => State) => {
+    try {
+      const token = getState().auth.token;
+      const response = await fetch(props.operationUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          identificator: props.contactIdentificator
+        })
+      });
+      if (response.status === 200) {
+        if (props.hasResponseData) {
+          const responseData = await response.json();
+          dispatch(props.successAction(responseData));
+        } else {
+          dispatch(props.successAction(props.contactIdentificator));
+        }
+      } else {
+        dispatch(
+          contactItemOperationFailed(
+            props.contactIdentificator,
+            props.errorMessage
+          )
+        );
+      }
+    } catch (error) {
+      console.log('error', error);
+      dispatch(
+        contactItemOperationFailed(
+          props.contactIdentificator,
+          props.errorMessage
+        )
+      );
+    } finally {
+      props.onOperationDone();
     }
   };
 };
@@ -174,6 +318,56 @@ const contactsOperationFailed = (error: string) => {
   return {
     type: ContactsActionTypes.CONTACTS_OPERATION_FAILED,
     error
+  };
+};
+
+const contactItemOperationFailed = (identificator: string, error: string) => {
+  return {
+    type: ContactsActionTypes.CONTACT_ITEM_OPERATION_FAILED,
+    identificator,
+    error
+  };
+};
+
+const contactApproveSuccess = (contact: Contact) => {
+  return {
+    type: ContactsActionTypes.CONTACT_APPROVE_SUCCESS,
+    contact
+  };
+};
+
+const contactRejectSuccess = (identificator: string) => {
+  return {
+    type: ContactsActionTypes.CONTACT_REJECT_SUCCESS,
+    identificator
+  };
+};
+
+const requestWithdrawSuccess = (identificator: string) => {
+  return {
+    type: ContactsActionTypes.REQUEST_WITHDRAW_SUCCESS,
+    identificator
+  };
+};
+
+const confirmSeenRejectedRequestSuccess = (identificator: string) => {
+  return {
+    type: ContactsActionTypes.REJECTED_REQUEST_SEEN_SUCCESS,
+    identificator
+  };
+};
+
+const contactDeleteSuccess = (identificator: string) => {
+  return {
+    type: ContactsActionTypes.CONTACT_DELETE_SUCCESS,
+    identificator
+  };
+};
+
+const confirmSeenDeletedContactSuccess = (identificator: string) => {
+  return {
+    type: ContactsActionTypes.DELETED_CONTACT_SEEN_SUCCESS,
+    identificator
   };
 };
 

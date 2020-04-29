@@ -18,6 +18,7 @@ interface ContactsListProps {
   incomingRequests: Contact[];
   loading: boolean;
   error: string | null;
+  itemErrors: any;
 }
 
 const ContactsList = (props: ContactsListProps) => {
@@ -44,12 +45,14 @@ const ContactsList = (props: ContactsListProps) => {
           <IncomingRequest
             key={incomingRequest.contactProfile.identificator}
             contact={incomingRequest}
+            error={props.itemErrors[incomingRequest.contactProfile.identificator]}
           />
         ))}
         {props.outgoingRequests.map((outgoingRequest: Contact) => (
           <OutgoingRequest
             key={outgoingRequest.contactProfile.identificator}
             contact={outgoingRequest}
+            error={props.itemErrors[outgoingRequest.contactProfile.identificator]}
           />
         ))}
         {props.confirmedContacts.map((contact: Contact) =>
@@ -57,11 +60,13 @@ const ContactsList = (props: ContactsListProps) => {
             <DeletedContact
               key={contact.contactProfile.identificator}
               contact={contact}
+              error={props.itemErrors[contact.contactProfile.identificator]}
             />
           ) : (
             <ConfirmedContact
               key={contact.contactProfile.identificator}
               contact={contact}
+              error={props.itemErrors[contact.contactProfile.identificator]}
             />
           )
         )}
@@ -79,7 +84,8 @@ const mapStateToProps = (state: State): ContactsListProps => {
     outgoingRequests: state.contacts.outgoingRequests,
     incomingRequests: state.contacts.incomingRequests,
     loading: state.contacts.loading,
-    error: state.contacts.error
+    error: state.contacts.error,
+    itemErrors: state.contacts.itemErrors
   };
 };
 

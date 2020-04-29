@@ -27,25 +27,20 @@ const initDatabase = () => {
       throw e;
     });
 
-  if (process.env.NODE_ENV === 'development') {
-    mongoose.set(
-      'debug',
-      (collectionName: string, method: string, query: any, doc: any) => {
-        logger.debug(
-          `${collectionName}.${method}\n${JSON.stringify(
-            query,
-            null,
-            2
-          )}`
-        );
-        logger.debug(JSON.stringify(
-          doc,
-          null,
-          2
-        ));
-      }
-    );
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   mongoose.set(
+  //     'debug',
+  //     (collectionName: string, method: string, query: any, doc: any, options: any) => {
+  //       logger.debug(
+  //         `${collectionName}.${method}\n${JSON.stringify(
+  //           query,
+  //           null,
+  //           2
+  //         )}`
+  //       );
+  //     }
+  //   );
+  // }
 };
 
 export default initDatabase;

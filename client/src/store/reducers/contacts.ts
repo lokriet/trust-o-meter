@@ -10,6 +10,8 @@ export interface ContactsState {
   error: string | null;
   loading: boolean;
   contactOperationFinished: boolean;
+
+  itemErrors: any;
 }
 
 const initialState: ContactsState = {
@@ -19,7 +21,9 @@ const initialState: ContactsState = {
   searchResult: [],
   error: null,
   loading: false,
-  contactOperationFinished: false
+  contactOperationFinished: false,
+
+  itemErrors: {}
 };
 
 export const contactsReducer = (
@@ -45,6 +49,22 @@ export const contactsReducer = (
       return contactRequestSuccess(state, action);
     case actionTypes.contacts.CONTACTS_OPERATION_FAILED:
       return contactsOperationFailed(state, action);
+
+    case actionTypes.contacts.CONTACT_ITEM_OPERATION_FAILED:
+      return contactItemOperationFailed(state, action);
+    case actionTypes.contacts.CONTACT_APPROVE_SUCCESS:
+      return contactApproveSuccess(state, action);
+    case actionTypes.contacts.CONTACT_REJECT_SUCCESS:
+      return contactRejectSuccess(state, action);
+    case actionTypes.contacts.REQUEST_WITHDRAW_SUCCESS:
+      return requestWithdrawSuccess(state, action);
+    case actionTypes.contacts.REJECTED_REQUEST_SEEN_SUCCESS:
+      return confirmSeenRejectedRequestSuccess(state, action);
+    case actionTypes.contacts.CONTACT_DELETE_SUCCESS:
+      return contactDeleteSuccess(state, action);
+    case actionTypes.contacts.DELETED_CONTACT_SEEN_SUCCESS:
+      return confirmSeenDeletedContact(state, action);
+
     case actionTypes.contacts.RESET_CONTACTS_STORE:
       return initialState;
     default:
@@ -52,7 +72,7 @@ export const contactsReducer = (
   }
 };
 
-const contactsFetchingStart = (state: ContactsState, action) => {
+const contactsFetchingStart = (state: ContactsState, action): ContactsState => {
   return {
     ...state,
     loading: true,
@@ -60,7 +80,10 @@ const contactsFetchingStart = (state: ContactsState, action) => {
   };
 };
 
-const contactsFetchingSuccess = (state: ContactsState, action) => {
+const contactsFetchingSuccess = (
+  state: ContactsState,
+  action
+): ContactsState => {
   const newConfirmedContacts: Contact[] = [];
   const newOutgoingRequests: Contact[] = [];
   const newIncomingRequests: Contact[] = [];
@@ -90,7 +113,10 @@ const contactsFetchingSuccess = (state: ContactsState, action) => {
   };
 };
 
-const contactsFetchingFailed = (state: ContactsState, action) => {
+const contactsFetchingFailed = (
+  state: ContactsState,
+  action
+): ContactsState => {
   return {
     ...state,
     loading: false,
@@ -98,7 +124,7 @@ const contactsFetchingFailed = (state: ContactsState, action) => {
   };
 };
 
-const contactsSearchStart = (state: ContactsState, action) => {
+const contactsSearchStart = (state: ContactsState, action): ContactsState => {
   return {
     ...state,
     loading: true,
@@ -106,7 +132,7 @@ const contactsSearchStart = (state: ContactsState, action) => {
   };
 };
 
-const contactsSearchSuccess = (state: ContactsState, action) => {
+const contactsSearchSuccess = (state: ContactsState, action): ContactsState => {
   return {
     ...state,
     searchResult: action.contacts,
@@ -115,7 +141,7 @@ const contactsSearchSuccess = (state: ContactsState, action) => {
   };
 };
 
-const contactsSearchFailed = (state: ContactsState, action) => {
+const contactsSearchFailed = (state: ContactsState, action): ContactsState => {
   return {
     ...state,
     loading: false,
@@ -123,7 +149,10 @@ const contactsSearchFailed = (state: ContactsState, action) => {
   };
 };
 
-const contactsOperationReset = (state: ContactsState, action) => {
+const contactsOperationReset = (
+  state: ContactsState,
+  action
+): ContactsState => {
   return {
     ...state,
     contactOperationFinished: false,
@@ -133,15 +162,7 @@ const contactsOperationReset = (state: ContactsState, action) => {
   };
 };
 
-// const contactsOperationSuccess = (state: ContactsState, action) => {
-//   return {
-//     ...state,
-//     contactOperationFinished: true,
-//     error: null
-//   };
-// };
-
-const contactRequestSuccess = (state: ContactsState, action) => {
+const contactRequestSuccess = (state: ContactsState, action): ContactsState => {
   return {
     ...state,
     contactOperationFinished: true,
@@ -150,10 +171,118 @@ const contactRequestSuccess = (state: ContactsState, action) => {
   };
 };
 
-const contactsOperationFailed = (state: ContactsState, action) => {
+const contactsOperationFailed = (
+  state: ContactsState,
+  action
+): ContactsState => {
   return {
     ...state,
     contactOperationFinished: false,
     error: action.error
   };
+};
+
+const contactItemOperationFailed = (
+  state: ContactsState,
+  action
+): ContactsState => {
+  return {
+    ...state,
+    itemErrors: { ...state.itemErrors, [action.identificator]: action.error }
+  };
+};
+
+const contactApproveSuccess = (state: ContactsState, action): ContactsState => {
+  const contact: Contact = action.contact;
+  const identificator: string = contact.contactProfile.identificator;
+  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const newIncomingRequests = state.incomingRequests.filter(
+    (item: Contact) => item.contactProfile.identificator !== identificator
+  );
+  const newConfirmedContacts = state.confirmedContacts.concat(contact);
+  return {
+    ...state,
+    itemErrors: newItemErrors,
+    incomingRequests: newIncomingRequests,
+    confirmedContacts: newConfirmedContacts
+  };
+};
+
+const contactRejectSuccess = (state: ContactsState, action): ContactsState => {
+  const identificator: string = action.identificator;
+  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const newIncomingRequests = state.incomingRequests.filter(
+    (item: Contact) => item.contactProfile.identificator !== identificator
+  );
+  return {
+    ...state,
+    itemErrors: newItemErrors,
+    incomingRequests: newIncomingRequests
+  };
+};
+
+const requestWithdrawSuccess = (state: ContactsState, action): ContactsState => {
+  const identificator: string = action.identificator;
+  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const newOutgoingRequests = state.incomingRequests.filter(
+    (item: Contact) => item.contactProfile.identificator !== identificator
+  );
+  return {
+    ...state,
+    itemErrors: newItemErrors,
+    outgoingRequests: newOutgoingRequests
+  };
+};
+
+const confirmSeenRejectedRequestSuccess = (state: ContactsState, action): ContactsState => {
+  const identificator: string = action.identificator;
+  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const newOutgoingRequests = state.incomingRequests.filter(
+    (item: Contact) => item.contactProfile.identificator !== identificator
+  );
+  return {
+    ...state,
+    itemErrors: newItemErrors,
+    outgoingRequests: newOutgoingRequests
+  };
+};
+
+const contactDeleteSuccess = (state: ContactsState, action): ContactsState => {
+  const identificator: string = action.identificator;
+  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const newConfirmedContacts = state.incomingRequests.filter(
+    (item: Contact) => item.contactProfile.identificator !== identificator
+  );
+  return {
+    ...state,
+    itemErrors: newItemErrors,
+    confirmedContacts: newConfirmedContacts
+  };
+};
+
+const confirmSeenDeletedContact = (state: ContactsState, action): ContactsState => {
+  const identificator: string = action.identificator;
+  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const newConfirmedContacts = state.incomingRequests.filter(
+    (item: Contact) => item.contactProfile.identificator !== identificator
+  );
+  return {
+    ...state,
+    itemErrors: newItemErrors,
+    confirmedContacts: newConfirmedContacts
+  };
+};
+
+const removeItemError = (itemErrors: any, identificator: string): any => {
+  let newErrors: any;
+  if (itemErrors[identificator] != null) {
+    newErrors = { ...itemErrors };
+    delete newErrors[identificator];
+    if (newErrors == null) {
+      newErrors = {};
+    }
+  } else {
+    newErrors = itemErrors;
+  }
+  return newErrors;
 };

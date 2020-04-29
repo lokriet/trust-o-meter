@@ -1,23 +1,40 @@
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
+import * as actions from '../../../../store/actions';
 import { Contact, ContactStatus } from '../../../../store/model/contact';
 import Avatar from '../../../UI/Avatar/Avatar';
+import { Error } from '../../../UI/Error/Error';
 
 interface OutgoingRequestProps {
   contact: Contact;
+  error: string | null;
 }
 
 const OutgoingRequest = (props: OutgoingRequestProps) => {
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+
   const handleWithdraw = useCallback(() => {
-    // TODO
-    console.log('withdraw');
-  }, [props.contact]);
+    setLoading(true);
+    dispatch(
+      actions.withdrawContactRequest(
+        props.contact.contactProfile.identificator,
+        () => setLoading(false)
+      )
+    );
+  }, [props.contact, dispatch]);
 
   const handleConfirm = useCallback(() => {
-    // TODO
-    console.log('seen rejected request');
-  }, [props.contact]);
+    setLoading(true);
+    dispatch(
+      actions.confirmSeenRejectedRequest(
+        props.contact.contactProfile.identificator,
+        () => setLoading(false)
+      )
+    );
+  }, [props.contact, dispatch]);
 
   return (
     <div>
@@ -40,12 +57,13 @@ const OutgoingRequest = (props: OutgoingRequestProps) => {
       {props.contact.status === ContactStatus.RequestDenied ? (
         <div>Request denied</div>
       ) : null}
+      {props.error ? <Error>{props.error}</Error> : null}
       <div>
         {props.contact.status === ContactStatus.OutgoingRequest ? (
-          <button onClick={handleWithdraw}>Withdraw</button>
+          <button onClick={handleWithdraw} disabled={loading}>Withdraw</button>
         ) : null}
         {props.contact.status === ContactStatus.RequestDenied ? (
-          <button onClick={handleConfirm}>Ok</button>
+          <button onClick={handleConfirm} disabled={loading}>Ok</button>
         ) : null}
       </div>
     </div>
@@ -53,7 +71,8 @@ const OutgoingRequest = (props: OutgoingRequestProps) => {
 };
 
 OutgoingRequest.propTypes = {
-  contact: PropTypes.object
+  contact: PropTypes.object,
+  error: PropTypes.string
 };
 
 export default OutgoingRequest;
