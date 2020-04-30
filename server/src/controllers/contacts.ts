@@ -186,7 +186,8 @@ export const approveContactRequest = async (
       contactIdentificator: req.body.identificator,
       expectedUserStatus: ContactSideStatus.Pending,
       expectedContactStatus: ContactSideStatus.WantToConnect,
-      changeToStatus: ContactSideStatus.WantToConnect
+      changeToStatus: ContactSideStatus.WantToConnect,
+      finalStatus: false
     });
     const userContact: UserContact = await updatedContact.toUserContact(
       req.profileId
@@ -208,7 +209,8 @@ export const rejectContactRequest = async (
       contactIdentificator: req.body.identificator,
       expectedUserStatus: ContactSideStatus.Pending,
       expectedContactStatus: ContactSideStatus.WantToConnect,
-      changeToStatus: ContactSideStatus.DontWantToConnect
+      changeToStatus: ContactSideStatus.DontWantToConnect,
+      finalStatus: false
     });
     res.status(200).send();
   } catch (error) {
@@ -227,7 +229,8 @@ export const withdrawContactRequest = async (
       contactIdentificator: req.body.identificator,
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.Pending,
-      changeToStatus: ContactSideStatus.Deleted
+      changeToStatus: ContactSideStatus.Deleted,
+      finalStatus: true
     });
 
     res.status(200).send();
@@ -247,7 +250,8 @@ export const confirmRequestRejectSeen = async (
       contactIdentificator: req.body.identificator,
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.DontWantToConnect,
-      changeToStatus: ContactSideStatus.Deleted
+      changeToStatus: ContactSideStatus.Deleted,
+      finalStatus: true
     });
 
     res.status(200).send();
@@ -267,7 +271,8 @@ export const deleteContact = async (
       contactIdentificator: req.body.identificator,
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.WantToConnect,
-      changeToStatus: ContactSideStatus.Deleted
+      changeToStatus: ContactSideStatus.Deleted,
+      finalStatus: false
     });
     res.status(200).send();
   } catch (error) {
@@ -286,7 +291,8 @@ export const confirmDeletedContactSeen = async (
       contactIdentificator: req.body.identificator,
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.Deleted,
-      changeToStatus: ContactSideStatus.Deleted
+      changeToStatus: ContactSideStatus.Deleted,
+      finalStatus: true
     });
 
     res.status(200).send();
@@ -301,7 +307,8 @@ const contactStatusChange = async (props: {
   expectedUserStatus: ContactSideStatus;
   expectedContactStatus: ContactSideStatus;
   changeToStatus: ContactSideStatus;
-}): Promise<IContact> => {
+  finalStatus: boolean;
+}): Promise<IContact | null> => {
   const contactProfile = await getContactProfile(props.contactIdentificator);
   let existingContact: IContact = await getExistingContact(
     contactProfile._id,
@@ -330,9 +337,15 @@ const contactStatusChange = async (props: {
     );
   }
 
-  existingContact.sides[userSideIndex].status = props.changeToStatus;
-  existingContact = await existingContact.save();
-  return existingContact;
+  if (props.finalStatus) {
+    await existingContact.remove();
+    return null;
+  } else {
+    existingContact.sides[userSideIndex].status = props.changeToStatus;
+    existingContact = await existingContact.save();
+    return existingContact;
+  }
+
 };
 
 export const updateContactCustomName = async (

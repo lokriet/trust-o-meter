@@ -37,3 +37,13 @@ export {
   increaseContactTrust,
   decreaseContactTrust
 } from './contacts';
+
+export {
+  fetchStatusList,
+  createStatus,
+  updateStatus,
+  deleteStatus,
+  createAction,
+  updateAction,
+  deleteAction
+} from './status';

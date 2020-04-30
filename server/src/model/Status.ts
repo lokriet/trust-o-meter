@@ -1,4 +1,4 @@
-import { Schema, Types, model, Document } from "mongoose";
+import { Document, model, Schema, Types } from 'mongoose';
 
 const ActionSchema = new Schema({
   name: {
@@ -25,16 +25,9 @@ export interface IAction extends Document {
   name: string;
 }
 
-interface IStatusBase extends Document {
+export interface IStatus extends Document {
   name: string;
   minTrust: number;
-}
-
-export interface IStatus extends IStatusBase {
-  actions: Types.Array<IAction["_id"]>;
-}
-
-export interface IStatusPopulated extends IStatusBase {
   actions: Types.Array<IAction>;
 }
 
