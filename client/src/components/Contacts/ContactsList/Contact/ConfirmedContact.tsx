@@ -29,6 +29,7 @@ const getPronoun = (gender: Gender | undefined): string => {
 
 const ConfirmedContact = (props: ContactProps) => {
   const [loading, setLoading] = useState(false);
+  const [myCustomName, setMyCustomName] = useState(props.contact.myCustomName);
   const dispatch = useDispatch();
 
   const getTrustPoints = useCallback(() => {
@@ -38,28 +39,42 @@ const ConfirmedContact = (props: ContactProps) => {
   }, [props.contact]);
 
   const handleIncreaseTrust = useCallback(() => {
-    // TODO
-    console.log('increase trust');
+    setLoading(true);
+    dispatch(
+      actions.increaseContactTrust(
+        props.contact.contactProfile.identificator, 
+        () => setLoading(false)
+      )
+    );
   }, [props.contact]);
 
   const handleDecreaseTrust = useCallback(() => {
-    // TODO
-    console.log('decrease trust');
+    setLoading(true);
+    dispatch(
+      actions.decreaseContactTrust(
+        props.contact.contactProfile.identificator,
+        () => setLoading(false)
+      )
+    );
   }, [props.contact]);
 
   const handleChangeCustomName = useCallback(() => {
-    // TODO
-    console.log('change name');
-  }, [props.contact]);
+    setLoading(true);
+    dispatch(
+      actions.updateContactCustomName(
+        props.contact.contactProfile.identificator,
+        myCustomName,
+        () => setLoading(false)
+      )
+    );
+  }, [props.contact, dispatch, myCustomName]);
 
-  
   const handleDelete = useCallback(() => {
     // TODO - are you sure you want to delete
     setLoading(true);
     dispatch(
-      actions.deleteContact(
-        props.contact.contactProfile.identificator,
-        () => setLoading(false)
+      actions.deleteContact(props.contact.contactProfile.identificator, () =>
+        setLoading(false)
       )
     );
   }, [props.contact, dispatch]);
@@ -79,15 +94,32 @@ const ConfirmedContact = (props: ContactProps) => {
           props.contact.contactProfile.username ||
           '<noname>'}
       </div>
-      <div>{getTrustPoints()}</div>
+        <div>my trust: {props.contact.myTrustPoints}</div>
+      <div>their TODO trust: {props.contact.contactTrustPoints}</div>
+      <div>TP: {getTrustPoints()}</div>
       {props.error ? <UIError>{props.error}</UIError> : null}
       <div>
-        <button onClick={handleIncreaseTrust} disabled={loading}>Trust {getPronoun(props.contact.contactProfile.gender)}</button>
-        <button onClick={handleDecreaseTrust} disabled={loading}>Doubt {getPronoun(props.contact.contactProfile.gender)}</button>
-
-        <button onClick={handleChangeCustomName} disabled={loading}>Change custom name</button>
-
-        <button onClick={handleDelete} disabled={loading}>Delete</button>
+        <button onClick={handleIncreaseTrust} disabled={loading}>
+          Trust {getPronoun(props.contact.contactProfile.gender)}
+        </button>
+        <button onClick={handleDecreaseTrust} disabled={loading || props.contact.myTrustPoints < 0.01}>
+          Doubt {getPronoun(props.contact.contactProfile.gender)}
+        </button>
+      </div>
+      <div>
+        <input
+          type="text"
+          defaultValue={props.contact.myCustomName || ''}
+          onChange={(event) => setMyCustomName(event.target.value)}
+        />
+        <button onClick={handleChangeCustomName} disabled={loading}>
+          Change custom name
+        </button>
+      </div>
+      <div>
+        <button onClick={handleDelete} disabled={loading}>
+          Delete
+        </button>
       </div>
     </div>
   );

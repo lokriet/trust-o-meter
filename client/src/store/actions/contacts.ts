@@ -1,4 +1,4 @@
-import { Contact } from '../model/contact';
+import { Contact, ContactUpdate } from '../model/contact';
 import { Profile } from '../model/profile';
 import { State } from '../reducers/state';
 
@@ -22,6 +22,7 @@ export const ContactsActionTypes = {
   REJECTED_REQUEST_SEEN_SUCCESS: 'REJECTED_REQUEST_SEEN_SUCCESS',
   CONTACT_DELETE_SUCCESS: 'CONTACT_DELETE_SUCCESS',
   DELETED_CONTACT_SEEN_SUCCESS: 'DELETED_CONTACT_SEEN_SUCCESS',
+  CONTACT_UPDATE_SUCCESS: 'CONTACT_UPDATE_SUCCESS',
 
   RESET_CONTACTS_STORE: 'RESET_CONTACTS_STORE'
 };
@@ -162,12 +163,13 @@ export const withdrawContactRequest = (
   return contactStatusChange({
     contactIdentificator,
     onOperationDone,
-    errorMessage: 'Failed to withdraw friend request. Please check your internet connection and refresh the page before trying again.',
+    errorMessage:
+      'Failed to withdraw friend request. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/withdraw',
     hasResponseData: false,
     successAction: requestWithdrawSuccess
-  })
-}
+  });
+};
 
 export const confirmSeenRejectedRequest = (
   contactIdentificator: string,
@@ -176,12 +178,13 @@ export const confirmSeenRejectedRequest = (
   return contactStatusChange({
     contactIdentificator,
     onOperationDone,
-    errorMessage: 'Operation failed. Please check your internet connection and refresh the page before trying again.',
+    errorMessage:
+      'Operation failed. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/seenRequestReject',
     hasResponseData: false,
     successAction: confirmSeenRejectedRequestSuccess
-  })
-}
+  });
+};
 
 export const deleteContact = (
   contactIdentificator: string,
@@ -190,12 +193,13 @@ export const deleteContact = (
   return contactStatusChange({
     contactIdentificator,
     onOperationDone,
-    errorMessage: 'Failed to delete contact. Please check your internet connection and refresh the page before trying again.',
+    errorMessage:
+      'Failed to delete contact. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/delete',
     hasResponseData: false,
     successAction: contactDeleteSuccess
-  })
-}
+  });
+};
 
 export const confirmSeenDeletedContact = (
   contactIdentificator: string,
@@ -204,12 +208,13 @@ export const confirmSeenDeletedContact = (
   return contactStatusChange({
     contactIdentificator,
     onOperationDone,
-    errorMessage: 'Operation failed. Please check your internet connection and refresh the page before trying again.',
+    errorMessage:
+      'Operation failed. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/seenContactDelete',
     hasResponseData: false,
     successAction: confirmSeenDeletedContactSuccess
-  })
-}
+  });
+};
 
 const contactStatusChange = (props: {
   contactIdentificator: string;
@@ -253,6 +258,94 @@ const contactStatusChange = (props: {
         contactItemOperationFailed(
           props.contactIdentificator,
           props.errorMessage
+        )
+      );
+    } finally {
+      props.onOperationDone();
+    }
+  };
+};
+
+export const updateContactCustomName = (
+  contactIdentificator: string,
+  customName: string | null,
+  onOperationDone: any
+) => {
+  let newCustomName = customName;
+  if (newCustomName) {
+    newCustomName = newCustomName.trim();
+  }
+  if (newCustomName === '') {
+    newCustomName = null;
+  }
+
+  return updateContact({
+    contactIdentificator,
+    onOperationDone,
+    operationUrl: 'http://localhost:3001/contacts/updateCustomName',
+    requestBody: { identificator: contactIdentificator, customName: newCustomName }
+  });
+};
+
+export const increaseContactTrust = (
+  contactIdentificator: string,
+  onOperationDone: any
+) => {
+  return updateContact({
+    contactIdentificator,
+    onOperationDone,
+    operationUrl: 'http://localhost:3001/contacts/updateTrust',
+    requestBody: { identificator: contactIdentificator, increase: true }
+  });
+};
+
+export const decreaseContactTrust = (
+  contactIdentificator: string,
+  onOperationDone: any
+) => {
+  return updateContact({
+    contactIdentificator,
+    onOperationDone,
+    operationUrl: 'http://localhost:3001/contacts/updateTrust',
+    requestBody: { identificator: contactIdentificator, increase: false }
+  });
+};
+
+const updateContact = (props: {
+  contactIdentificator: string;
+  operationUrl: string;
+  requestBody: any;
+  onOperationDone: any;
+}) => {
+  return async (dispatch: (...args: any[]) => void, getState: () => State) => {
+    try {
+      const token = getState().auth.token;
+      const response = await fetch(props.operationUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(props.requestBody)
+      });
+
+      const responseData = await response.json();
+      if (response.status === 200) {
+        dispatch(contactUpdateSuccess(responseData));
+      } else {
+        dispatch(
+          contactItemOperationFailed(
+            props.contactIdentificator,
+            'Failed to update details. Please check your internet connection and refresh the page before trying again.'
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      dispatch(
+        contactItemOperationFailed(
+          props.contactIdentificator,
+          'Failed to update details. Please check your internet connection and refresh the page before trying again.'
         )
       );
     } finally {
@@ -368,6 +461,13 @@ const confirmSeenDeletedContactSuccess = (identificator: string) => {
   return {
     type: ContactsActionTypes.DELETED_CONTACT_SEEN_SUCCESS,
     identificator
+  };
+};
+
+export const contactUpdateSuccess = (contact: Contact) => {
+  return {
+    type: ContactsActionTypes.CONTACT_UPDATE_SUCCESS,
+    contact
   };
 };
 

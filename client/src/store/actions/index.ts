@@ -32,5 +32,8 @@ export {
   confirmSeenRejectedRequest,
   withdrawContactRequest,
   deleteContact,
-  confirmSeenDeletedContact
+  confirmSeenDeletedContact,
+  updateContactCustomName,
+  increaseContactTrust,
+  decreaseContactTrust
 } from './contacts';

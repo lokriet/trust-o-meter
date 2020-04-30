@@ -18,4 +18,7 @@ router.post('/seenRequestReject', isAuthenticated, contactsController.confirmReq
 router.post('/delete', isAuthenticated, contactsController.deleteContact);
 router.post('/seenContactDelete', isAuthenticated, contactsController.confirmDeletedContactSeen);
 
+router.post('/updateCustomName', isAuthenticated, contactsController.updateContactCustomName);
+router.post('/updateTrust', isAuthenticated, contactsController.updateContactTrust);
+
 export default router;

@@ -64,6 +64,8 @@ export const contactsReducer = (
       return contactDeleteSuccess(state, action);
     case actionTypes.contacts.DELETED_CONTACT_SEEN_SUCCESS:
       return confirmSeenDeletedContact(state, action);
+    case actionTypes.contacts.CONTACT_UPDATE_SUCCESS:
+      return contactUpdateSuccess(state, action);
 
     case actionTypes.contacts.RESET_CONTACTS_STORE:
       return initialState;
@@ -266,6 +268,24 @@ const confirmSeenDeletedContact = (state: ContactsState, action): ContactsState 
   const newConfirmedContacts = state.incomingRequests.filter(
     (item: Contact) => item.contactProfile.identificator !== identificator
   );
+  return {
+    ...state,
+    itemErrors: newItemErrors,
+    confirmedContacts: newConfirmedContacts
+  };
+};
+
+const contactUpdateSuccess = (state: ContactsState, action): ContactsState => {
+  const contact: Contact = action.contact;
+  const identificator: string = contact.contactProfile.identificator;
+  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const newConfirmedContacts = state.confirmedContacts.map((item: Contact) => {
+    if (item.contactProfile.identificator === identificator) {
+      return contact;
+    } else {
+      return item;
+    }
+  })
   return {
     ...state,
     itemErrors: newItemErrors,

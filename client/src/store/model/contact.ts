@@ -21,3 +21,8 @@ export interface Contact {
   myTrustPoints: number;
   contactTrustPoints: number;
 }
+
+export interface ContactUpdate {
+  customName?: string | null;
+  trustPoints?: number;
+}

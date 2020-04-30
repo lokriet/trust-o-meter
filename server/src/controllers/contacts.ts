@@ -1,4 +1,5 @@
 import { NextFunction, Response } from 'express';
+import _ from 'lodash';
 import { Types } from 'mongoose';
 
 import Contact, { IContact, IContactSide, UserContact } from '../model/Contact';
@@ -6,6 +7,13 @@ import { ContactSideStatus } from '../model/Contact';
 import Profile, { IProfile } from '../model/Profile';
 import * as httpErrors from '../util/httpErrors';
 import logger from '../util/logger';
+import {
+  updateContactCustomNameErrorSchema,
+  updateContactCustomNameRequestSchema,
+  updateContactTrustErrorSchema,
+  updateContactTrustRequestSchema,
+} from '../validators/contacts';
+import { validateAndConvert } from '../validators/validationError';
 
 const contactsInListSearchCondition = (myProfileId: string): any => {
   return {
@@ -103,7 +111,6 @@ export const searchContacts = async (
   }
 };
 
-
 export const getContacts = async (
   req: any,
   res: Response,
@@ -168,7 +175,6 @@ export const requestContact = async (
   }
 };
 
-
 export const approveContactRequest = async (
   req: any,
   res: Response,
@@ -182,7 +188,9 @@ export const approveContactRequest = async (
       expectedContactStatus: ContactSideStatus.WantToConnect,
       changeToStatus: ContactSideStatus.WantToConnect
     });
-    const userContact: UserContact = await updatedContact.toUserContact(req.profileId);
+    const userContact: UserContact = await updatedContact.toUserContact(
+      req.profileId
+    );
     res.status(200).json(userContact);
   } catch (error) {
     next(error);
@@ -308,8 +316,7 @@ const contactStatusChange = async (props: {
   }
 
   const userSideIndex = existingContact.sides.findIndex(
-    (side: IContactSide) =>
-      side.profile.toString() === props.userProfileId
+    (side: IContactSide) => side.profile.toString() === props.userProfileId
   );
   const contactSideIndex = 1 - userSideIndex;
   if (
@@ -326,6 +333,120 @@ const contactStatusChange = async (props: {
   existingContact.sides[userSideIndex].status = props.changeToStatus;
   existingContact = await existingContact.save();
   return existingContact;
+};
+
+export const updateContactCustomName = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const requestData = req.body;
+    const httpError = validateAndConvert(
+      requestData,
+      updateContactCustomNameRequestSchema,
+      updateContactCustomNameErrorSchema
+    );
+    if (httpError) {
+      return next(httpError);
+    }
+
+    const contactProfile = await getContactProfile(requestData.identificator);
+    let existingContact: IContact = await getExistingContact(
+      contactProfile._id,
+      req.profileId
+    );
+
+    if (!existingContact) {
+      throw httpErrors.customValidationError(
+        'identificator',
+        'User is not in contacts list'
+      );
+    }
+
+    const userSideIndex = existingContact.sides.findIndex(
+      (side: IContactSide) => side.profile.toString() === req.profileId
+    );
+    const contactSideIndex = 1 - userSideIndex;
+    if (
+      existingContact.sides[userSideIndex].status !==
+        ContactSideStatus.WantToConnect ||
+      existingContact.sides[contactSideIndex].status !==
+        ContactSideStatus.WantToConnect
+    ) {
+      throw httpErrors.customValidationError(
+        'identificator',
+        'Contact is not in connected status'
+      );
+    }
+
+    existingContact.sides[userSideIndex].customName = requestData.customName;
+    existingContact = await existingContact.save();
+    const updatedUserContact: UserContact = await existingContact.toUserContact(
+      req.profileId
+    );
+    res.status(200).json(updatedUserContact);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateContactTrust = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const requestData = req.body;
+    const httpError = validateAndConvert(
+      requestData,
+      updateContactTrustRequestSchema,
+      updateContactTrustErrorSchema
+    );
+    if (httpError) {
+      return next(httpError);
+    }
+
+    const contactProfile = await getContactProfile(requestData.identificator);
+    let existingContact: IContact = await getExistingContact(
+      contactProfile._id,
+      req.profileId
+    );
+
+    if (!existingContact) {
+      throw httpErrors.customValidationError(
+        'identificator',
+        'User is not in contacts list'
+      );
+    }
+
+    const userSideIndex = existingContact.sides.findIndex(
+      (side: IContactSide) => side.profile.toString() === req.profileId
+    );
+    const contactSideIndex = 1 - userSideIndex;
+    if (
+      existingContact.sides[userSideIndex].status !==
+        ContactSideStatus.WantToConnect ||
+      existingContact.sides[contactSideIndex].status !==
+        ContactSideStatus.WantToConnect
+    ) {
+      throw httpErrors.customValidationError(
+        'identificator',
+        'Contact is not in connected status'
+      );
+    }
+
+    existingContact.sides[userSideIndex].trustPoints = requestData.increase
+      ? existingContact.sides[userSideIndex].trustPoints + 1
+      : Math.max(existingContact.sides[userSideIndex].trustPoints - 1, 0);
+    existingContact = await existingContact.save();
+    const updatedUserContact: UserContact = await existingContact.toUserContact(
+      req.profileId
+    );
+    res.status(200).json(updatedUserContact);
+  } catch (error) {
+    next(error);
+  }
 };
 
 const getContactProfile = async (

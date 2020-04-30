@@ -114,10 +114,11 @@ const ContactSideSchema = new Schema({
     ]
   },
   trustPoints: {
-    type: Number
+    type: Number,
+    required: true
   },
   customName: {
-    type: Number
+    type: String
   }
 });
 
@@ -131,7 +132,7 @@ const ContactSchema = new Schema({
 
 interface IContactSideSchema extends Document {
   status: ContactSideStatus;
-  trustPoints?: number;
+  trustPoints: number;
   customName?: string;
 }
 
@@ -177,8 +178,8 @@ ContactSchema.methods.toUserContact = async function (
     contactProfile,
     myCustomName: userSide.customName || null,
     contactCustomName: otherSide.customName || null,
-    myTrustPoints: userSide.trustPoints || 0,
-    contactTrustPoints: otherSide.trustPoints || 0
+    myTrustPoints: userSide.trustPoints,
+    contactTrustPoints: otherSide.trustPoints
   };
 
   return result;

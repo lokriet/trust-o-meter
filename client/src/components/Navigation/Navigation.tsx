@@ -19,6 +19,9 @@ const Navigation = (props: NavigationProps) => {
     <div>
       <button onClick={handleLogout}>Logout</button>
       <div>
+        <Link to="/">Home</Link>
+      </div>
+      <div>
         <Link to="/editProfile">Edit Profile</Link>
       </div>
       <div>
