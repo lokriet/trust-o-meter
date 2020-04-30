@@ -2,6 +2,7 @@ import * as actionTypes from '../actions/actionTypes';
 
 export interface AuthState {
   isLoggedIn: boolean;
+  isAdmin: boolean;
   token: string | null;
   waitingForEmailConfirmation: boolean;
   error: string | null;
@@ -16,6 +17,7 @@ export interface AuthState {
 
 const initialState: AuthState = {
   isLoggedIn: false,
+  isAdmin: false,
   token: null,
   waitingForEmailConfirmation: false,
   initialCheckDone: false,
@@ -46,6 +48,7 @@ export const authReducer = (
       return {
         ...state,
         isLoggedIn: action.isLoggedIn,
+        isAdmin: action.isAdmin,
         token: action.token,
         waitingForEmailConfirmation: action.waitingForEmailConfirmation,
         initialCheckDone: true,
@@ -62,6 +65,7 @@ export const authReducer = (
       return {
         ...state,
         isLoggedIn: true,
+        isAdmin: action.isAdmin,
         token: action.token,
         waitingForEmailConfirmation: action.waitingForEmailConfirmation,
         error: null,
@@ -72,6 +76,7 @@ export const authReducer = (
       return {
         ...state,
         isLoggedIn: false,
+        isAdmin: false,
         token: null,
         waitingForEmailConfirmation: false,
         error: action.error,
@@ -82,6 +87,7 @@ export const authReducer = (
       return {
         ...state,
         isLoggedIn: false,
+        isAdmin: false,
         token: null,
         waitingForEmailConfirmation: false,
         error: null,

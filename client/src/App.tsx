@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
 
+import Admin from './components/Admin/Admin';
 import ConfirmEmail from './components/Auth/EmailConfirmation/ConfirmEmail';
 import EmailConfirmation from './components/Auth/EmailConfirmation/EmailConfirmation';
 import Login from './components/Auth/Login/Login';
@@ -16,12 +17,12 @@ import Navigation from './components/Navigation/Navigation';
 import EditProfile from './components/Profile/EditProfile/EditProfile';
 import Spinner from './components/UI/Spinner/Spinner';
 import * as actions from './store/actions';
-import { Profile } from './store/model/profile';
 import { State } from './store/reducers/state';
 
 interface AppProps {
   location: any;
   isLoggedIn: boolean;
+  isAdmin: boolean;
   initialAuthCheckDone: boolean;
   waitingForEmailConfirmation: boolean;
   profileInitialized: boolean;
@@ -58,6 +59,7 @@ const App = (props: AppProps): JSX.Element => {
         <Route path="/activateAccount/:activationToken" component={ConfirmEmail} />
         {props.isLoggedIn ? null : <Route path="/requestPasswordReset" component={PasswordResetRequest} />}
         {props.isLoggedIn ? null : <Route path="/resetPassword/:resetPasswordToken" component={PasswordReset} />}
+        {props.isAdmin ? <Route path="/admin" component={Admin} /> : null}
       </Switch>
     );
   }
@@ -84,6 +86,7 @@ const App = (props: AppProps): JSX.Element => {
 const mapStateToProps = (state: State): Partial<AppProps> => {
   return {
     isLoggedIn: state.auth.isLoggedIn,
+    isAdmin: state.auth.isAdmin,
     initialAuthCheckDone: state.auth.initialCheckDone,
     profileLoaded: state.profile.profile != null,
     profileInitialized:

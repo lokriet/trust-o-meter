@@ -32,7 +32,7 @@ export const checkInitialAuthState = () => {
       try {
         const token = localStorage.getItem('jwtToken');
         if (!token) {
-          dispatch(initialAuthCheckSuccess(false, null, false));
+          dispatch(initialAuthCheckSuccess(false, null, false, false));
         } else {
           const result = await fetch('http://localhost:3001/auth/details', {
             headers: {
@@ -47,17 +47,18 @@ export const checkInitialAuthState = () => {
               initialAuthCheckSuccess(
                 true,
                 token,
+                resultData.isAdmin,
                 resultData.waitingForEmailConfirmation
               )
             );
           } else {
             localStorage.removeItem('jwtToken');
-            dispatch(initialAuthCheckSuccess(false, null, false));
+            dispatch(initialAuthCheckSuccess(false, null, false, false));
           }
         }
       } catch (error) {
         localStorage.removeItem('jwtToken');
-        dispatch(initialAuthCheckSuccess(false, null, false));
+        dispatch(initialAuthCheckSuccess(false, null, false, false));
       }
     }
   };
@@ -130,7 +131,7 @@ const auth = (authUrl: string, fetchParams: any) => {
 
         await firebaseApp.doSignIn();
         dispatch(actions.setProfile(resultData.profile));
-        dispatch(loginSuccess(token, resultData.waitingForEmailConfirmation));
+        dispatch(loginSuccess(token, resultData.isAdmin, resultData.waitingForEmailConfirmation));
       } else {
         dispatch(
           loginFailed(result.status !== 500 ? resultData.message : internalError)
@@ -287,11 +288,13 @@ export const setAuthRedirectPath = (path: string) => {
 
 const loginSuccess = (
   token: string,
+  isAdmin: boolean,
   waitingForEmailConfirmation: boolean
 ) => {
   return {
     type: AuthActionTypes.AUTH_SUCCESS,
     token,
+    isAdmin,
     waitingForEmailConfirmation
   };
 };
@@ -312,12 +315,14 @@ const logoutSuccess = () => {
 const initialAuthCheckSuccess = (
   isLoggedIn: boolean,
   token: string | null,
+  isAdmin: boolean,
   waitingForEmailConfirmation: boolean
 ) => {
   return {
     type: AuthActionTypes.INITIAL_AUTH_CHECK_SUCCESS,
     isLoggedIn,
     token,
+    isAdmin,
     waitingForEmailConfirmation
   };
 };

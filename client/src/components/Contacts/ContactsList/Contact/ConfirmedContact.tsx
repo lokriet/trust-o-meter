@@ -46,7 +46,7 @@ const ConfirmedContact = (props: ContactProps) => {
         () => setLoading(false)
       )
     );
-  }, [props.contact]);
+  }, [props.contact, dispatch]);
 
   const handleDecreaseTrust = useCallback(() => {
     setLoading(true);
@@ -56,7 +56,7 @@ const ConfirmedContact = (props: ContactProps) => {
         () => setLoading(false)
       )
     );
-  }, [props.contact]);
+  }, [props.contact, dispatch]);
 
   const handleChangeCustomName = useCallback(() => {
     setLoading(true);

@@ -60,6 +60,7 @@ export const registerWithEmailAndPassword = async (
     newProfile = await newProfile.save();
 
     newUser = new User({
+      isAdmin: false,
       email: requestData.email,
       password: requestData.password,
       emailConfirmed: false,
@@ -84,6 +85,7 @@ export const registerWithEmailAndPassword = async (
     const token = createAuthToken(payload);
     return res.status(201).json({
       token,
+      isAdmin: newUser.isAdmin,
       waitingForEmailConfirmation: true,
       profile: newProfile.toUserProfile(true)
     });
@@ -131,6 +133,7 @@ export const loginWithEmailAndPassword = async (
     const token = createAuthToken(payload);
     res.status(200).json({
       token,
+      isAdmin: user.isAdmin,
       waitingForEmailConfirmation: user.emailConfirmed === false,
       profile: profile.toUserProfile(true)
     });
@@ -171,6 +174,7 @@ export const loginWithGoogle = async (
         profile = await profile.save();
 
         user = new User({
+          isAdmin: false,
           googleId: email,
           profile: profile._id
         });
@@ -187,6 +191,7 @@ export const loginWithGoogle = async (
       const token = createAuthToken(payload);
       res.status(200).json({
         token,
+        isAdmin: user.isAdmin,
         waitingForEmailConfirmation: false,
         profile: profile.toUserProfile(true)
       });
@@ -232,6 +237,7 @@ export const loginWithFacebook = async (
       profile = await profile.save();
 
       user = new User({
+        isAdmin: false,
         facebookId: authCheckResponseData.id,
         profile: profile._id
       });
@@ -248,6 +254,7 @@ export const loginWithFacebook = async (
     const token = createAuthToken(payload);
     res.status(200).json({
       token,
+      isAdmin: user.isAdmin,
       waitingForEmailConfirmation: false,
       profile: profile.toUserProfile(true)
     });
@@ -266,6 +273,7 @@ export const getAuthDetails = async (
     const profile: IProfile = await Profile.findById(user.profile);
 
     res.status(200).json({
+      isAdmin: user.isAdmin,
       waitingForEmailConfirmation: user.emailConfirmed === false,
       profile: profile.toUserProfile(true)
     });

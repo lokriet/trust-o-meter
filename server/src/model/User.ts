@@ -4,6 +4,11 @@ import { Document, model, Schema } from 'mongoose';
 import Profile, { IProfile } from './Profile';
 
 const UserSchema = new Schema({
+  isAdmin: {
+    type: Boolean,
+    required: true
+  },
+
   email: {
     type: String,
     unique: true,
@@ -54,6 +59,8 @@ UserSchema.methods.comparePassword = function (passw: string): Promise<boolean> 
 };
 
 interface IUserSchema extends Document {
+  isAdmin: boolean;
+
   email?: string;
   password?: string;
   emailConfirmed?: boolean;

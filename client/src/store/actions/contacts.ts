@@ -1,4 +1,4 @@
-import { Contact, ContactUpdate } from '../model/contact';
+import { Contact } from '../model/contact';
 import { Profile } from '../model/profile';
 import { State } from '../reducers/state';
 

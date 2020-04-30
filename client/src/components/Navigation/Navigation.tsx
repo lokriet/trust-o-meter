@@ -6,7 +6,8 @@ import * as actions from '../../store/actions';
 import { State } from '../../store/reducers/state';
 
 interface NavigationProps {
-  isLoggedIn: boolean
+  isLoggedIn: boolean;
+  isAdmin: boolean;
 }
 
 const Navigation = (props: NavigationProps) => {
@@ -27,13 +28,15 @@ const Navigation = (props: NavigationProps) => {
       <div>
         <Link to="/findContacts">Find new contacts</Link>
       </div>
+      {props.isAdmin ? <div><Link to="/admin">Admin</Link></div> : null}
     </div>
   ) : <div></div>;
 };
 
 const mapStateToProps = (state: State): NavigationProps => {
   return {
-    isLoggedIn: state.auth.isLoggedIn
+    isLoggedIn: state.auth.isLoggedIn,
+    isAdmin: state.auth.isAdmin
   };
 };
 

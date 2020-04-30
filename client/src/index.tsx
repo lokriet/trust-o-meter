@@ -12,6 +12,7 @@ import { Provider } from 'react-redux';
 import { authReducer } from './store/reducers/auth';
 import { profileReducer } from './store/reducers/profile';
 import { contactsReducer } from './store/reducers/contacts';
+import { statusReducer } from './store/reducers/status';
 
 const composeEnhancers =
   process.env.NODE_ENV === 'development'
@@ -22,7 +23,8 @@ const composeEnhancers =
 const rootReducer = combineReducers({
   auth: authReducer,
   profile: profileReducer,
-  contacts: contactsReducer
+  contacts: contactsReducer,
+  status: statusReducer
 });
 
 const store = createStore(

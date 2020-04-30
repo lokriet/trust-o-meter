@@ -17,6 +17,7 @@ const router = express.Router();
  * code: 201
  * {
  *   token: string
+ *   isAdmin: boolean
  *   waitingForEmailConfirmation: true
  *   profile: {
  *     initialized: false
@@ -44,6 +45,7 @@ router.post(
  * code: 200
  * {
  *   token: string
+ *   isAdmin: boolean
  *   waitingForEmailConfirmation: boolean
  *   profile: {
  *     initialized: boolean
@@ -74,6 +76,7 @@ router.post(
  * code: 200
  * {
  *   token: string
+ *   isAdmin: boolean
  *   waitingForEmailConfirmation: false
  *   profile: {
  *     initialized: boolean
@@ -102,6 +105,7 @@ router.post('/loginWithGoogle', authController.loginWithGoogle);
  * code: 200
  * {
  *   token: string
+ *   isAdmin: boolean
  *   waitingForEmailConfirmation: false
  *   profile: {
  *     initialized: boolean
@@ -124,6 +128,7 @@ router.post('/loginWithFacebook', authController.loginWithFacebook);
  * response:
  * code: 200
  * {
+ *   isAdmin: boolean
  *   waitingForEmailConfirmation: boolean
  *   profile: {
  *     initialized: boolean
