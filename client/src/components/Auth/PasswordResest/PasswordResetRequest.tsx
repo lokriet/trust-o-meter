@@ -2,11 +2,14 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 
+import logoImg from '../../../assets/img/suspicious.svg';
 import * as actions from '../../../store/actions';
 import { State } from '../../../store/reducers/state';
-import { Error } from '../../UI/Error/Error';
+import Spinner from '../../UI/Spinner/Spinner';
+import classes from './PasswordResetRequest.module.scss';
 
 interface PasswordResetRequestProps {
   error: string | null;
@@ -38,17 +41,23 @@ const PasswordResetRequest = (props: PasswordResetRequestProps) => {
     view = (
       <>
         <h1>Email sent</h1>
-        <p>Please check your inbox for the instructions about how to complete the process.</p>
+        <p>
+          Please check your inbox for the instructions about how to complete the
+          process.
+        </p>
+        <Link to="/login" className={`Button ${classes.AuthButton}`}>
+          <div className="AuthButtonText">Return to login page</div>
+        </Link>
       </>
-    )
+    );
   } else {
     view = (
       <div>
         <h1>Reset your password</h1>
+        <p>To reset your password, enter your email below and submit.</p>
         <p>
-          To reset your password, enter your email below and submit. An email
-          will be sent to you with instructions about how to complete the
-          process.
+          An email will be sent to you with instructions about how to complete
+          the process.
         </p>
         <Formik
           initialValues={{
@@ -56,34 +65,68 @@ const PasswordResetRequest = (props: PasswordResetRequestProps) => {
           }}
           validationSchema={Yup.object({
             email: Yup.string()
-              .required('Required')
-              .email('Invalid email address')
+              .required('E-mail is required')
+              .email('Invalid e-mail address')
           })}
           onSubmit={(values, { setSubmitting }) => handleSubmit(values)}
         >
           <Form>
             <Field
+              className={`${classes.Input} ${classes.EmailInput}`}
               name="email"
               type="text"
               placeholder="E-mail"
               autoComplete="username"
             />
-            <Error>
-              <ErrorMessage name="email" />
-            </Error>
+            <ErrorMessage name="email">
+              {(msg) => <div className={classes.Error}>{msg}</div>}
+            </ErrorMessage>
 
-            {props.error ? <Error>{props.error}</Error> : null}
-
-            <button type="submit">
-              Reset password
+            <button
+              type="submit"
+              disabled={props.loading}
+              className={classes.AuthButton}
+            >
+              <div className="AuthButtonText">Reset password</div>
             </button>
+
+            <Link to="/login" className="Button">
+              <button
+                type="button"
+                disabled={props.loading}
+                className={classes.AuthButton}
+              >
+                <div className="AuthButtonText">Cancel</div>
+              </button>
+            </Link>
+
+            {props.error ? (
+              <div className={classes.Error}>{props.error}</div>
+            ) : null}
+
+            {props.loading ? <Spinner className={classes.AuthSpinner} /> : null}
           </Form>
         </Formik>
       </div>
     );
   }
 
-  return view;
+  return (
+    <div className={classes.AuthView}>
+      <div className={classes.VerticalScrollContainer}>
+        <div className={classes.Content}>
+          <div className={classes.LogoContainer}>
+            <img
+              src={logoImg}
+              alt="Trust-o-Meter"
+              className={classes.LogoImage}
+            />
+          </div>
+          {view}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const mapStateToProps = (state: State): PasswordResetRequestProps => {

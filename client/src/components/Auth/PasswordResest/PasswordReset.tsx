@@ -4,10 +4,12 @@ import { connect, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import * as Yup from 'yup';
 
+import logoImg from '../../../assets/img/suspicious.svg';
 import * as actions from '../../../store/actions';
 import { State } from '../../../store/reducers/state';
-import { Error } from '../../UI/Error/Error';
-import classes from './PasswordReset.module.css';
+import Spinner from '../../UI/Spinner/Spinner';
+import classes from './PasswordReset.module.scss';
+import { Link } from 'react-router-dom';
 
 interface PasswordResetProps {
   error: string | null;
@@ -37,7 +39,7 @@ const PasswordReset = (props: PasswordResetProps) => {
     view = (
       <>
         <h1>Password changed successfully</h1>
-        <p>Please login to the application with your new password</p>
+        <p>Please <Link to="/login">login</Link> to the application with your new password</p>
       </>
     );
   } else {
@@ -50,48 +52,82 @@ const PasswordReset = (props: PasswordResetProps) => {
           }}
           validationSchema={Yup.object({
             password: Yup.string()
-              .required('Required')
-              .min(6, 'Must be at least 6 characters long'),
+              .required('Password is required')
+              .min(6, 'Password must be at least 6 characters long'),
             confirmPassword: Yup.string()
-              .required('Required')
+              .required('Confirm password is required')
               .oneOf([Yup.ref('password')], "Passwords don't match")
           })}
           onSubmit={(values, { setSubmitting }) => handleSubmit(values)}
         >
-          <Form className={classes.Form}>
+          <Form>
             <Field
+              className={`${classes.Input} ${classes.PasswordInput}`}
               name="password"
               type="password"
               placeholder="New password"
               autoComplete="new-password"
-              // component={FormikInput}
             />
-            <Error>
-              <ErrorMessage name="password" />
-            </Error>
 
             <Field
+              className={`${classes.Input} ${classes.ConfirmPasswordInput}`}
               name="confirmPassword"
               type="password"
               autoComplete="new-password"
               placeholder="Confirm password"
-              // component={FormikInput}
             />
-            <Error>
-              <ErrorMessage name="confirmPassword" />
-            </Error>
 
-            {props.error ? <Error>{props.error}</Error> : null}
+            <ErrorMessage name="password">
+              {(msg) => <div className={classes.Error}>{msg}</div>}
+            </ErrorMessage>
+            <ErrorMessage name="confirmPassword">
+              {(msg) => <div className={classes.Error}>{msg}</div>}
+            </ErrorMessage>
 
-            <button type="submit" disabled={props.loading}>
-              Change password
+            <button
+              type="submit"
+              disabled={props.loading}
+              className={classes.AuthButton}
+            >
+              <div className="AuthButtonText">Change password</div>
             </button>
+
+            <Link to="/login" className="Button">
+              <button
+                type="button"
+                disabled={props.loading}
+                className={classes.AuthButton}
+              >
+                <div className="AuthButtonText">Cancel</div>
+              </button>
+            </Link>
+
+            {props.error ? (
+              <div className={classes.Error}>{props.error}</div>
+            ) : null}
+
+            {props.loading ? <Spinner className={classes.AuthSpinner} /> : null}
           </Form>
         </Formik>
       </>
     );
   }
-  return view;
+  return (
+    <div className={classes.AuthView}>
+      <div className={classes.VerticalScrollContainer}>
+        <div className={classes.Content}>
+          <div className={classes.LogoContainer}>
+            <img
+              src={logoImg}
+              alt="Trust-o-Meter"
+              className={classes.LogoImage}
+            />
+          </div>
+          {view}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const mapStateToProps = (state: State): PasswordResetProps => {

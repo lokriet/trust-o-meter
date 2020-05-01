@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 
-import { Contact } from '../../../../../store/model/contact';
 import { Action } from '../../../../../store/model/status';
 
 interface ContactActionProps {

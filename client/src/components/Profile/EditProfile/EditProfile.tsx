@@ -1,8 +1,8 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import * as Yup from 'yup';
 import { useHistory } from 'react-router-dom';
+import * as Yup from 'yup';
 
 import withAuthCheck from '../../../hoc/withAuthCheck';
 import * as actions from '../../../store/actions';
@@ -10,7 +10,7 @@ import { Gender, Profile } from '../../../store/model/profile';
 import { State } from '../../../store/reducers/state';
 import { Error } from '../../UI/Error/Error';
 import Avatar from './Avatar/Avatar';
-import classes from './EditProfile.module.css';
+import classes from './EditProfile.module.scss';
 
 interface ProfileProps {
   profile: Profile | null;

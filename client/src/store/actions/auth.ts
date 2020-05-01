@@ -248,6 +248,7 @@ export const requestPasswordReset = (email: string) => {
 }
 
 export const resetPassword = (password: string, resetPasswordToken: string) => {
+  const errorMessage = 'Password reset failed. Please check your internet connection and make sure you are using the latest requested link from your e-mail box';
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       dispatch(authOperationStart());
@@ -267,10 +268,10 @@ export const resetPassword = (password: string, resetPasswordToken: string) => {
       if (response.status === 200) {
         dispatch(passwordResetSuccess());
       } else {
-        dispatch(authOperationFailed('Password reset failed'));
+        dispatch(authOperationFailed(errorMessage));
       }
     } catch (error) {
-      dispatch(authOperationFailed('Password reset failed'));
+      dispatch(authOperationFailed(errorMessage));
     }
   };
 }

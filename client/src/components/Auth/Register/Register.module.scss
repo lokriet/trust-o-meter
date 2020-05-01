@@ -1,0 +1,15 @@
+@import '../../../assets/scss/auth.scss';
+
+.LoginInput {
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.PasswordInput {
+  border-top: none;
+  border-bottom: none;
+}
+
+.ConfirmPasswordInput {
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  margin-bottom: 1rem;
+}

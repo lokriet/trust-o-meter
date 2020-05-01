@@ -1,6 +1,6 @@
 import React from 'react';
 
-import classes from './Error.module.css';
+import classes from './Error.module.scss';
 
 export const Error = (props) => {
   return (

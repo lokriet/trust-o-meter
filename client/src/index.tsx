@@ -1,17 +1,17 @@
-import './index.css';
+import './index.scss';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
-import thunk from 'redux-thunk';
+import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
+import thunk from 'redux-thunk';
 
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { Provider } from 'react-redux';
 import { authReducer } from './store/reducers/auth';
-import { profileReducer } from './store/reducers/profile';
 import { contactsReducer } from './store/reducers/contacts';
+import { profileReducer } from './store/reducers/profile';
 import { statusReducer } from './store/reducers/status';
 
 const composeEnhancers =

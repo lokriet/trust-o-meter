@@ -1,5 +1,3 @@
-import './App.css';
-
 import React, { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom';

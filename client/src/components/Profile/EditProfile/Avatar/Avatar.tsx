@@ -4,7 +4,7 @@ import defaultImg from '../../../../assets/img/avatar.jpg';
 import { firebaseApp } from '../../../../firebase/firebase';
 import ImageTools from '../../../../util/ImageTools';
 import { Error } from '../../../UI/Error/Error';
-import classes from './Avatar.module.css';
+import classes from './Avatar.module.scss';
 
 const maxFileSize = 1024; //1mb
 const maxWidth = 500;

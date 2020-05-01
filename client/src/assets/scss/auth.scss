@@ -1,0 +1,129 @@
+.AuthView {
+  background-color: var(--background-color);
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.VerticalScrollContainer {
+  width: 100%;
+  height: auto;
+  max-height: 100vh;
+  overflow: auto;
+}
+
+.Content {
+  width: 60%;
+  max-width: 20rem;
+  min-width: 10rem;
+  margin: auto;
+}
+
+.LogoContainer {
+  width: 100%;
+  max-width: 12rem;
+  margin: auto;
+  margin-top: 1rem;
+}
+
+.LogoImage {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+
+.AuthForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin: auto;
+}
+
+.Input {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--background-dark-color);
+  width: 100%;
+}
+
+.AuthButton {
+  width: 100%;
+  height: calc(2rem + 2px);
+  padding: 0;
+  margin: 0.5rem auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--border-radius);
+  background-color: var(--main-color);
+  border: 1px solid var(--secondary-color);
+  color: var(--background-dark-color);
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    background-color: var(--secondary-color);
+  }
+
+  &:disabled,
+  &:disabled:hover {
+    border-color: var(--disabled-dark-color);
+    color: var(--disabled-dark-color);
+    background-color: var(--disabled-color);
+  }
+  
+  .AuthButtonText {
+    flex-grow: 1;
+    justify-self: center;
+    padding: 0 1rem;
+  }
+  
+  .FacebookIcon {
+    width: 2rem;
+    font-size: 2rem;
+    margin-left: 2px;
+  }
+  
+  .GoogleIcon {
+    font-size: 1.8rem;
+    margin-left: 2px;
+    border-radius: 4px;
+    padding: 0.2rem 0.1rem;
+    background-color: var(--background-dark-color);
+    color: var(--main-color);
+  }
+
+  &:disabled .GoogleIcon {
+    background-color: var(--disabled-dark-color);
+  }
+}
+
+.Error {
+  color: var(--error-color);
+  align-self: flex-start;
+  margin: 0.5rem 0;
+}
+
+.SwitchModeLink {
+  text-align: center;
+  margin: 1rem auto;
+}
+
+.AuthSpinner {
+  margin: 0.5rem auto;
+}
+
+
+h1 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}

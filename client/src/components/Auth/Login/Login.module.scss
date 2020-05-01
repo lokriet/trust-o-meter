@@ -1,0 +1,48 @@
+@import '../../../assets/scss/auth.scss';
+
+.Or {
+  width: 100%;
+  position: relative;
+  text-align: center;
+  margin: 1rem auto;
+
+  &::before {
+    display: inline-block;
+    content: '';
+    position: absolute;
+    height: 0px;
+    top: 50%;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    transform: translateY(-50%);
+    z-index: 1;
+    width: 100%;
+    border-top: 1px solid var(--background-dark-color);
+    margin: 0px auto;
+  }
+
+  span {
+    position: relative;
+    background-color: var(--background-color);
+    padding: 0 0.5rem;
+    z-index: 2;
+  }
+}
+
+.LoginInput {
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.PasswordInput {
+  border-top: none;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+.ForgotPasswordLink {
+  margin: 0.5rem 0.25rem 0.5rem 0;
+  align-self: flex-end;
+}
+
+
+

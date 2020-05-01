@@ -30,7 +30,7 @@ const Navigation = (props: NavigationProps) => {
       </div>
       {props.isAdmin ? <div><Link to="/admin">Admin</Link></div> : null}
     </div>
-  ) : <div></div>;
+  ) : null;
 };
 
 const mapStateToProps = (state: State): NavigationProps => {
