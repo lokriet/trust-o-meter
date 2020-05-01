@@ -1,11 +1,6 @@
 import { Profile } from './profile';
 
 export enum ContactStatus {
-  // IncomingRequest = 'IncomingRequest',
-  // OutgoingRequest = 'OutgoingRequest',
-  // Connected = 'Connected',
-  // RequestDenied = 'RequestDenied',
-  // ContactDeleted = 'ContactDeleted'
   IncomingRequest = 'IncomingRequest',
   OutgoingRequest = 'OutgoingRequest',
   Connected = 'Connected',
@@ -20,6 +15,7 @@ export interface Contact {
   contactCustomName: string | null;
   myTrustPoints: number;
   contactTrustPoints: number;
+  doneActions: string[];
 }
 
 export interface ContactUpdate {

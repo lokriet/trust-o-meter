@@ -7,6 +7,7 @@ import { Contact } from '../../../../store/model/contact';
 import { Gender } from '../../../../store/model/profile';
 import Avatar from '../../../UI/Avatar/Avatar';
 import { Error as UIError } from '../../../UI/Error/Error';
+import ContactStatusList from './ContactStatusList/ContactStatusList';
 
 interface ContactProps {
   contact: Contact;
@@ -121,6 +122,7 @@ const ConfirmedContact = (props: ContactProps) => {
           Delete
         </button>
       </div>
+      <ContactStatusList contact={props.contact} />
     </div>
   );
 };

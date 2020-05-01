@@ -33,9 +33,11 @@ export {
   withdrawContactRequest,
   deleteContact,
   confirmSeenDeletedContact,
+  
   updateContactCustomName,
   increaseContactTrust,
-  decreaseContactTrust
+  decreaseContactTrust,
+  changeContactActionState
 } from './contacts';
 
 export {

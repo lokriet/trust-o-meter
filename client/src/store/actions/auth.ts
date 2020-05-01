@@ -51,6 +51,7 @@ export const checkInitialAuthState = () => {
                 resultData.waitingForEmailConfirmation
               )
             );
+            dispatch(actions.fetchStatusList());
           } else {
             localStorage.removeItem('jwtToken');
             dispatch(initialAuthCheckSuccess(false, null, false, false));
@@ -132,6 +133,7 @@ const auth = (authUrl: string, fetchParams: any) => {
         await firebaseApp.doSignIn();
         dispatch(actions.setProfile(resultData.profile));
         dispatch(loginSuccess(token, resultData.isAdmin, resultData.waitingForEmailConfirmation));
+        dispatch(actions.fetchStatusList());
       } else {
         dispatch(
           loginFailed(result.status !== 500 ? resultData.message : internalError)

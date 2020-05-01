@@ -33,3 +33,29 @@ export const updateContactTrustErrorSchema: ServerValidationError[] = [
     errorMessage: 'Increase flag is required'
   }
 ];
+
+export const changeActionStateRequestSchema = Joi.object().keys({
+  identificator: Joi.string().required(),
+  statusId: Joi.string().required(),
+  actionId: Joi.string().required(),
+  actionDone: Joi.boolean().required()
+});
+
+export const changeActionStateErrorSchema: ServerValidationError[] = [
+  {
+    fieldName: 'identificator',
+    errorMessage: 'Contact identificator is required'
+  },
+  {
+    fieldName: 'statusId',
+    errorMessage: 'Status identificator is required'
+  },
+  {
+    fieldName: 'actionId',
+    errorMessage: 'Action identificator is required'
+  },
+  {
+    fieldName: 'actionDone',
+    errorMessage: 'Action done flag is required'
+  }
+];

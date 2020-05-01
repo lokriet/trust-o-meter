@@ -5,9 +5,12 @@ import { Types } from 'mongoose';
 import Contact, { IContact, IContactSide, UserContact } from '../model/Contact';
 import { ContactSideStatus } from '../model/Contact';
 import Profile, { IProfile } from '../model/Profile';
+import Status, { IAction, IStatus } from '../model/Status';
 import * as httpErrors from '../util/httpErrors';
 import logger from '../util/logger';
 import {
+  changeActionStateErrorSchema,
+  changeActionStateRequestSchema,
   updateContactCustomNameErrorSchema,
   updateContactCustomNameRequestSchema,
   updateContactTrustErrorSchema,
@@ -452,6 +455,80 @@ export const updateContactTrust = async (
     existingContact.sides[userSideIndex].trustPoints = requestData.increase
       ? existingContact.sides[userSideIndex].trustPoints + 1
       : Math.max(existingContact.sides[userSideIndex].trustPoints - 1, 0);
+    existingContact = await existingContact.save();
+    const updatedUserContact: UserContact = await existingContact.toUserContact(
+      req.profileId
+    );
+    res.status(200).json(updatedUserContact);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changeActionState = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const requestData = req.body;
+    const httpError = validateAndConvert(
+      requestData,
+      changeActionStateRequestSchema,
+      changeActionStateErrorSchema
+    );
+    if (httpError) {
+      return next(httpError);
+    }
+
+    const contactProfile = await getContactProfile(requestData.identificator);
+    let existingContact: IContact = await getExistingContact(
+      contactProfile._id,
+      req.profileId
+    );
+
+    if (!existingContact) {
+      throw httpErrors.customValidationError(
+        'identificator',
+        'User is not in contacts list'
+      );
+    }
+
+    if (
+      existingContact.sides[0].status !==
+        ContactSideStatus.WantToConnect ||
+      existingContact.sides[1].status !==
+        ContactSideStatus.WantToConnect
+    ) {
+      throw httpErrors.customValidationError(
+        'identificator',
+        'Contact is not in connected status'
+      );
+    }
+
+    const status: IStatus = await Status.findById(requestData.statusId);
+    if (!status || !status.actions.some((action: IAction) => action._id.toString() === requestData.actionId)) {
+      throw httpErrors.customValidationError(
+        'actionId',
+        'Unexpected action identificator'
+      );
+    }
+
+    const contactTrust = Math.floor((existingContact.sides[0].trustPoints + existingContact.sides[1].trustPoints) / 2);
+    if (status.minTrust > contactTrust) {
+      throw httpErrors.customValidationError(
+        'actionId',
+        'Unexpected action identificator'
+      );
+    }
+
+    const actionIndex = existingContact.doneActions.indexOf(requestData.actionId);
+    if (requestData.actionDone && actionIndex < 0) {
+      existingContact.doneActions.push(requestData.actionId);
+    } else if (!requestData.actionDone && actionIndex >= 0) {
+      existingContact.doneActions.splice(actionIndex, 1);
+    }
+
     existingContact = await existingContact.save();
     const updatedUserContact: UserContact = await existingContact.toUserContact(
       req.profileId

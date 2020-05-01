@@ -20,5 +20,6 @@ router.post('/seenContactDelete', isAuthenticated, contactsController.confirmDel
 
 router.post('/updateCustomName', isAuthenticated, contactsController.updateContactCustomName);
 router.post('/updateTrust', isAuthenticated, contactsController.updateContactTrust);
+router.post('/changeActionState', isAuthenticated, contactsController.changeActionState);
 
 export default router;

@@ -311,6 +311,21 @@ export const decreaseContactTrust = (
   });
 };
 
+export const changeContactActionState = (
+  contactIdentificator: string,
+  statusId: string,
+  actionId: string,
+  actionDone: boolean,
+  onOperationDone: any
+) => {
+  return updateContact({
+    contactIdentificator,
+    onOperationDone,
+    operationUrl: 'http://localhost:3001/contacts/changeActionState',
+    requestBody: { identificator: contactIdentificator, statusId, actionId, actionDone }
+  });
+};
+
 const updateContact = (props: {
   contactIdentificator: string;
   operationUrl: string;

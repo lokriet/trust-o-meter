@@ -96,6 +96,7 @@ export interface UserContact {
   contactCustomName: string | null;
   myTrustPoints: number;
   contactTrustPoints: number;
+  doneActions: string[];
 }
 
 const ContactSideSchema = new Schema({
@@ -127,6 +128,11 @@ const ContactSchema = new Schema({
     {
       type: ContactSideSchema
     }
+  ],
+  doneActions: [
+    {
+      type: String
+    }
   ]
 });
 
@@ -145,6 +151,7 @@ export interface IContactSidePopulated extends IContactSideSchema {
 }
 
 interface IContactBase extends Document {
+  doneActions: Types.Array<string>;
   toUserContact(userProfileId: string | Types.ObjectId): Promise<UserContact>;
 }
 
@@ -169,7 +176,10 @@ ContactSchema.methods.toUserContact = async function (
 
   const userSide: IContactSide = contact.sides[userSideIndex];
   const otherSide: IContactSide = contact.sides[1 - userSideIndex];
-  const status: ContactStatus = convertStatus(userSide.status, otherSide.status);
+  const status: ContactStatus = convertStatus(
+    userSide.status,
+    otherSide.status
+  );
 
   const contactIProfile = await Profile.findById(otherSide.profile);
   const contactProfile = contactIProfile.toUserProfile(false);
@@ -179,7 +189,8 @@ ContactSchema.methods.toUserContact = async function (
     myCustomName: userSide.customName || null,
     contactCustomName: otherSide.customName || null,
     myTrustPoints: userSide.trustPoints,
-    contactTrustPoints: otherSide.trustPoints
+    contactTrustPoints: otherSide.trustPoints,
+    doneActions: contact.doneActions
   };
 
   return result;
