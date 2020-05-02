@@ -1,10 +1,14 @@
+import { faSignOutAlt, faTools, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import React, { useCallback } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { NavLink } from 'react-router-dom';
 
 import * as actions from '../../store/actions';
 import { State } from '../../store/reducers/state';
 import classes from './Navigation.module.scss';
+import HomeIcon from './NavigationItem/HomeIcon/HomeIcon';
+import NavigationItem from './NavigationItem/NavigationItem';
+import ProfileIcon from './NavigationItem/ProfileIcon/ProfileIcon';
+
 
 interface NavigationProps {
   isAdmin: boolean;
@@ -18,14 +22,12 @@ const Navigation = (props: NavigationProps) => {
 
   return (
     <div className={classes.NavigationBar}>
-      <NavLink to="/" exact className={classes.NavigationItem} activeClassName={classes.Active}>Home</NavLink>
-      <NavLink to="/editProfile" className={classes.NavigationItem} activeClassName={classes.Active}>Edit Profile</NavLink>
-
-      <NavLink to="/findContacts" className={classes.NavigationItem} activeClassName={classes.Active}>Find new contacts</NavLink>
-
-      {props.isAdmin ? <NavLink to="/admin" className={classes.NavigationItem} activeClassName={classes.Active}>Admin</NavLink> : null}
-
-      <button onClick={handleLogout}>Logout</button>
+      <NavigationItem exact link="/" text="Home" icon={<HomeIcon />} />
+      <NavigationItem link="/findContacts" text="Add contacts" faIcon={faUserPlus} />
+      {props.isAdmin ? <NavigationItem link="/admin" text="Admin" faIcon= {faTools} /> : null}
+      <NavigationItem link="/editProfile" text="Profile" icon={<ProfileIcon />} />
+      <div className={classes.Spacer}></div>
+      <NavigationItem onClick={handleLogout} text="Logout" faIcon={faSignOutAlt} />
     </div>
   );
 };

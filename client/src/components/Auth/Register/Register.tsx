@@ -61,7 +61,7 @@ const Register = (props: RegisterProps) => {
                 .required('Email is required')
                 .email('Invalid email address'),
               password: Yup.string()
-                .required('Required')
+                .required('Password is required')
                 .min(6, 'Password must be at least 6 characters long'),
               confirmPassword: Yup.string()
                 .required('Confirm password is required')

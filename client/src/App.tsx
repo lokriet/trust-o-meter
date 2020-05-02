@@ -75,20 +75,28 @@ const App = (props: AppProps): JSX.Element => {
     );
   }
 
-  if (
-    props.isLoggedIn &&
-    !props.location.pathname.startsWith('/activateAccount/')
-  ) {
-    if (props.waitingForEmailConfirmation && !props.location.pathname.startsWith('/emailConfirmation')) {
-      // console.log('redirecting');
-      // redirect = <Redirect to="/emailConfirmation" />;
-      props.history.push("/emailConfirmation");
-    } else if (props.profileLoaded && !props.profileInitialized && !props.location.pathname.startsWith('/editProfile')) {
-      // console.log('redirecting to edit');
-      // redirect = <Redirect to="/editProfile" />;
-      props.history.push("/editProfile");
-    }
-  }
+  // if (
+  //   props.isLoggedIn &&
+  //   !props.location.pathname.startsWith('/activateAccount/')
+  // ) {
+  //   if (
+  //     props.waitingForEmailConfirmation &&
+  //     !props.location.pathname.startsWith('/emailConfirmation')
+  //   ) {
+  //     console.log('redirecting to email confirmation', props.location.pathname);
+  //     // redirect = <Redirect to="/emailConfirmation" />;
+  //     props.history.push('/emailConfirmation');
+  //   } else if (
+  //     !props.waitingForEmailConfirmation &&
+  //     props.profileLoaded &&
+  //     !props.profileInitialized &&
+  //     !props.location.pathname.startsWith('/editProfile')
+  //   ) {
+  //     console.log('redirecting to edit');
+  //     // redirect = <Redirect to="/editProfile" />;
+  //     props.history.push('/editProfile');
+  //   }
+  // }
 
   return (
     <>

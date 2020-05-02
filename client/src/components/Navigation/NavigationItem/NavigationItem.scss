@@ -1,0 +1,47 @@
+.NavigationItem {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 3px solid transparent;
+  padding: 0 1rem;
+  cursor: pointer;
+
+  &.ActiveNavigationItem,
+  &:hover {
+    border-color: var(--secondary-color);
+  }
+}
+
+.NavigationItemIcon {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.NavigationItemFontawesome {
+  font-size: 1.2rem;
+}
+
+.NavigationItemText {
+  display: none;
+}
+
+@media (min-width: 45rem) {
+  .NavigationItemText {
+    display: block;
+  }
+
+  .SpacedIcon {
+    margin-right: 0.5rem;
+  }
+}
+
+@media (hover: hover) {
+  .NavigationItem:hover .NavigationItemText,
+  .NavigationItem:hover .NavigationItemFontawesome {
+    color: var(--secondary-color);
+  }
+}

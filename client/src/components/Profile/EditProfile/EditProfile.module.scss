@@ -17,13 +17,18 @@
   width: 15rem;
   max-width: 100%;
   margin-bottom: 0.5rem;
-}
+  text-overflow: ellipsis;
 
-.NameInput:hover,
-.NameInput:focus {
-  border-color: var(--background-dark-color);
-  border-radius: var(--border-radius);
-  background-color: var(--main-color);
+  &:hover,
+  &:focus {
+    border-color: var(--background-dark-color);
+    border-radius: var(--border-radius);
+    background-color: var(--main-color);
+  }
+
+  &:focus {
+    text-overflow: unset;
+  }
 }
 
 .RadioButtonsGroup {
