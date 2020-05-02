@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
 @import './assets/scss/colors.scss';
 @import './assets/scss/common-vars.scss';
+@import './assets/scss/common-classes.scss';
 
 
 
@@ -82,12 +83,21 @@ input[type="number"]:focus {
 
 a, 
 a:visited {
-  color: var(--link-color);
-}
-
-a.Button {
   color: unset;
   text-decoration: none;
+}
+
+
+h1 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 1.4;
 }
 
 body {

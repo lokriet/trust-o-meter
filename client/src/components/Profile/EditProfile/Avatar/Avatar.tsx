@@ -3,8 +3,8 @@ import React, { useCallback, useState } from 'react';
 import defaultImg from '../../../../assets/img/avatar.jpg';
 import { firebaseApp } from '../../../../firebase/firebase';
 import ImageTools from '../../../../util/ImageTools';
-import { Error } from '../../../UI/Error/Error';
 import classes from './Avatar.module.scss';
+import { Error } from '../../../UI/Error/Error';
 
 const maxFileSize = 1024; //1mb
 const maxWidth = 500;
@@ -17,6 +17,7 @@ const Avatar = ({
 }) => {
   const [avatarUrl, setAvatarUrl] = useState(field.value);
   const onAvatarChanged = props.onAvatarChanged || (() => {});
+  // const onErrorMessageChanged = props.onAvatarChanged || (() => {});
 
   const avatarUploadedHandler = useCallback(
     (url) => {
@@ -28,17 +29,15 @@ const Avatar = ({
     [field.name, onAvatarChanged, form]
   );
 
-  const avatarDeletedHandler = () => {
-    setAvatarUrl(null);
-    onAvatarChanged(null);
-    form.setFieldValue(field.name, null);
-  };
+  // const avatarDeletedHandler = () => {
+  //   setAvatarUrl(null);
+  //   onAvatarChanged(null);
+  //   form.setFieldValue(field.name, null);
+  // };
 
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
 
   const startUploadImageHandler = useCallback(
     (event) => {
@@ -55,6 +54,7 @@ const Avatar = ({
             ? (maxFileSize / 1024).toFixed(2) + 'M'
             : maxFileSize.toFixed(0) + 'K';
         setErrorMessage(`File size should be less than ${maxFileSizeString}`);
+        // onErrorMessageChanged(`File size should be less than ${maxFileSizeString}`);
         return;
       }
 
@@ -63,13 +63,14 @@ const Avatar = ({
           file,
           {
             width: maxWidth,
-            height: maxHeight,
+            height: maxHeight
           },
           (blob, didItResize, newSize) => {
             const uploadTask = firebaseApp.doUploadImage(blob, file.name);
             setIsUploading(true);
-            setStatusMessage('Uploading...');
+            // setStatusMessage('Uploading...');
             setErrorMessage(null);
+            // onErrorMessageChanged(null);
 
             uploadTask.on(
               'state_changed',
@@ -95,21 +96,25 @@ const Avatar = ({
                 switch (error.code) {
                   case 'storage/unauthenticated':
                     setErrorMessage('You are not logged in');
+                    // onErrorMessageChanged('You are not logged in');
                     break;
 
                   case 'storage/unauthorized':
                     setErrorMessage('Permission denied');
+                    // onErrorMessageChanged('Permission denied');
                     break;
 
                   case 'storage/canceled':
                     setErrorMessage('Upload cancelled');
+                    // onErrorMessageChanged('Upload cancelled');
                     break;
 
                   case 'storage/unknown':
                   default:
                     setErrorMessage('Image upload failed');
+                  // onErrorMessageChanged('Image upload failed');
                 }
-                setStatusMessage(null);
+                // setStatusMessage(null);
                 setIsUploading(false);
                 setProgress(null);
               },
@@ -120,10 +125,11 @@ const Avatar = ({
                   .getDownloadURL()
                   .then(function (downloadURL) {
                     setIsUploading(false);
-                    setStatusMessage(null);
+                    // setStatusMessage(null);
                     setErrorMessage(null);
+                    // onErrorMessageChanged(null);
                     setProgress(null);
-                    setFileName(file.name);
+                    // setFileName(file.name);
                     avatarUploadedHandler(downloadURL);
                   });
               }
@@ -133,7 +139,7 @@ const Avatar = ({
       } catch (error) {
         console.log(error);
         setErrorMessage('Image upload failed');
-        setStatusMessage(null);
+        // setStatusMessage(null);
         setIsUploading(false);
         setProgress(null);
       }
@@ -143,57 +149,32 @@ const Avatar = ({
 
   const imgSrc = avatarUrl == null || avatarUrl === '' ? defaultImg : avatarUrl;
   return (
-    <div>
-      <div>
-        {/* <ItemsRow alignCentered> */}
-        <div>
-          <input
-            type="file"
-            id="file"
-            name="file"
-            className={classes.HiddenInput}
-            onChange={startUploadImageHandler}
-          />
-          <label htmlFor="file" className={classes.UploadButton}>
-            <img src={imgSrc} className={classes.AvatarImg} alt="avatar" />
-          </label>
-          {fileName && !progress ? (
-            // <Popup
-            //   on="hover"
-            //   arrow={false}
-            //   contentStyle={{width: 'auto'}}
-            //   offsetY={10}
-            //   trigger={<span className={classes.FileName}> {fileName}</span>}
-            // >
-            <div>{fileName}</div>
-          ) : // </Popup>
-          null}
-          {/* </ItemsRow> */}
-        </div>
-        {statusMessage || errorMessage || isUploading ? (
-          <div className={classes.Details}>
-            {statusMessage ? <div>{statusMessage}</div> : null}
-            {errorMessage ? <Error>{errorMessage}</Error> : null}
-            {isUploading ? <progress value={progress || ''} max="100" /> : null}
-          </div>
-        ) : null}
-      </div>
-
-      {/* <ImageUpload
-        buttonClassName={classes.Avatar}
-        maxWidth={150}
-        maxHeight={150}
-        onUploadFinished={avatarUploadedHandler}
-      >
+    <div className={classes.Avatar}>
+      <input
+        type="file"
+        id="file"
+        name="file"
+        className={classes.HiddenInput}
+        onChange={startUploadImageHandler}
+      />
+      <label htmlFor="file" className={classes.UploadButton}>
         <img src={imgSrc} className={classes.AvatarImg} alt="avatar" />
-      </ImageUpload> */}
-      {avatarUrl != null && avatarUrl !== '' ? (
+      </label>
+      {isUploading ? (
+        <progress
+          value={progress || ''}
+          max="100"
+          className={classes.ProgressBar}
+        />
+      ) : null}
+      {errorMessage ? <Error>{errorMessage}</Error> : null}
+      {/* {avatarUrl != null && avatarUrl !== '' ? (
         <div>
           <button type="button" onClick={avatarDeletedHandler}>
             Delete avatar
           </button>
         </div>
-      ) : null}
+      ) : null} */}
     </div>
   );
 };

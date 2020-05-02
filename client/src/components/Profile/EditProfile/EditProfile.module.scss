@@ -1,0 +1,41 @@
+.Content {
+  margin-top: 1rem;
+  padding: 0 2rem;
+}
+
+.FieldHeader {
+  font-weight: 500;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.NameInput {
+  padding: 0.5rem 1rem 0.5rem 4px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-bottom-color: var(--background-dark-color);
+  height: 2.25rem;
+  width: 15rem;
+  max-width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.NameInput:hover,
+.NameInput:focus {
+  border-color: var(--background-dark-color);
+  border-radius: var(--border-radius);
+  background-color: var(--main-color);
+}
+
+.RadioButtonsGroup {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.PronounLabel {
+  margin-right: 1rem;
+}
+
+.SaveButton {
+  margin: 1rem 0;
+}

@@ -76,7 +76,6 @@
   
   .AuthButtonText {
     flex-grow: 1;
-    justify-self: center;
     padding: 0 1rem;
   }
   
@@ -109,21 +108,4 @@
 .SwitchModeLink {
   text-align: center;
   margin: 1rem auto;
-}
-
-.AuthSpinner {
-  margin: 0.5rem auto;
-}
-
-
-h1 {
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-p {
-  margin-bottom: 1rem;
-  line-height: 1.4;
 }

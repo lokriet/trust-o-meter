@@ -21,10 +21,18 @@ interface LoginProps {
   loading: boolean;
 }
 
+enum LoginWith {
+  Email,
+  Google,
+  Facebook
+}
+
 const Login = (props: LoginProps) => {
   const [redirectPath] = useState(props.redirectPath);
   const [googleError, setGoogleError] = useState(false);
   const [facebookError, setFacebookError] = useState(false);
+  const [loginWith, setLoginWith] = useState<LoginWith | null>(null);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -36,6 +44,7 @@ const Login = (props: LoginProps) => {
 
   const handleSubmit = useCallback(
     (formValues) => {
+      setLoginWith(LoginWith.Email);
       dispatch(
         actions.loginWithEmailAndPassword(formValues.email, formValues.password)
       );
@@ -47,7 +56,7 @@ const Login = (props: LoginProps) => {
     (response: any) => {
       setGoogleError(false);
       setFacebookError(false);
-      dispatch(actions.loginWithGoogle(response.tokenId));
+      dispatch(actions.loginWithGoogle(response.tokenId, () => setLoading(false)));
     },
     [dispatch]
   );
@@ -63,7 +72,7 @@ const Login = (props: LoginProps) => {
       setGoogleError(false);
       setFacebookError(false);
       dispatch(
-        actions.loginWithFacebook(response.userID, response.accessToken)
+        actions.loginWithFacebook(response.userID, response.accessToken, () => setLoading(false))
       );
       console.log(response);
     },
@@ -74,6 +83,18 @@ const Login = (props: LoginProps) => {
     console.log(response);
     setGoogleError(false);
     setFacebookError(true);
+  }, []);
+
+  const handleGoogleLoginClick = useCallback((renderProps: any) => {
+    setLoading(true);
+    setLoginWith(LoginWith.Google);
+    renderProps.onClick();
+  }, []);
+
+  const handleFacebookLoginClick = useCallback((event: any, renderProps: any) => {
+    setLoading(true);
+    setLoginWith(LoginWith.Facebook);
+    renderProps.onClick(event);
   }, []);
 
   let form = (
@@ -97,7 +118,7 @@ const Login = (props: LoginProps) => {
             isSignedIn={false}
             render={(renderProps) => (
               <button
-                onClick={renderProps.onClick}
+                onClick={() => handleGoogleLoginClick(renderProps)}
                 disabled={renderProps.disabled || props.loading}
                 className={classes.AuthButton}
               >
@@ -105,7 +126,13 @@ const Login = (props: LoginProps) => {
                   icon={faGoogle}
                   className={classes.GoogleIcon}
                 />
-                <div className={classes.AuthButtonText}> Login with Google</div>
+                <div className={classes.AuthButtonText}>
+                  {(props.loading || loading) && loginWith === LoginWith.Google ? (
+                    <Spinner className="ButtonSpinner" />
+                  ) : (
+                    ' Login with Google'
+                  )}
+                </div>
               </button>
             )}
           />
@@ -123,7 +150,7 @@ const Login = (props: LoginProps) => {
             render={(renderProps) => (
               <button
                 type="button"
-                onClick={renderProps.onClick}
+                onClick={(event) => handleFacebookLoginClick(event, renderProps)}
                 className={classes.AuthButton}
                 disabled={props.loading}
               >
@@ -132,8 +159,11 @@ const Login = (props: LoginProps) => {
                   className={classes.FacebookIcon}
                 />
                 <div className={classes.AuthButtonText}>
-                  {' '}
-                  Login with Facebook
+                  {(props.loading || loading) && loginWith === LoginWith.Facebook ? (
+                    <Spinner className="ButtonSpinner" />
+                    ) : (
+                      ' Login with Facebook'
+                  )}
                 </div>
               </button>
             )}
@@ -155,8 +185,8 @@ const Login = (props: LoginProps) => {
             }}
             validationSchema={Yup.object({
               email: Yup.string()
-                .required('E-mail is required')
-                .email('Invalid e-mail address'),
+                .required('Email is required')
+                .email('Invalid email address'),
               password: Yup.string()
                 .required('Required')
                 .min(6, 'Password must be at least 6 characters long')
@@ -169,7 +199,7 @@ const Login = (props: LoginProps) => {
                   className={`${classes.Input} ${classes.LoginInput}`}
                   name="email"
                   type="text"
-                  placeholder="E-mail"
+                  placeholder="Email"
                   autoComplete="username"
                 />
                 <Field
@@ -180,7 +210,10 @@ const Login = (props: LoginProps) => {
                   autoComplete="current-password"
                 />
                 <div className={classes.ForgotPasswordLink}>
-                  <Link to={`/requestPasswordReset?email=${form.values.email}`}>
+                  <Link
+                    to={`/requestPasswordReset?email=${form.values.email}`}
+                    className="Link"
+                  >
                     Forgot password?
                   </Link>
                 </div>
@@ -197,18 +230,24 @@ const Login = (props: LoginProps) => {
                   disabled={props.loading}
                   className={classes.AuthButton}
                 >
-                  <div className="AuthButtonText">Login</div>
+                  <div className="AuthButtonText">
+                    {props.loading && loginWith === LoginWith.Email ? (
+                      <Spinner className="ButtonSpinner" />
+                    ) : (
+                      'Login'
+                    )}
+                  </div>
                 </button>
 
                 {props.error ? (
                   <div className={classes.Error}>{props.error}</div>
                 ) : null}
 
-                {props.loading ? <Spinner className={classes.AuthSpinner} /> : null}
-
                 <div className={classes.SwitchModeLink}>
                   {"Don't have an account? "}
-                  <Link to="/register">Register</Link>
+                  <Link to="/register" className="Link">
+                    Register
+                  </Link>
                 </div>
               </Form>
             )}

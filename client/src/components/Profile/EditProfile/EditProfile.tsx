@@ -9,6 +9,7 @@ import * as actions from '../../../store/actions';
 import { Gender, Profile } from '../../../store/model/profile';
 import { State } from '../../../store/reducers/state';
 import { Error } from '../../UI/Error/Error';
+import Spinner from '../../UI/Spinner/Spinner';
 import Avatar from './Avatar/Avatar';
 import classes from './EditProfile.module.scss';
 
@@ -53,7 +54,10 @@ const EditProfile = (props: ProfileProps) => {
   const form = (
     <>
       {isNew ? (
-        <div>Awesome! Before we go on, please tell us about yourself!</div>
+        <>
+          <h1>Awesome!</h1>
+          <p>Before we go on, please tell us about yourself!</p>
+        </>
       ) : null}
 
       <Formik
@@ -69,8 +73,46 @@ const EditProfile = (props: ProfileProps) => {
         })}
         onSubmit={(values, { setSubmitting }) => handleSubmit(values)}
       >
-        <Form className={classes.LoginForm}>
+        <Form>
           {/* <Field name="avatarUrl" type="text" placeholder="avatar" /> */}
+          <div className={classes.FieldHeader}>What's your name?</div>
+          <Field
+            name="username"
+            type="text"
+            placeholder="Name"
+            className={classes.NameInput}
+          />
+          <Error>
+            <ErrorMessage name="username" />
+          </Error>
+
+          <div className={classes.FieldHeader}>What are your pronouns?</div>
+          <div className={classes.RadioButtonsGroup}>
+            <Field
+              type="radio"
+              name="gender"
+              id="female"
+              value={Gender.Female}
+            />
+            <label htmlFor="female" className={classes.PronounLabel}>
+              She
+            </label>
+
+            <Field type="radio" name="gender" id="male" value={Gender.Male} />
+            <label htmlFor="male" className={classes.PronounLabel}>
+              He
+            </label>
+
+            <Field type="radio" name="gender" id="other" value={Gender.Other} />
+            <label htmlFor="other" className={classes.PronounLabel}>
+              Them
+            </label>
+          </div>
+          <Error>
+            <ErrorMessage name="gender" />
+          </Error>
+
+          <div className={classes.FieldHeader}>Your profile picture</div>
           <Field
             id="avatarUrl"
             name="avatarUrl"
@@ -81,45 +123,26 @@ const EditProfile = (props: ProfileProps) => {
             <ErrorMessage name="avatarUrl" />
           </Error>
 
-          <Field name="username" type="text" placeholder="Name" />
-          <Error>
-            <ErrorMessage name="username" />
-          </Error>
-
-          <div className={classes.RadioButtonsGroup}>
-            <Field
-              type="radio"
-              name="gender"
-              id="female"
-              value={Gender.Female}
-            />
-            <label htmlFor="female">She</label>
-
-            <Field type="radio" name="gender" id="male" value={Gender.Male} />
-            <label htmlFor="male">He</label>
-
-            <Field type="radio" name="gender" id="other" value={Gender.Other} />
-            <label htmlFor="other">Them</label>
-
-            <Error>
-              <ErrorMessage name="gender" />
-            </Error>
-          </div>
-
           {isNew ? null : (
-            <div>Your identificator is: {props.profile?.identificator}</div>
+            <div className={classes.FieldHeader}>
+              Your identificator is: {props.profile?.identificator}
+            </div>
           )}
 
-          {props.error ? <Error>{props.error}</Error> : null}
-
-          <button type="submit" disabled={props.loading}>
-            Save
+          <button
+            type="submit"
+            disabled={props.loading}
+            className={`Button ${classes.SaveButton}`}
+          >
+            {props.loading ? <Spinner className="ButtonSpinner" /> : 'Save'}
           </button>
+
+          {props.error ? <Error>{props.error}</Error> : null}
         </Form>
       </Formik>
     </>
   );
-  return <div>{form}</div>;
+  return <div className={classes.Content}>{form}</div>;
 };
 
 const mapStateToProps = (state: State): ProfileProps => {

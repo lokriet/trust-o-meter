@@ -77,7 +77,8 @@ export const registerWithEmailAndPassword = (
     body: JSON.stringify({
       email,
       password
-    })
+    }),
+
   });
 };
 
@@ -94,7 +95,7 @@ export const loginWithEmailAndPassword = (email: string, password: string) => {
   });
 };
 
-export const loginWithGoogle = (googleTokenId: string) => {
+export const loginWithGoogle = (googleTokenId: string, onOperationDone: any) => {
   return auth('http://localhost:3001/auth/loginWithGoogle', {
     method: 'POST',
     headers: {
@@ -103,10 +104,11 @@ export const loginWithGoogle = (googleTokenId: string) => {
     body: JSON.stringify({
       idToken: googleTokenId
     })
-  });
+  },
+  onOperationDone);
 };
 
-export const loginWithFacebook = (facebookUserId: string, facebookAccessToken: string) => {
+export const loginWithFacebook = (facebookUserId: string, facebookAccessToken: string, onOperationDone: any) => {
   return auth('http://localhost:3001/auth/loginWithFacebook', {
     method: 'POST',
     headers: {
@@ -116,10 +118,11 @@ export const loginWithFacebook = (facebookUserId: string, facebookAccessToken: s
       userId: facebookUserId,
       accessToken: facebookAccessToken
     })
-  });
+  },
+  onOperationDone);
 };
 
-const auth = (authUrl: string, fetchParams: any) => {
+const auth = (authUrl: string, fetchParams: any, onOperationDone?: any) => {
   return async (dispatch: (...args: any[]) => void) => {
     try {
       dispatch(authOperationStart());
@@ -143,6 +146,10 @@ const auth = (authUrl: string, fetchParams: any) => {
       console.log('auth failed', error);
       localStorage.removeItem('jwtToken');
       dispatch(loginFailed(internalError));
+    } finally {
+      if (onOperationDone) {
+        onOperationDone();
+      }
     }
   };
 };
@@ -165,6 +172,7 @@ export const logout = () => {
 
 export const sendConfirmationEmail = () => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
+    const errorMessage = 'Sending confirmation email failed. Please check your internet connection and try again';
     try {
       dispatch(authOperationStart());
       const token = getState().auth.token;
@@ -178,12 +186,13 @@ export const sendConfirmationEmail = () => {
         }
       );
       if (response.status !== 200) {
-        dispatch(authOperationFailed('Failed to resend confirmation error'));
+        dispatch(authOperationFailed(errorMessage));
       } else {
         dispatch(resendConfirmationEmailSuccess());
       }
     } catch (error) {
-      console.log('Failed to resend confirmation error');
+      console.log(error);
+      dispatch(authOperationFailed(errorMessage));
     }
   };
 };
@@ -248,7 +257,7 @@ export const requestPasswordReset = (email: string) => {
 }
 
 export const resetPassword = (password: string, resetPasswordToken: string) => {
-  const errorMessage = 'Password reset failed. Please check your internet connection and make sure you are using the latest requested link from your e-mail box';
+  const errorMessage = 'Password reset failed. Please check your internet connection and make sure you are using the latest requested link from your inbox';
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       dispatch(authOperationStart());

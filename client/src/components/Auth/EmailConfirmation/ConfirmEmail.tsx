@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Redirect, useParams } from 'react-router-dom';
 
+import logoImg from '../../../assets/img/suspicious.svg';
 import withAuthCheck from '../../../hoc/withAuthCheck';
 import * as actions from '../../../store/actions';
 import { State } from '../../../store/reducers/state';
-import { Error } from '../../UI/Error/Error';
 import Spinner from '../../UI/Spinner/Spinner';
+import classes from './ConfirmEmail.module.scss';
 
 interface ConfirmEmailProps {
   waitingForEmailConfirmation: boolean;
@@ -35,6 +36,10 @@ const ConfirmEmail = (props: ConfirmEmailProps): JSX.Element => {
     dispatch(actions.sendConfirmationEmail());
   }, [dispatch]);
 
+  const handleLogout = useCallback(() => {
+    dispatch(actions.logout());
+  }, [dispatch]);
+
   let view: JSX.Element | null = null;
   if (!props.waitingForEmailConfirmation) {
     view = <Redirect to="/" />;
@@ -43,25 +48,79 @@ const ConfirmEmail = (props: ConfirmEmailProps): JSX.Element => {
   } else if (props.error) {
     view = (
       <>
-        <div>
-          Activation failed. Check your internet connection and try again. If
-          your activation link timed out, use the button below to get a new one.
-        </div>
-        <button type="button" onClick={handleResendConfirmationEmail}>
-          Resend confirmation email
+        <p>
+          Email confirmation failed. Please check your internet connection and
+          make sure you are using the latest requested link from your inbox
+          before you try again.
+        </p>
+        <p>
+          If your activation link has expired, use the button below to get a new
+          one.
+        </p>
+        <button
+          type="button"
+          disabled={props.loading}
+          className={classes.AuthButton}
+          onClick={handleResendConfirmationEmail}
+        >
+          <div className="AuthButtonText">
+            {props.loading && attemptingToResend ? (
+              <Spinner className="ButtonSpinner" />
+            ) : (
+              'Resend confirmation email'
+            )}
+          </div>
         </button>
+        <button
+          type="button"
+          disabled={props.loading}
+          className={classes.AuthButton}
+          onClick={handleLogout}
+        >
+          <div className="AuthButtonText">Logout</div>
+        </button>
+
         {attemptingToResend ? (
-          <Error>
-            Resend failed. Please check your internet connection and try again
-          </Error>
+          <div className={classes.Error}>{props.error}</div>
         ) : null}
       </>
     );
   } else if (attemptingToResend && props.resendSuccess) {
-    view = <p>Email resent. Please check your inbox</p>;
+    view = (
+      <>
+        <p>Confirmation email resent.</p>
+        <p>
+          Please check your inbox and use the activation link provided in the
+          email.
+        </p>
+        <button
+          type="button"
+          disabled={props.loading}
+          className={classes.AuthButton}
+          onClick={handleLogout}
+        >
+          <div className="AuthButtonText">Logout</div>
+        </button>
+      </>
+    );
   }
 
-  return <>{view}</>;
+  return (
+    <div className={classes.AuthView}>
+      <div className={classes.VerticalScrollContainer}>
+        <div className={classes.Content}>
+          <div className={classes.LogoContainer}>
+            <img
+              src={logoImg}
+              alt="Trust-o-Meter"
+              className={classes.LogoImage}
+            />
+          </div>
+          {view}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const mapStateToProps = (state: State): ConfirmEmailProps => {

@@ -2,6 +2,7 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 
 import logoImg from '../../../assets/img/suspicious.svg';
@@ -9,7 +10,6 @@ import * as actions from '../../../store/actions';
 import { State } from '../../../store/reducers/state';
 import Spinner from '../../UI/Spinner/Spinner';
 import classes from './PasswordReset.module.scss';
-import { Link } from 'react-router-dom';
 
 interface PasswordResetProps {
   error: string | null;
@@ -39,7 +39,10 @@ const PasswordReset = (props: PasswordResetProps) => {
     view = (
       <>
         <h1>Password changed successfully</h1>
-        <p>Please <Link to="/login">login</Link> to the application with your new password</p>
+        <p>
+          Please <Link to="/login">login</Link> to the application with your new
+          password
+        </p>
       </>
     );
   } else {
@@ -89,10 +92,16 @@ const PasswordReset = (props: PasswordResetProps) => {
               disabled={props.loading}
               className={classes.AuthButton}
             >
-              <div className="AuthButtonText">Change password</div>
+              <div className="AuthButtonText">
+                {props.loading ? (
+                  <Spinner className="ButtonSpinner" />
+                ) : (
+                  'Change password'
+                )}
+              </div>
             </button>
 
-            <Link to="/login" className="Button">
+            <Link to="/login">
               <button
                 type="button"
                 disabled={props.loading}
@@ -106,7 +115,6 @@ const PasswordReset = (props: PasswordResetProps) => {
               <div className={classes.Error}>{props.error}</div>
             ) : null}
 
-            {props.loading ? <Spinner className={classes.AuthSpinner} /> : null}
           </Form>
         </Formik>
       </>

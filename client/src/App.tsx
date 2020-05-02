@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
+import { Route, Switch, withRouter } from 'react-router-dom';
 
 import Admin from './components/Admin/Admin';
 import ConfirmEmail from './components/Auth/EmailConfirmation/ConfirmEmail';
@@ -11,14 +11,15 @@ import PasswordResetRequest from './components/Auth/PasswordResest/PasswordReset
 import Register from './components/Auth/Register/Register';
 import FindContacts from './components/Contacts/FindContacts/FindContacts';
 import Home from './components/Home/Home';
-import Navigation from './components/Navigation/Navigation';
 import EditProfile from './components/Profile/EditProfile/EditProfile';
+import Layout from './components/UI/Layout/Layout';
 import Spinner from './components/UI/Spinner/Spinner';
 import * as actions from './store/actions';
 import { State } from './store/reducers/state';
 
 interface AppProps {
   location: any;
+  history: any;
   isLoggedIn: boolean;
   isAdmin: boolean;
   initialAuthCheckDone: boolean;
@@ -38,11 +39,10 @@ const App = (props: AppProps): JSX.Element => {
   }, [props.isLoggedIn, props.initialAuthCheckDone, dispatch]);
 
   let view: JSX.Element;
-  let redirect: JSX.Element | null = null;
+  // let redirect: JSX.Element | null = null;
   if (
     !props.initialAuthCheckDone ||
-    (props.isLoggedIn &&
-      !props.profileLoaded)
+    (props.isLoggedIn && !props.profileLoaded)
   ) {
     view = <Spinner />;
   } else {
@@ -54,29 +54,46 @@ const App = (props: AppProps): JSX.Element => {
         <Route path="/editProfile" component={EditProfile} />
         <Route path="/findContacts" component={FindContacts} />
         <Route path="/emailConfirmation" component={EmailConfirmation} />
-        <Route path="/activateAccount/:activationToken" component={ConfirmEmail} />
-        {props.isLoggedIn ? null : <Route path="/requestPasswordReset" component={PasswordResetRequest} />}
-        {props.isLoggedIn ? null : <Route path="/resetPassword/:resetPasswordToken" component={PasswordReset} />}
+        <Route
+          path="/activateAccount/:activationToken"
+          component={ConfirmEmail}
+        />
+        {props.isLoggedIn ? null : (
+          <Route
+            path="/requestPasswordReset"
+            component={PasswordResetRequest}
+          />
+        )}
+        {props.isLoggedIn ? null : (
+          <Route
+            path="/resetPassword/:resetPasswordToken"
+            component={PasswordReset}
+          />
+        )}
         {props.isAdmin ? <Route path="/admin" component={Admin} /> : null}
       </Switch>
     );
   }
 
-  if (props.isLoggedIn && !props.location.pathname.startsWith('/activateAccount/')) {
-    if (props.waitingForEmailConfirmation) {
-      console.log('redirecting');
-      redirect = <Redirect to="/emailConfirmation" />;
-    } else if (props.profileLoaded && !props.profileInitialized) {
-      console.log('redirecting to edit');
-      redirect = <Redirect to="/editProfile" />;
+  if (
+    props.isLoggedIn &&
+    !props.location.pathname.startsWith('/activateAccount/')
+  ) {
+    if (props.waitingForEmailConfirmation && !props.location.pathname.startsWith('/emailConfirmation')) {
+      // console.log('redirecting');
+      // redirect = <Redirect to="/emailConfirmation" />;
+      props.history.push("/emailConfirmation");
+    } else if (props.profileLoaded && !props.profileInitialized && !props.location.pathname.startsWith('/editProfile')) {
+      // console.log('redirecting to edit');
+      // redirect = <Redirect to="/editProfile" />;
+      props.history.push("/editProfile");
     }
   }
 
   return (
     <>
-      <Navigation />
-      {view} 
-      {redirect}
+      <Layout>{view}</Layout>
+      {/* {redirect} */}
     </>
   );
 };
@@ -88,7 +105,9 @@ const mapStateToProps = (state: State): Partial<AppProps> => {
     initialAuthCheckDone: state.auth.initialCheckDone,
     profileLoaded: state.profile.profile != null,
     profileInitialized:
-      state.profile.profile != null && state.profile.profile.initialized !== undefined && state.profile.profile.initialized,
+      state.profile.profile != null &&
+      state.profile.profile.initialized !== undefined &&
+      state.profile.profile.initialized,
     waitingForEmailConfirmation: state.auth.waitingForEmailConfirmation
   };
 };

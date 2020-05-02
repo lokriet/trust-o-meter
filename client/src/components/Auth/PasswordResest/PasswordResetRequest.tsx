@@ -45,7 +45,7 @@ const PasswordResetRequest = (props: PasswordResetRequestProps) => {
           Please check your inbox for the instructions about how to complete the
           process.
         </p>
-        <Link to="/login" className={`Button ${classes.AuthButton}`}>
+        <Link to="/login" className={classes.AuthButton}>
           <div className="AuthButtonText">Return to login page</div>
         </Link>
       </>
@@ -65,8 +65,8 @@ const PasswordResetRequest = (props: PasswordResetRequestProps) => {
           }}
           validationSchema={Yup.object({
             email: Yup.string()
-              .required('E-mail is required')
-              .email('Invalid e-mail address')
+              .required('Email is required')
+              .email('Invalid email address')
           })}
           onSubmit={(values, { setSubmitting }) => handleSubmit(values)}
         >
@@ -75,7 +75,7 @@ const PasswordResetRequest = (props: PasswordResetRequestProps) => {
               className={`${classes.Input} ${classes.EmailInput}`}
               name="email"
               type="text"
-              placeholder="E-mail"
+              placeholder="Email"
               autoComplete="username"
             />
             <ErrorMessage name="email">
@@ -87,10 +87,16 @@ const PasswordResetRequest = (props: PasswordResetRequestProps) => {
               disabled={props.loading}
               className={classes.AuthButton}
             >
-              <div className="AuthButtonText">Reset password</div>
+              <div className="AuthButtonText">
+                {props.loading ? (
+                  <Spinner className="ButtonSpinner" />
+                ) : (
+                  'Reset password'
+                )}
+              </div>
             </button>
 
-            <Link to="/login" className="Button">
+            <Link to="/login">
               <button
                 type="button"
                 disabled={props.loading}
@@ -103,8 +109,6 @@ const PasswordResetRequest = (props: PasswordResetRequestProps) => {
             {props.error ? (
               <div className={classes.Error}>{props.error}</div>
             ) : null}
-
-            {props.loading ? <Spinner className={classes.AuthSpinner} /> : null}
           </Form>
         </Formik>
       </div>

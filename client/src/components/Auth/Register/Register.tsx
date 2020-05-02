@@ -58,8 +58,8 @@ const Register = (props: RegisterProps) => {
             }}
             validationSchema={Yup.object({
               email: Yup.string()
-                .required('E-mail is required')
-                .email('Invalid e-mail address'),
+                .required('Email is required')
+                .email('Invalid email address'),
               password: Yup.string()
                 .required('Required')
                 .min(6, 'Password must be at least 6 characters long'),
@@ -74,7 +74,7 @@ const Register = (props: RegisterProps) => {
                 className={`${classes.Input} ${classes.LoginInput}`}
                 name="email"
                 type="text"
-                placeholder="E-mail"
+                placeholder="Email"
                 autoComplete="username"
               />
 
@@ -109,19 +109,21 @@ const Register = (props: RegisterProps) => {
                 disabled={props.loading}
                 className={classes.AuthButton}
               >
-                <div className="AuthButtonText">Register</div>
+                <div className="AuthButtonText">
+                {props.loading ? (
+                  <Spinner className="ButtonSpinner" />
+                ) : (
+                  'Register'
+                )}
+                  </div>
               </button>
 
               {props.error ? (
                 <div className={classes.Error}>{props.error}</div>
               ) : null}
 
-              {props.loading ? (
-                <Spinner className={classes.AuthSpinner} />
-              ) : null}
-
               <div className={classes.SwitchModeLink}>
-                Already have an account? <Link to="/login">Login</Link>
+                Already have an account? <Link to="/login" className="Link">Login</Link>
               </div>
             </Form>
           </Formik>

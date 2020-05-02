@@ -1,0 +1,22 @@
+.NavigationBar {
+  height: 4rem;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--main-color);
+}
+
+.NavigationItem {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 3px solid transparent;
+  padding: 0 1rem;
+
+  &.Active,
+  &:hover {
+    border-color: var(--secondary-color);
+  }
+}
