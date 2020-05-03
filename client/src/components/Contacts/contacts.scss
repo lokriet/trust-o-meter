@@ -45,3 +45,21 @@
   margin-top: 1.5rem;
 }
 
+
+.ExtraDetailsContainer {
+  width: 100%;
+  max-width: 40rem;
+  min-width: 18rem;
+  margin: 0 auto;
+  margin-bottom: 0.5rem;
+  padding-left: 2rem;
+  display: flex;
+  justify-items: stretch;
+}
+
+.ExtraDetailsCard {
+  flex-grow: 1;
+  padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+  border-radius: var(--border-radius);
+  background-color: var(--main-color);
+}

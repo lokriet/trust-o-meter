@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 
-import { Action } from '../../../../../store/model/status';
+import { Action } from '../../../../../../store/model/status';
+import classes from './ContactAction.module.scss';
 
 interface ContactActionProps {
   actionDone: boolean;
@@ -27,7 +28,7 @@ const ContactAction = ({
   );
 
   return (
-    <div>
+    <div className={classes.ContactAction}>
       <input
         type="checkbox"
         id={action._id}

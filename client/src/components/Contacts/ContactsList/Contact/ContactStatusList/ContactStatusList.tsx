@@ -4,11 +4,11 @@ import { connect } from 'react-redux';
 import { useDispatch } from 'react-redux';
 
 import * as actions from '../../../../../store/actions';
-
 import { Contact } from '../../../../../store/model/contact';
-import { Action, Status } from '../../../../../store/model/status';
+import { Status } from '../../../../../store/model/status';
 import { State } from '../../../../../store/reducers/state';
-import ContactAction from './ContactAction';
+import ContactStatus from './ContactStatus/ContactStatus';
+import classes from './ContactStatusList.module.scss';
 
 interface ContactStatusListProps {
   statusList: Status[];
@@ -42,32 +42,31 @@ const ContactStatusList = (props: ContactStatusListProps) => {
   );
 
   return (
-    <div>
-      {props.statusList.map((status: Status) =>
-        status.minTrust <= contactTrust ? (
-          <div key={status._id}>
-            <h3>{status.name}</h3>
-            {status.actions.map((action: Action) => (
-              <ContactAction
-                key={action._id}
-                action={action}
-                actionDone={props.contact.doneActions.includes(action._id)}
-                onActionChange={(
-                  actionDone: boolean,
-                  updateDoneCallback: any
-                ) =>
-                  handleActionChange(
-                    actionDone,
-                    status._id,
-                    action._id,
-                    updateDoneCallback
-                  )
-                }
-              />
-            ))}
-          </div>
-        ) : null
-      )}
+    <div className={classes.ExtraDetailsContainer}>
+      <div className={classes.ExtraDetailsCard}>
+        <div className={classes.Header}>Unlocked activities</div>
+        {props.statusList.map((status: Status) =>
+          status.minTrust <= contactTrust ? (
+            <ContactStatus
+              key={status._id}
+              status={status}
+              doneActions={props.contact.doneActions}
+              onActionChange={(
+                actionId: string,
+                actionDone: boolean,
+                updateDoneCallback: any
+              ) =>
+                handleActionChange(
+                  actionDone,
+                  status._id,
+                  actionId,
+                  updateDoneCallback
+                )
+              }
+            />
+          ) : null
+        )}
+      </div>
     </div>
   );
 };

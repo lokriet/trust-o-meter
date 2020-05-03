@@ -13,6 +13,7 @@ import Avatar from '../../../UI/Avatar/Avatar';
 import { Error as UIError } from '../../../UI/Error/Error';
 import classes from './ConfirmedContact.module.scss';
 import ContactStatusList from './ContactStatusList/ContactStatusList';
+import TrustDetails from './TrustDetails/TrustDetails';
 
 interface ConfirmedContactProps {
   contact: Contact;
@@ -60,27 +61,33 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
     setContactStatus(contactStatus);
   }, [getTrustPoints, props.statusList]);
 
-  const handleIncreaseTrust = useCallback((event) => {
-    event.stopPropagation();
-    setLoading(true);
-    dispatch(
-      actions.increaseContactTrust(
-        props.contact.contactProfile.identificator,
-        () => setLoading(false)
-      )
-    );
-  }, [props.contact, dispatch]);
+  const handleIncreaseTrust = useCallback(
+    (event) => {
+      event.stopPropagation();
+      setLoading(true);
+      dispatch(
+        actions.increaseContactTrust(
+          props.contact.contactProfile.identificator,
+          () => setLoading(false)
+        )
+      );
+    },
+    [props.contact, dispatch]
+  );
 
-  const handleDecreaseTrust = useCallback((event) => {
-    event.stopPropagation();
-    setLoading(true);
-    dispatch(
-      actions.decreaseContactTrust(
-        props.contact.contactProfile.identificator,
-        () => setLoading(false)
-      )
-    );
-  }, [props.contact, dispatch]);
+  const handleDecreaseTrust = useCallback(
+    (event) => {
+      event.stopPropagation();
+      setLoading(true);
+      dispatch(
+        actions.decreaseContactTrust(
+          props.contact.contactProfile.identificator,
+          () => setLoading(false)
+        )
+      );
+    },
+    [props.contact, dispatch]
+  );
 
   const handleChangeCustomName = useCallback(() => {
     setLoading(true);
@@ -143,7 +150,7 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
           </button>
           <button
             className={classes.ActionButton}
-            onClick={event => handleIncreaseTrust(event)}
+            onClick={(event) => handleIncreaseTrust(event)}
             disabled={loading}
           >
             Trust {getPronoun(props.contact.contactProfile.gender)}
@@ -152,6 +159,8 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
       </div>
       {showExtraDetails ? (
         <>
+          <TrustDetails contact={props.contact} />
+          <ContactStatusList contact={props.contact} />
           <div>
             <div>
               <input
@@ -169,13 +178,6 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
               </button>
             </div>
           </div>
-
-          <div>
-            <div>my trust: {props.contact.myTrustPoints}</div>
-            <div>their TODO trust: {props.contact.contactTrustPoints}</div>
-            <div>TP: {getTrustPoints()}</div>
-          </div>
-          <ContactStatusList contact={props.contact} />
         </>
       ) : null}
     </>
