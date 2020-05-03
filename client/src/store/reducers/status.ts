@@ -1,3 +1,5 @@
+import { error } from 'console';
+
 import * as actionTypes from '../actions/actionTypes';
 import { Status } from '../model/status';
 
@@ -33,6 +35,10 @@ export const statusReducer = (
     case actionTypes.status.FETCH_STATUS_LIST_FAILED:
       return fetchStatusListFailed(state, action);
 
+    case actionTypes.status.INIT_STATUS_OPERATION:
+      return initStatusOperation(state, action);
+    case actionTypes.status.INIT_ACTION_OPERATION:
+      return initActionOperation(state, action);
     case actionTypes.status.CREATE_STATUS_SUCCESS:
       return createStatusSuccess(state, action);
     case actionTypes.status.CREATE_STATUS_FAILED:
@@ -48,6 +54,9 @@ export const statusReducer = (
       return createActionFailed(state, action);
     case actionTypes.status.UPDATE_ACTION_FAILED:
       return updateActionFailed(state, action);
+
+    case actionTypes.status.RESET_STATUS_STORE:
+      return initialState;
     default:
       return state;
   }
@@ -84,6 +93,29 @@ const fetchStatusListFailed = (
     ...state,
     error: action.error,
     loading: false
+  };
+};
+
+const initStatusOperation = (
+  state: StatusState = initialState,
+  action: any
+): StatusState => {
+  const newStatusErrors = removeItemError(state.statusErrors, action.statusId);
+
+  return {
+    ...state,
+    statusErrors: newStatusErrors
+  };
+};
+
+const initActionOperation = (
+  state: StatusState = initialState,
+  action: any
+): StatusState => {
+  const newActionErrors = removeActionItemError(state.actionErrors, action.statusId, action.actionId);
+  return {
+    ...state,
+    actionErrors: newActionErrors
   };
 };
 
@@ -188,8 +220,8 @@ const updateActionFailed = (
   action: any
 ): StatusState => {
   const newActionErrors = { ...state.actionErrors };
-  if (!newActionErrors.ADD) {
-    newActionErrors.ADD = {};
+  if (!newActionErrors[action.statusId]) {
+    newActionErrors[action.statusId] = {};
   }
   newActionErrors[action.statusId][action.actionId] = action.error;
   return {
@@ -210,5 +242,36 @@ const removeItemError = (errors: any, itemId: string | null) => {
   } else {
     newErrors = errors;
   }
+  return newErrors;
+};
+
+const removeActionItemError = (
+  errors: any,
+  statusId: string,
+  actionId: string | null
+) => {
+  // let newErrors;
+  // const errorId = itemId || 'ADD';
+  // if (errors[errorId] != null) {
+  //   newErrors = { ...errors };
+  //   delete newErrors[errorId];
+  //   if (newErrors == null) {
+  //     newErrors = {};
+  //   }
+  // } else {
+  //   newErrors = errors;
+  // }
+  // return newErrors;
+
+  let newErrors;
+  const actionErrorId = actionId || 'ADD';
+  if (errors[statusId] != null && errors[statusId][actionErrorId] != null) {
+    newErrors = { ...errors };
+    newErrors[statusId] = {...errors[statusId]};
+    delete newErrors[statusId][actionErrorId];
+  } else {
+    newErrors = errors;
+  }
+
   return newErrors;
 };

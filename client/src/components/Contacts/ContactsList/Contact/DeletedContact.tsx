@@ -54,9 +54,9 @@ const DeletedContact = (props: DeletedContactProps) => {
 
       {props.error ? <Error>{props.error}</Error> : null}
 
-      <div className={classes.ContactActionButtons}>
+      <div className={classes.ActionButtons}>
         <button
-          className={classes.ContactActionButton}
+          className={classes.ActionButton}
           onClick={handleConfirmDeletedContact}
           disabled={loading}
         >

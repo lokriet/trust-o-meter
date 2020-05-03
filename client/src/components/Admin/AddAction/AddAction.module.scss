@@ -1,0 +1,26 @@
+@import '../admin.scss';
+
+.AddButtonContainer {
+  width: 100%;
+  display: flex;
+  margin-top: 1rem;
+}
+
+.AddButton {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+@media(hover: hover) {
+  .AddButton:hover,
+  .AddButton:active {
+    border-color: var(--background-dark-color);
+  }
+}

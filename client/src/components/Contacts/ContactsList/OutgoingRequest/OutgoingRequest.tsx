@@ -68,10 +68,10 @@ const OutgoingRequest = (props: OutgoingRequestProps) => {
 
       {props.error ? <Error>{props.error}</Error> : null}
 
-      <div className={classes.ContactActionButtons}>
+      <div className={classes.ActionButtons}>
         {props.contact.status === ContactStatus.OutgoingRequest ? (
           <button
-            className={`${classes.ContactActionButton} ${classes.ContactDangerActionButton}`}
+            className={`${classes.ActionButton} ${classes.DangerActionButton}`}
             onClick={handleWithdraw}
             disabled={loading}
           >
@@ -80,7 +80,7 @@ const OutgoingRequest = (props: OutgoingRequestProps) => {
         ) : null}
         {props.contact.status === ContactStatus.RequestDenied ? (
           <button
-            className={classes.ContactActionButton}
+            className={classes.ActionButton}
             onClick={handleConfirm}
             disabled={loading}
           >

@@ -240,7 +240,7 @@ const requestWithdrawSuccess = (state: ContactsState, action): ContactsState => 
 const confirmSeenRejectedRequestSuccess = (state: ContactsState, action): ContactsState => {
   const identificator: string = action.identificator;
   const newItemErrors = removeItemError(state.itemErrors, identificator);
-  const newOutgoingRequests = state.incomingRequests.filter(
+  const newOutgoingRequests = state.outgoingRequests.filter(
     (item: Contact) => item.contactProfile.identificator !== identificator
   );
   return {
@@ -253,7 +253,7 @@ const confirmSeenRejectedRequestSuccess = (state: ContactsState, action): Contac
 const contactDeleteSuccess = (state: ContactsState, action): ContactsState => {
   const identificator: string = action.identificator;
   const newItemErrors = removeItemError(state.itemErrors, identificator);
-  const newConfirmedContacts = state.incomingRequests.filter(
+  const newConfirmedContacts = state.confirmedContacts.filter(
     (item: Contact) => item.contactProfile.identificator !== identificator
   );
   return {
@@ -266,7 +266,7 @@ const contactDeleteSuccess = (state: ContactsState, action): ContactsState => {
 const confirmSeenDeletedContact = (state: ContactsState, action): ContactsState => {
   const identificator: string = action.identificator;
   const newItemErrors = removeItemError(state.itemErrors, identificator);
-  const newConfirmedContacts = state.incomingRequests.filter(
+  const newConfirmedContacts = state.confirmedContacts.filter(
     (item: Contact) => item.contactProfile.identificator !== identificator
   );
   return {

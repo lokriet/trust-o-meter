@@ -25,8 +25,7 @@ export {
   searchContacts,
   contactsOperationReset,
   createContactRequest,
-  resetContactsStore,
-
+  
   approveContactRequest,
   rejectContactRequest,
   confirmSeenRejectedRequest,
@@ -37,15 +36,22 @@ export {
   updateContactCustomName,
   increaseContactTrust,
   decreaseContactTrust,
-  changeContactActionState
+  changeContactActionState,
+
+  resetContactsStore
 } from './contacts';
 
 export {
   fetchStatusList,
+
+  initStatusOperation,
+  initActionOperation,
   createStatus,
   updateStatus,
   deleteStatus,
   createAction,
   updateAction,
-  deleteAction
+  deleteAction,
+
+  resetStatusStore
 } from './status';

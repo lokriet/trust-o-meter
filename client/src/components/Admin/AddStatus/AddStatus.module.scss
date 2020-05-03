@@ -1,0 +1,32 @@
+@import '../admin.scss';
+
+.AddButtonContainer {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 40rem;
+  display: flex;
+}
+
+.AddButton {
+  border: 1px solid var(--main-color);
+  border-radius: 50%;
+  background-color: var(--main-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
+
+.AddButtonIcon {
+  font-size: 1rem;
+}
+
+@media(hover: hover) {
+  .AddButton:hover {
+    border-color: var(--secondary-color);
+    background-color: var(--secondary-color);
+  }
+}
+

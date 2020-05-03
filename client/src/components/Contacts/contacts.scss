@@ -1,6 +1,9 @@
+@import '../../assets/scss/buttons.scss';
+
 .ContactCard {
   width: 100%;
   max-width: 40rem;
+  min-width: 18rem;
   margin: 1rem auto;
   padding: 0.5rem 1.5rem 0.5rem 0.5rem;
   border-radius: var(--border-radius);
@@ -42,51 +45,3 @@
   margin-top: 1.5rem;
 }
 
-.ContactActionButtons {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.ContactActionButton {
-  height: calc(2rem + 2px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 1rem;
-  margin: 0 0.5rem;
-  cursor: pointer;
-  border-radius: var(--border-radius);
-
-  background-color: var(--main-color);
-  border: 1px solid var(--background-dark-color);
-  color: var(--background-dark-color);
-
-  &.ContactDangerActionButton {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-  }
-
-  &:disabled,
-  &:disabled:hover {
-    border-color: var(--disabled-dark-color);
-    color: var(--disabled-dark-color);
-    background-color: var(--disabled-color);
-  }
-}
-
-@media (hover: hover) {
-  .ContactActionButton {
-    &:hover,
-    &:active {
-      background-color: var(--background-dark-color);
-      color: var(--main-color);
-    }
-
-    &.ContactDangerActionButton:hover,
-    &.ContactDangerActionButton:active {
-      background-color: var(--accent-color);
-      color: var(--main-color);
-    }
-  }
-}

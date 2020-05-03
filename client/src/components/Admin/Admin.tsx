@@ -8,6 +8,7 @@ import { State } from '../../store/reducers/state';
 import { Error } from '../UI/Error/Error';
 import Spinner from '../UI/Spinner/Spinner';
 import AddStatus from './AddStatus/AddStatus';
+import classes from './Admin.module.scss';
 import EditStatus from './EditStatus/EditStatus';
 
 interface AdminProps {
@@ -33,7 +34,6 @@ const Admin = (props: AdminProps) => {
       let validationError: string | null = null;
       props.statusList.forEach((status: Status) => {
         if (status._id !== statusId) {
-          console.log(`comparing ${status._id} and ${statusId}`)
           if (status.name === statusUpdate.name) {
             validationError = 'Status with this name already exists';
           }
@@ -78,7 +78,8 @@ const Admin = (props: AdminProps) => {
     view = <Spinner />;
   } else {
     view = (
-      <div>
+      <div className={classes.Container}>
+        <div className={classes.PageTitle}>Trust status progression</div>
         {props.loadingError ? <Error>{props.loadingError}</Error> : null}
         <AddStatus
           error={props.statusErrors.ADD}

@@ -6,7 +6,6 @@ import withAuthCheck from '../../../hoc/withAuthCheck';
 import * as actions from '../../../store/actions';
 import { Profile } from '../../../store/model/profile';
 import { State } from '../../../store/reducers/state';
-import Avatar from '../../UI/Avatar/Avatar';
 import { Error } from '../../UI/Error/Error';
 import SearchInput from '../../UI/SearchInput/SearchInput';
 import Spinner from '../../UI/Spinner/Spinner';

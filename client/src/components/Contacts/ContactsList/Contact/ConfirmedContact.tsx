@@ -133,16 +133,16 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
 
         {props.error ? <UIError>{props.error}</UIError> : null}
 
-        <div className={classes.ContactActionButtons}>
+        <div className={classes.ActionButtons}>
           <button
-            className={`${classes.ContactActionButton} ${classes.ContactDangerActionButton}`}
+            className={`${classes.ActionButton} ${classes.DangerActionButton}`}
             onClick={(event) => handleDecreaseTrust(event)}
             disabled={loading || props.contact.myTrustPoints < 0.01}
           >
             Doubt {getPronoun(props.contact.contactProfile.gender)}
           </button>
           <button
-            className={classes.ContactActionButton}
+            className={classes.ActionButton}
             onClick={event => handleIncreaseTrust(event)}
             disabled={loading}
           >

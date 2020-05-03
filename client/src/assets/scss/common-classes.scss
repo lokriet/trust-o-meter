@@ -4,33 +4,3 @@ a.Link:visited {
   text-decoration: underline;
 }
 
-.Button {
-  height: calc(2rem + 2px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 1rem;
-  background-color: var(--main-color);
-  border: 1px solid var(--main-color);
-  border-radius: var(--border-radius);
-  color: var(--background-dark-color);
-  cursor: pointer;
-
-  &:hover,
-  &:active {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
-  }
-
-  &:disabled,
-  &:disabled:hover {
-    border-color: var(--disabled-dark-color);
-    color: var(--disabled-dark-color);
-    background-color: var(--disabled-color);
-  }
-}
-
-.ButtonSpinner {
-  margin: 0 auto !important;
-  height: 1.5rem !important;
-}

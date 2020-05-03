@@ -64,16 +64,16 @@ const IncomingRequest = (props: IncomingRequestProps) => {
 
       {props.error ? <Error>{props.error}</Error> : null}
 
-      <div className={classes.ContactActionButtons}>
+      <div className={classes.ActionButtons}>
         <button
-          className={`${classes.ContactActionButton} ${classes.ContactDangerActionButton}`}
+          className={`${classes.ActionButton} ${classes.DangerActionButton}`}
           onClick={handleDecline}
           disabled={loading}
         >
           Decline
         </button>
         <button
-          className={classes.ContactActionButton}
+          className={classes.ActionButton}
           onClick={handleAccept}
           disabled={loading}
         >

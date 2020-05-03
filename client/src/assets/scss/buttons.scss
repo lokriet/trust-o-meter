@@ -1,0 +1,80 @@
+
+.Button {
+  height: calc(2rem + 2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+  background-color: var(--main-color);
+  border: 1px solid var(--main-color);
+  border-radius: var(--border-radius);
+  color: var(--background-dark-color);
+  cursor: pointer;
+
+  &:disabled,
+  &:disabled:hover {
+    border-color: var(--disabled-dark-color);
+    color: var(--disabled-dark-color);
+    background-color: var(--disabled-color);
+  }
+}
+
+.ButtonSpinner {
+  margin: 0 auto !important;
+  height: 1.5rem !important;
+}
+
+.ActionButtons {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.ActionButton {
+  height: calc(2rem + 2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+  margin: 0 0.5rem;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+
+  background-color: var(--main-color);
+  border: 1px solid var(--background-dark-color);
+  color: var(--background-dark-color);
+
+  &.DangerActionButton {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+  }
+
+  &:disabled,
+  &:disabled:hover {
+    border-color: var(--disabled-dark-color);
+    color: var(--disabled-dark-color);
+    background-color: var(--disabled-color);
+  }
+}
+
+@media (hover: hover) {
+  .Button:hover,
+  .Button:active {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+  }
+
+  .ActionButton {
+    &:hover,
+    &:active {
+      background-color: var(--background-dark-color);
+      color: var(--main-color);
+    }
+
+    &.DangerActionButton:hover,
+    &.DangerActionButton:active {
+      background-color: var(--accent-color);
+      color: var(--main-color);
+    }
+  }
+}

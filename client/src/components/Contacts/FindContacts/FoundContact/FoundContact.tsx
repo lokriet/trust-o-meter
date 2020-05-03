@@ -49,9 +49,9 @@ const FoundContact = (props: FoundContactProps) => {
 
           {addingError ? <Error className={classes.Error}>Friend request failed. Please try again.</Error> : null}
 
-          <div className={classes.ContactActionButtons}>
+          <div className={classes.ActionButtons}>
             <button
-              className={classes.ContactActionButton}
+              className={classes.ActionButton}
               onClick={() => handleAddContact(props.contact)}
               disabled={loading}
             >

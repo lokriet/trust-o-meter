@@ -1,0 +1,72 @@
+@import '../../assets/scss/buttons.scss';
+
+.StatusCard {
+  width: 100%;
+  max-width: 40rem;
+  min-width: 18rem;
+  margin: 1rem auto;
+  padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+  border-radius: var(--border-radius);
+  background-color: var(--main-color);
+}
+
+.Details {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.NameInput {
+  flex-grow: 1;
+  min-width: 6rem;
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-bottom-color: var(--background-dark-color);
+
+  &:hover,
+  &:focus {
+    border-color: var(--background-dark-color);
+    border-radius: var(--border-radius);
+  }
+}
+
+.MinTrustInput {
+  width: 4rem;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-bottom-color: var(--background-dark-color);
+
+  &:hover,
+  &:focus {
+    border-color: var(--background-dark-color);
+    border-radius: var(--border-radius);
+  }
+}
+
+.DeleteButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  background-color: transparent;
+  color: var(--accent-color);
+  border-radius: 50%;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+@media(hover: hover) {
+  .DeleteButton:hover,
+  .DeleteButton:active {
+    border-color: var(--accent-color);
+  }
+}
+
+.ActionContainer {
+  margin-top: 1rem;
+}

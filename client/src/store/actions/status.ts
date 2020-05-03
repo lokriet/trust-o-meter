@@ -6,6 +6,8 @@ export const StatusActionTypes = {
   FETCH_STATUS_LIST_SUCCESS: 'FETCH_STATUS_LIST_SUCCESS',
   FETCH_STATUS_LIST_FAILED: 'FETCH_STATUS_LIST_FAILED',
 
+  INIT_STATUS_OPERATION: 'INIT_STATUS_OPERATION',
+  INIT_ACTION_OPERATION: 'INIT_ACTION_OPERATION',
   CREATE_STATUS_SUCCESS: 'CREATE_STATUS_SUCCESS',
   CREATE_STATUS_FAILED: 'CREATE_STATUS_FAILED',
   UPDATE_STATUS_SUCCESS: 'UPDATE_STATUS_SUCCESS',
@@ -54,6 +56,8 @@ export const createStatus = (status: {name: string, minTrust: number}, onOperati
     const defaultErrorMessage =
       'Adding status failed. Please check your internet connection and try again';
     try {
+      dispatch(initStatusOperation(null));
+
       const token = getState().auth.token;
       const response = await fetch('http://localhost:3001/status', {
         method: 'POST',
@@ -89,6 +93,8 @@ export const updateStatus = (statusId: string, update: {name?: string, minTrust?
     const defaultErrorMessage =
       'Status update failed. Please check your internet connection and try again';
     try {
+      dispatch(initStatusOperation(statusId));
+
       const token = getState().auth.token;
       const response = await fetch(`http://localhost:3001/status/${statusId}`, {
         method: 'PUT',
@@ -123,6 +129,8 @@ export const deleteStatus = (statusId: string, onOperationFailed: any) => {
     const defaultErrorMessage =
       'Deleting status failed. Please check your internet connection and try again';
     try {
+      dispatch(initStatusOperation(statusId));
+
       const token = getState().auth.token;
       const response = await fetch(`http://localhost:3001/status/${statusId}`, {
         method: 'DELETE',
@@ -150,6 +158,8 @@ export const createAction = (statusId: string, actionName: string, onOperationDo
     const defaultErrorMessage =
       'Adding action failed. Please check your internet connection and try again';
     try {
+      dispatch(initActionOperation(statusId, null));
+
       const token = getState().auth.token;
       const response = await fetch(`http://localhost:3001/status/${statusId}/actions`, {
         method: 'POST',
@@ -185,6 +195,8 @@ export const updateAction = (statusId: string, actionId: string, actionName: str
     const defaultErrorMessage =
       'Action update failed. Please check your internet connection and try again';
     try {
+      dispatch(initActionOperation(statusId, actionId));
+
       const token = getState().auth.token;
       const response = await fetch(`http://localhost:3001/status/${statusId}/actions/${actionId}`, {
         method: 'PUT',
@@ -219,6 +231,8 @@ export const deleteAction = (statusId: string, actionId: string, onOperationFail
     const defaultErrorMessage =
       'Deleting action failed. Please check your internet connection and try again';
     try {
+      dispatch(initActionOperation(statusId, actionId));
+
       const token = getState().auth.token;
       const response = await fetch(`http://localhost:3001/status/${statusId}/actions/${actionId}`, {
         method: 'DELETE',
@@ -261,6 +275,22 @@ const fetchStatusListSuccess = (statusList: Status[]) => {
     statusList
   };
 };
+
+
+export const initStatusOperation = (statusId: string |  null) => {
+  return {
+    type: StatusActionTypes.INIT_STATUS_OPERATION,
+    statusId
+  };
+}
+
+export const initActionOperation = (statusId: string, actionId: string |  null) => {
+  return {
+    type: StatusActionTypes.INIT_ACTION_OPERATION,
+    statusId,
+    actionId
+  };
+}
 
 const createStatusFailed = (error: string) => {
   return {
@@ -312,5 +342,11 @@ const updateActionFailed = (statusId: string, actionId: string, error: string) =
     statusId,
     actionId,
     error
+  };
+};
+
+export const resetStatusStore = () => {
+  return {
+    type: StatusActionTypes.RESET_STATUS_STORE
   };
 };
