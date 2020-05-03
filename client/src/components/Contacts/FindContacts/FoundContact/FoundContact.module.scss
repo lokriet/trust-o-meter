@@ -1,0 +1,18 @@
+@import '../../contacts.scss';
+
+.ContactActionButtons {
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.ContactActionButton {
+  margin: 0;
+}
+
+.Error {
+  text-align: right;
+  padding: 0.5rem;
+}

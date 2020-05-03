@@ -1,4 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  PullDownContent,
+  PullToRefresh,
+  ReleaseContent
+} from 'react-js-pull-to-refresh';
 import { connect, useDispatch } from 'react-redux';
 
 import withAuthCheck from '../../../hoc/withAuthCheck';
@@ -9,6 +14,7 @@ import { Error } from '../../UI/Error/Error';
 import Spinner from '../../UI/Spinner/Spinner';
 import ConfirmedContact from './Contact/ConfirmedContact';
 import DeletedContact from './Contact/DeletedContact';
+import classes from './ContactList.module.scss';
 import IncomingRequest from './IncomingRequest/IncomingRequest';
 import OutgoingRequest from './OutgoingRequest/OutgoingRequest';
 
@@ -22,55 +28,89 @@ interface ContactsListProps {
 }
 
 const ContactsList = (props: ContactsListProps) => {
+  const [pullUpdating, setPullUpdating] = useState(false);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(actions.fetchUserContacts());
   }, [dispatch]);
 
+  const handleRefresh = useCallback(() => {
+    if (!pullUpdating) {
+      setPullUpdating(true);
+      const statusPromise = new Promise((resolve) => {
+        dispatch(actions.fetchStatusList(resolve));
+      });
+      const contactsPromise = new Promise((resolve) => {
+        dispatch(actions.fetchUserContacts(resolve));
+      });
+
+      return Promise.all([statusPromise, contactsPromise]).then(() => {
+        setPullUpdating(false);
+      });
+    } else {
+      return new Promise<any>((resolve) => resolve());
+    }
+  }, [dispatch, pullUpdating]);
+
   let view: JSX.Element;
-  if (props.loading) {
+  if (props.loading && !pullUpdating) {
     view = <Spinner />;
-  } else if (props.error) {
-    view = (
-      <Error>
-        Loading friends list failed. Please check your internet connection and
-        reload the page.
-      </Error>
-    );
   } else {
     view = (
-      <>
-        {props.incomingRequests.map((incomingRequest: Contact) => (
-          <IncomingRequest
-            key={incomingRequest.contactProfile.identificator}
-            contact={incomingRequest}
-            error={props.itemErrors[incomingRequest.contactProfile.identificator]}
-          />
-        ))}
-        {props.outgoingRequests.map((outgoingRequest: Contact) => (
-          <OutgoingRequest
-            key={outgoingRequest.contactProfile.identificator}
-            contact={outgoingRequest}
-            error={props.itemErrors[outgoingRequest.contactProfile.identificator]}
-          />
-        ))}
-        {props.confirmedContacts.map((contact: Contact) =>
-          contact.status === ContactStatus.ContactDeleted ? (
-            <DeletedContact
-              key={contact.contactProfile.identificator}
-              contact={contact}
-              error={props.itemErrors[contact.contactProfile.identificator]}
+      <PullToRefresh
+        pullDownContent={<PullDownContent />}
+        releaseContent={<ReleaseContent />}
+        refreshContent={<Spinner />}
+        pullDownThreshold={100}
+        onRefresh={handleRefresh}
+        triggerHeight={50}
+        backgroundColor="#9ddcdc"
+        startInvisible={true}
+      >
+        <div className={classes.List}>
+          {props.error ? (
+            <Error>
+              Loading friends list failed. Please check your internet connection
+              and try again.
+            </Error>
+          ) : null}
+          {props.incomingRequests.map((incomingRequest: Contact) => (
+            <IncomingRequest
+              key={incomingRequest.contactProfile.identificator}
+              contact={incomingRequest}
+              error={
+                props.itemErrors[incomingRequest.contactProfile.identificator]
+              }
             />
-          ) : (
-            <ConfirmedContact
-              key={contact.contactProfile.identificator}
-              contact={contact}
-              error={props.itemErrors[contact.contactProfile.identificator]}
+          ))}
+          {props.outgoingRequests.map((outgoingRequest: Contact) => (
+            <OutgoingRequest
+              key={outgoingRequest.contactProfile.identificator}
+              contact={outgoingRequest}
+              error={
+                props.itemErrors[outgoingRequest.contactProfile.identificator]
+              }
             />
-          )
-        )}
-      </>
+          ))}
+          {props.confirmedContacts.map((contact: Contact) =>
+            contact.status === ContactStatus.ContactDeleted ? (
+              <DeletedContact
+                key={contact.contactProfile.identificator}
+                contact={contact}
+                error={props.itemErrors[contact.contactProfile.identificator]}
+              />
+            ) : (
+              <ConfirmedContact
+                key={contact.contactProfile.identificator}
+                contact={contact}
+                error={props.itemErrors[contact.contactProfile.identificator]}
+              />
+            )
+          )}
+        </div>
+      </PullToRefresh>
     );
   }
   return view;

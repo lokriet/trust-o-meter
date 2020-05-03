@@ -130,7 +130,8 @@ const contactsSearchStart = (state: ContactsState, action): ContactsState => {
   return {
     ...state,
     loading: true,
-    error: null
+    error: null,
+    searchResult: []
   };
 };
 
@@ -226,7 +227,7 @@ const contactRejectSuccess = (state: ContactsState, action): ContactsState => {
 const requestWithdrawSuccess = (state: ContactsState, action): ContactsState => {
   const identificator: string = action.identificator;
   const newItemErrors = removeItemError(state.itemErrors, identificator);
-  const newOutgoingRequests = state.incomingRequests.filter(
+  const newOutgoingRequests = state.outgoingRequests.filter(
     (item: Contact) => item.contactProfile.identificator !== identificator
   );
   return {

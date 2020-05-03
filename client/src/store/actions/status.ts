@@ -18,7 +18,7 @@ export const StatusActionTypes = {
   RESET_STATUS_STORE: 'RESET_STATUS_STORE'
 };
 
-export const fetchStatusList = () => {
+export const fetchStatusList = (onOperationDone?: any) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     const errorMessage =
       'Status list fetching failed. Please check your internet connection and reload the page';
@@ -40,6 +40,10 @@ export const fetchStatusList = () => {
     } catch (error) {
       console.log(error);
       dispatch(fetchStatusListFailed(errorMessage));
+    } finally {
+      if (onOperationDone) {
+        onOperationDone();
+      }
     }
   };
 };

@@ -1,24 +1,24 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import classes from './Avatar.module.scss';
+
 interface AvatarProps {
   avatarUrl: string;
-  username: string;
 }
 
 const Avatar = (props: AvatarProps) => {
   return (
-    <div>
-      {props.avatarUrl == null || props.avatarUrl === '' ? null : (
+    <div className={classes.Container} style={props.avatarUrl == null || props.avatarUrl === '' ? {} : {backgroundImage: `url('${props.avatarUrl}')`}}>
+      {/* {props.avatarUrl == null || props.avatarUrl === '' ? null : (
         <img src={props.avatarUrl} alt={props.username} />
-      )}
+      )} */}
     </div>
   );
 };
 
 Avatar.propTypes = {
-  avatarUrl: PropTypes.string,
-  username: PropTypes.string
+  avatarUrl: PropTypes.string
 };
 
 export default Avatar;

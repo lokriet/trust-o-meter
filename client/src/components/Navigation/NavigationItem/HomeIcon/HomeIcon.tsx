@@ -1,6 +1,5 @@
 import './HomeIcon.scss';
 
-import PropTypes from 'prop-types';
 import React from 'react';
 
 import iconImg from '../.././../../assets/img/oneEye.svg';

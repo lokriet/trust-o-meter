@@ -65,7 +65,7 @@ export const searchContacts = (searchString: string) => {
   };
 };
 
-export const createContactRequest = (contactIdentificator: string) => {
+export const createContactRequest = (contactIdentificator: string, onOperationDone: any) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       const token = getState().auth.token;
@@ -81,8 +81,10 @@ export const createContactRequest = (contactIdentificator: string) => {
       const responseData = await response.json();
       if (response.status === 200) {
         dispatch(contactRequestSuccess(responseData));
+        onOperationDone(true);
       } else if (response.status === 422) {
         dispatch(contactsOperationFailed(responseData.data[0].errorMessage));
+        onOperationDone(false);
       } else {
         dispatch(
           contactsOperationFailed(
@@ -91,16 +93,18 @@ export const createContactRequest = (contactIdentificator: string) => {
               : responseData.message
           )
         );
+        onOperationDone(false);
       }
     } catch (error) {
       dispatch(
         contactsOperationFailed('Friend request failed. Please try again')
       );
+      onOperationDone(false);
     }
   };
 };
 
-export const fetchUserContacts = () => {
+export const fetchUserContacts = (onOperationDone?: any) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       dispatch(contactsFetchingStart());
@@ -122,17 +126,21 @@ export const fetchUserContacts = () => {
       dispatch(
         contactsFetchingFailed('Friend request failed. Please try again')
       );
+    } finally {
+      if (onOperationDone) {
+        onOperationDone();
+      }
     }
   };
 };
 
 export const approveContactRequest = (
   contactIdentificator: string,
-  onOperationDone: any
+  onOperationFailed: any
 ) => {
   return contactStatusChange({
     contactIdentificator,
-    onOperationDone,
+    onOperationFailed,
     errorMessage:
       'Failed to approve friend request. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/approve',
@@ -143,11 +151,11 @@ export const approveContactRequest = (
 
 export const rejectContactRequest = (
   contactIdentificator: string,
-  onOperationDone: any
+  onOperationFailed: any
 ) => {
   return contactStatusChange({
     contactIdentificator,
-    onOperationDone,
+    onOperationFailed,
     errorMessage:
       'Failed to reject friend request. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/reject',
@@ -158,11 +166,11 @@ export const rejectContactRequest = (
 
 export const withdrawContactRequest = (
   contactIdentificator: string,
-  onOperationDone: any
+  onOperationFailed: any
 ) => {
   return contactStatusChange({
     contactIdentificator,
-    onOperationDone,
+    onOperationFailed,
     errorMessage:
       'Failed to withdraw friend request. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/withdraw',
@@ -173,11 +181,11 @@ export const withdrawContactRequest = (
 
 export const confirmSeenRejectedRequest = (
   contactIdentificator: string,
-  onOperationDone: any
+  onOperationFailed: any
 ) => {
   return contactStatusChange({
     contactIdentificator,
-    onOperationDone,
+    onOperationFailed,
     errorMessage:
       'Operation failed. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/seenRequestReject',
@@ -188,11 +196,11 @@ export const confirmSeenRejectedRequest = (
 
 export const deleteContact = (
   contactIdentificator: string,
-  onOperationDone: any
+  onOperationFailed: any
 ) => {
   return contactStatusChange({
     contactIdentificator,
-    onOperationDone,
+    onOperationFailed,
     errorMessage:
       'Failed to delete contact. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/delete',
@@ -203,11 +211,11 @@ export const deleteContact = (
 
 export const confirmSeenDeletedContact = (
   contactIdentificator: string,
-  onOperationDone: any
+  onOperationFailed: any
 ) => {
   return contactStatusChange({
     contactIdentificator,
-    onOperationDone,
+    onOperationFailed,
     errorMessage:
       'Operation failed. Please check your internet connection and refresh the page before trying again.',
     operationUrl: 'http://localhost:3001/contacts/seenContactDelete',
@@ -222,7 +230,7 @@ const contactStatusChange = (props: {
   operationUrl: string;
   successAction: any;
   hasResponseData: boolean;
-  onOperationDone: any;
+  onOperationFailed: any;
 }) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
@@ -251,6 +259,7 @@ const contactStatusChange = (props: {
             props.errorMessage
           )
         );
+        props.onOperationFailed();
       }
     } catch (error) {
       console.log('error', error);
@@ -260,8 +269,7 @@ const contactStatusChange = (props: {
           props.errorMessage
         )
       );
-    } finally {
-      props.onOperationDone();
+      props.onOperationFailed();
     }
   };
 };
@@ -283,7 +291,10 @@ export const updateContactCustomName = (
     contactIdentificator,
     onOperationDone,
     operationUrl: 'http://localhost:3001/contacts/updateCustomName',
-    requestBody: { identificator: contactIdentificator, customName: newCustomName }
+    requestBody: {
+      identificator: contactIdentificator,
+      customName: newCustomName
+    }
   });
 };
 
@@ -322,7 +333,12 @@ export const changeContactActionState = (
     contactIdentificator,
     onOperationDone,
     operationUrl: 'http://localhost:3001/contacts/changeActionState',
-    requestBody: { identificator: contactIdentificator, statusId, actionId, actionDone }
+    requestBody: {
+      identificator: contactIdentificator,
+      statusId,
+      actionId,
+      actionDone
+    }
   });
 };
 

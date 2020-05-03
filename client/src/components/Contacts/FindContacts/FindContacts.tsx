@@ -6,8 +6,12 @@ import withAuthCheck from '../../../hoc/withAuthCheck';
 import * as actions from '../../../store/actions';
 import { Profile } from '../../../store/model/profile';
 import { State } from '../../../store/reducers/state';
+import Avatar from '../../UI/Avatar/Avatar';
 import { Error } from '../../UI/Error/Error';
+import SearchInput from '../../UI/SearchInput/SearchInput';
 import Spinner from '../../UI/Spinner/Spinner';
+import classes from './FindContacts.module.scss';
+import FoundContact from './FoundContact/FoundContact';
 
 interface FindContactsProps {
   searchResult: Profile[];
@@ -23,7 +27,7 @@ const FindContacts = (props: FindContactsProps) => {
 
   useEffect(() => {
     dispatch(actions.contactsOperationReset());
-  }, [dispatch])
+  }, [dispatch]);
 
   const handleFindContacts = useCallback(() => {
     const trimmed = searchString.trim();
@@ -33,50 +37,43 @@ const FindContacts = (props: FindContactsProps) => {
     }
   }, [dispatch, searchString]);
 
-  const handleKeyDown = useCallback((event) => {
-    if (event.keyCode === 13) { // enter
-      handleFindContacts();
-    }
-  }, [handleFindContacts]);
-
-  const handleAddContact = useCallback(
-    (contact: Profile) => {
-      dispatch(actions.createContactRequest(contact.identificator));
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.keyCode === 13) {
+        // enter
+        handleFindContacts();
+      }
     },
-    [dispatch],
-  )
+    [handleFindContacts]
+  );
 
   let contactsList;
   if (props.loading) {
-    contactsList = <Spinner />
+    contactsList = <Spinner />;
   } else if (searchRequestSent && props.searchResult.length === 0) {
-    contactsList = <div>No contacts found</div>
+    contactsList = (
+      <div className={classes.SearchResult}>No contacts found</div>
+    );
   } else {
     contactsList = (
-      <>
-      {props.searchResult.map(contact => (
-        <div key={contact.identificator}>
-          <div>
-            {contact.avatarUrl == null || contact.avatarUrl === '' ? null : <img src={contact.avatarUrl} alt={contact.username} />}
-          </div>
-          <div>{contact.username}</div>
-          <button onClick={() => handleAddContact(contact)}>Add</button>
-        </div>
-      ))}
-      </>
+      <div className={classes.SearchResult}>
+        {props.searchResult.map((contact) => (
+          <FoundContact key={contact.identificator} contact={contact} />
+        ))}
+      </div>
     );
   }
-  return (searchRequestSent && props.addingSuccess && !props.error) ? 
-  <Redirect to="/" /> :
-  (
-    <div>
-      <input
+  return searchRequestSent && props.addingSuccess && !props.error ? (
+    <Redirect to="/" />
+  ) : (
+    <div className={classes.Container}>
+      <SearchInput
+        placeholder="Name / Identificator"
         value={searchString}
-        onChange={event => setSearchString(event.target.value)}
-        onKeyDown={event => handleKeyDown(event)}
+        onChange={(event) => setSearchString(event.target.value)}
+        onKeyDown={(event) => handleKeyDown(event)}
       />
-      <button onClick={handleFindContacts}>Find</button>
-      {props.error ? <Error>{props.error}</Error> : null}
+      {props.error && props.searchResult.length === 0 ? <Error>{props.error}</Error> : null}
       {contactsList}
     </div>
   );
