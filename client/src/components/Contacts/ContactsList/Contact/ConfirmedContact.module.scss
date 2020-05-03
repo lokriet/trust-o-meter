@@ -10,3 +10,24 @@
 .ContactCardStatus {
   margin-top: 0.25rem;
 }
+
+.SettingsButton {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background-color: var(--main-color);
+  margin-right: auto;
+  cursor: pointer;
+}
+
+@media(hover: hover) {
+  .SettingsButton:hover,
+  .SettingsButton:active {
+    border-color: var(--background-dark-color);
+  }
+}
+
+.TrustButton {
+  margin-right: auto;
+}

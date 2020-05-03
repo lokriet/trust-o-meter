@@ -13,6 +13,7 @@ import classes from './ContactStatusList.module.scss';
 interface ContactStatusListProps {
   statusList: Status[];
   contact: Contact;
+  error: string | null;
 }
 
 const ContactStatusList = (props: ContactStatusListProps) => {
@@ -51,6 +52,7 @@ const ContactStatusList = (props: ContactStatusListProps) => {
               key={status._id}
               status={status}
               doneActions={props.contact.doneActions}
+              error={props.error}
               onActionChange={(
                 actionId: string,
                 actionDone: boolean,
@@ -72,7 +74,8 @@ const ContactStatusList = (props: ContactStatusListProps) => {
 };
 
 ContactStatusList.propTypes = {
-  contact: PropTypes.object.isRequired
+  contact: PropTypes.object.isRequired,
+  error: PropTypes.string
 };
 
 const mapStateToProps = (state: State): Partial<ContactStatusListProps> => {

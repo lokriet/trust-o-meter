@@ -74,7 +74,7 @@ const Login = (props: LoginProps) => {
       dispatch(
         actions.loginWithFacebook(response.userID, response.accessToken, () => setLoading(false))
       );
-      console.log(response);
+      // console.log(response);
     },
     [dispatch]
   );

@@ -132,7 +132,7 @@ const EditProfile = (props: ProfileProps) => {
           <button
             type="submit"
             disabled={props.loading}
-            className={`Button ${classes.SaveButton}`}
+            className={`${classes.Button} ${classes.SaveButton}`}
           >
             {props.loading ? <Spinner className="ButtonSpinner" /> : 'Save'}
           </button>

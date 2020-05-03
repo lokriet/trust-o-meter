@@ -9,6 +9,7 @@ interface ContactStatusProps {
   status: Status;
   doneActions: string[];
   onActionChange: any;
+  error: string | null;
 }
 
 const ContactStatus = (props: ContactStatusProps) => {
@@ -52,6 +53,7 @@ const ContactStatus = (props: ContactStatusProps) => {
           key={action._id}
           action={action}
           actionDone={props.doneActions.includes(action._id)}
+          error={props.error}
           onActionChange={(actionDone: boolean, updateDoneCallback: any) =>
             props.onActionChange(action._id, actionDone, updateDoneCallback)
           }
@@ -64,7 +66,8 @@ const ContactStatus = (props: ContactStatusProps) => {
 ContactStatus.propTypes = {
   status: PropTypes.object.isRequired,
   doneActions: PropTypes.array.isRequired,
-  onActionChange: PropTypes.any.isRequired
+  onActionChange: PropTypes.any.isRequired,
+  error: PropTypes.string
 };
 
 export default ContactStatus;

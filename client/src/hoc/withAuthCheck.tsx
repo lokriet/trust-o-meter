@@ -34,7 +34,7 @@ const withAuthCheck = (WrappedComponent) => {
           props.waitingForEmailConfirmation &&
           !location.pathname.startsWith('/emailConfirmation')
         ) {
-          console.log('redirecting to email confirmation', location.pathname);
+          // console.log('redirecting to email confirmation', location.pathname);
           history.push('/emailConfirmation');
         } else if (
           !props.waitingForEmailConfirmation &&
@@ -42,7 +42,7 @@ const withAuthCheck = (WrappedComponent) => {
           !props.profileInitialized &&
           !location.pathname.startsWith('/editProfile')
         ) {
-          console.log('redirecting to edit');
+          // console.log('redirecting to edit');
           history.push('/editProfile');
         }
       }

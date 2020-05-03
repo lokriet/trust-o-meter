@@ -47,7 +47,6 @@ export const searchContacts = (searchString: string) => {
       } else if (response.status === 422) {
         dispatch(contactsSearchFailed(responseData.data[0].errorMessage));
       } else {
-        console.log('dispatching error');
         dispatch(
           contactsSearchFailed(
             response.status === 500
@@ -262,7 +261,7 @@ const contactStatusChange = (props: {
         props.onOperationFailed();
       }
     } catch (error) {
-      console.log('error', error);
+      console.log(error);
       dispatch(
         contactItemOperationFailed(
           props.contactIdentificator,
@@ -363,6 +362,7 @@ const updateContact = (props: {
       const responseData = await response.json();
       if (response.status === 200) {
         dispatch(contactUpdateSuccess(responseData));
+        props.onOperationDone(true);
       } else {
         dispatch(
           contactItemOperationFailed(
@@ -370,6 +370,7 @@ const updateContact = (props: {
             'Failed to update details. Please check your internet connection and refresh the page before trying again.'
           )
         );
+        props.onOperationDone(false);
       }
     } catch (error) {
       console.log(error);
@@ -379,8 +380,7 @@ const updateContact = (props: {
           'Failed to update details. Please check your internet connection and refresh the page before trying again.'
         )
       );
-    } finally {
-      props.onOperationDone();
+      props.onOperationDone(false);
     }
   };
 };

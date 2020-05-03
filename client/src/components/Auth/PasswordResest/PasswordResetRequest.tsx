@@ -34,8 +34,6 @@ const PasswordResetRequest = (props: PasswordResetRequestProps) => {
     [dispatch]
   );
 
-  console.log(props);
-  console.log(requestSent);
   let view: JSX.Element;
   if (requestSent && props.requestSuccess) {
     view = (

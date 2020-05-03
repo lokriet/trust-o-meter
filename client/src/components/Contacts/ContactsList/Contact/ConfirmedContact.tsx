@@ -1,3 +1,5 @@
+import { faCog } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -12,6 +14,7 @@ import { State } from '../../../../store/reducers/state';
 import Avatar from '../../../UI/Avatar/Avatar';
 import { Error as UIError } from '../../../UI/Error/Error';
 import classes from './ConfirmedContact.module.scss';
+import ContactSettings from './ContactSettings/ContactSettings';
 import ContactStatusList from './ContactStatusList/ContactStatusList';
 import TrustDetails from './TrustDetails/TrustDetails';
 
@@ -37,9 +40,10 @@ const getPronoun = (gender: Gender | undefined): string => {
 
 const ConfirmedContact = (props: ConfirmedContactProps) => {
   const [loading, setLoading] = useState(false);
-  const [myCustomName, setMyCustomName] = useState(props.contact.myCustomName);
   const [contactStatus, setContactStatus] = useState<string | null>(null);
   const [showExtraDetails, setShowExtraDetails] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [trustUpdateError, setTrustUpdateError] = useState(false);
 
   const dispatch = useDispatch();
   const profile: Profile = useProfile();
@@ -61,14 +65,20 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
     setContactStatus(contactStatus);
   }, [getTrustPoints, props.statusList]);
 
+  const handleTrustUpdateDone = useCallback((success: boolean) => {
+    setLoading(false);
+    setTrustUpdateError(!success);
+  }, []);
+
   const handleIncreaseTrust = useCallback(
     (event) => {
       event.stopPropagation();
       setLoading(true);
+      setTrustUpdateError(false);
       dispatch(
         actions.increaseContactTrust(
           props.contact.contactProfile.identificator,
-          () => setLoading(false)
+          handleTrustUpdateDone
         )
       );
     },
@@ -79,40 +89,28 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
     (event) => {
       event.stopPropagation();
       setLoading(true);
+      setTrustUpdateError(false);
       dispatch(
         actions.decreaseContactTrust(
           props.contact.contactProfile.identificator,
-          () => setLoading(false)
+          handleTrustUpdateDone
         )
       );
     },
     [props.contact, dispatch]
   );
 
-  const handleChangeCustomName = useCallback(() => {
-    setLoading(true);
-    dispatch(
-      actions.updateContactCustomName(
-        props.contact.contactProfile.identificator,
-        myCustomName,
-        () => setLoading(false)
-      )
-    );
-  }, [props.contact, dispatch, myCustomName]);
-
-  const handleDelete = useCallback(() => {
-    // TODO - are you sure you want to delete
-    setLoading(true);
-    dispatch(
-      actions.deleteContact(props.contact.contactProfile.identificator, () =>
-        setLoading(false)
-      )
-    );
-  }, [props.contact, dispatch]);
-
   const toggleShowExtraDetails = useCallback(() => {
     setShowExtraDetails(!showExtraDetails);
   }, [showExtraDetails]);
+
+  const toggleShowSettings = useCallback(
+    (event) => {
+      event.stopPropagation();
+      setShowSettings(!showSettings);
+    },
+    [showSettings]
+  );
 
   return (
     <>
@@ -138,9 +136,19 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
           </div>
         </div>
 
-        {props.error ? <UIError>{props.error}</UIError> : null}
+        {trustUpdateError && props.error ? <UIError>{props.error}</UIError> : null}
 
         <div className={classes.ActionButtons}>
+          <button
+            className={classes.SettingsButton}
+            onClick={(event) => toggleShowSettings(event)}
+          >
+            <FontAwesomeIcon
+              icon={faCog}
+              className={classes.SettingsButtonIcon}
+            />
+          </button>
+
           <button
             className={`${classes.ActionButton} ${classes.DangerActionButton}`}
             onClick={(event) => handleDecreaseTrust(event)}
@@ -149,7 +157,7 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
             Doubt {getPronoun(props.contact.contactProfile.gender)}
           </button>
           <button
-            className={classes.ActionButton}
+            className={`${classes.ActionButton} ${classes.TrustButton}`}
             onClick={(event) => handleIncreaseTrust(event)}
             disabled={loading}
           >
@@ -157,27 +165,15 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
           </button>
         </div>
       </div>
+
+      {showSettings ? (
+        <ContactSettings contact={props.contact} error={props.error} />
+      ) : null}
+
       {showExtraDetails ? (
         <>
           <TrustDetails contact={props.contact} />
-          <ContactStatusList contact={props.contact} />
-          <div>
-            <div>
-              <input
-                type="text"
-                defaultValue={props.contact.myCustomName || ''}
-                onChange={(event) => setMyCustomName(event.target.value)}
-              />
-              <button onClick={handleChangeCustomName} disabled={loading}>
-                Change custom name
-              </button>
-            </div>
-            <div>
-              <button onClick={handleDelete} disabled={loading}>
-                Delete
-              </button>
-            </div>
-          </div>
+          <ContactStatusList contact={props.contact} error={props.error} />
         </>
       ) : null}
     </>

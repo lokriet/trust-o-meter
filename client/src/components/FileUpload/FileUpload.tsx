@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
+import React, { useRef } from 'react';
 
 const FileUpload = (props: any) => {
   const fileInput: any = useRef();
@@ -7,7 +7,7 @@ const FileUpload = (props: any) => {
   const handleSubmit = event => {
     event.preventDefault();
     const file = fileInput.current.files[0];
-    console.log(`Selected file - ${file.name}`);
+    // console.log(`Selected file - ${file.name}`);
     props.onUpload(file);
   };
 
