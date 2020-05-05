@@ -1,5 +1,6 @@
 import * as actions from '.';
 import { firebaseApp } from '../../firebase/firebase';
+import env from '../../secret/environment';
 import { State } from '../reducers/state';
 
 export const AuthActionTypes = {
@@ -34,7 +35,7 @@ export const checkInitialAuthState = () => {
         if (!token) {
           dispatch(initialAuthCheckSuccess(false, null, false, false));
         } else {
-          const result = await fetch('http://localhost:3001/auth/details', {
+          const result = await fetch(`${env.serverUrl}/auth/details`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -69,7 +70,7 @@ export const registerWithEmailAndPassword = (
   email: string,
   password: string
 ) => {
-  return auth('http://localhost:3001/auth/registerWithEmailPassword', {
+  return auth(`${env.serverUrl}/auth/registerWithEmailPassword`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -77,13 +78,12 @@ export const registerWithEmailAndPassword = (
     body: JSON.stringify({
       email,
       password
-    }),
-
+    })
   });
 };
 
 export const loginWithEmailAndPassword = (email: string, password: string) => {
-  return auth('http://localhost:3001/auth/loginWithEmailPassword', {
+  return auth(`${env.serverUrl}/auth/loginWithEmailPassword`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -95,31 +95,44 @@ export const loginWithEmailAndPassword = (email: string, password: string) => {
   });
 };
 
-export const loginWithGoogle = (googleTokenId: string, onOperationDone: any) => {
-  return auth('http://localhost:3001/auth/loginWithGoogle', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
+export const loginWithGoogle = (
+  googleTokenId: string,
+  onOperationDone: any
+) => {
+  return auth(
+    `${env.serverUrl}/auth/loginWithGoogle`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        idToken: googleTokenId
+      })
     },
-    body: JSON.stringify({
-      idToken: googleTokenId
-    })
-  },
-  onOperationDone);
+    onOperationDone
+  );
 };
 
-export const loginWithFacebook = (facebookUserId: string, facebookAccessToken: string, onOperationDone: any) => {
-  return auth('http://localhost:3001/auth/loginWithFacebook', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
+export const loginWithFacebook = (
+  facebookUserId: string,
+  facebookAccessToken: string,
+  onOperationDone: any
+) => {
+  return auth(
+    `${env.serverUrl}/auth/loginWithFacebook`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: facebookUserId,
+        accessToken: facebookAccessToken
+      })
     },
-    body: JSON.stringify({
-      userId: facebookUserId,
-      accessToken: facebookAccessToken
-    })
-  },
-  onOperationDone);
+    onOperationDone
+  );
 };
 
 const auth = (authUrl: string, fetchParams: any, onOperationDone?: any) => {
@@ -135,11 +148,19 @@ const auth = (authUrl: string, fetchParams: any, onOperationDone?: any) => {
 
         await firebaseApp.doSignIn();
         dispatch(actions.setProfile(resultData.profile));
-        dispatch(loginSuccess(token, resultData.isAdmin, resultData.waitingForEmailConfirmation));
+        dispatch(
+          loginSuccess(
+            token,
+            resultData.isAdmin,
+            resultData.waitingForEmailConfirmation
+          )
+        );
         dispatch(actions.fetchStatusList());
       } else {
         dispatch(
-          loginFailed(result.status !== 500 ? resultData.message : internalError)
+          loginFailed(
+            result.status !== 500 ? resultData.message : internalError
+          )
         );
       }
     } catch (error) {
@@ -172,12 +193,13 @@ export const logout = () => {
 
 export const sendConfirmationEmail = () => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
-    const errorMessage = 'Sending confirmation email failed. Please check your internet connection and try again';
+    const errorMessage =
+      'Sending confirmation email failed. Please check your internet connection and try again';
     try {
       dispatch(authOperationStart());
       const token = getState().auth.token;
       const response = await fetch(
-        'http://localhost:3001/auth/sendConfirmationEmail',
+        `${env.serverUrl}/auth/sendConfirmationEmail`,
         {
           method: 'GET',
           headers: {
@@ -202,19 +224,16 @@ export const confirmEmail = (confirmationToken: string) => {
     try {
       dispatch(authOperationStart());
       const token = getState().auth.token;
-      const response = await fetch(
-        'http://localhost:3001/auth/confirmEmail',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            confirmationToken
-          })
-        }
-      );
+      const response = await fetch(`${env.serverUrl}/auth/confirmEmail`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          confirmationToken
+        })
+      });
       if (response.status !== 200) {
         dispatch(authOperationFailed('Email confirmation failed'));
       } else {
@@ -231,7 +250,7 @@ export const requestPasswordReset = (email: string) => {
     try {
       dispatch(authOperationStart());
       const response = await fetch(
-        'http://localhost:3001/auth/sendPasswordResetEmail',
+        `${env.serverUrl}/auth/sendPasswordResetEmail`,
         {
           method: 'POST',
           headers: {
@@ -254,26 +273,24 @@ export const requestPasswordReset = (email: string) => {
       dispatch(authOperationFailed('Password reset request failed'));
     }
   };
-}
+};
 
 export const resetPassword = (password: string, resetPasswordToken: string) => {
-  const errorMessage = 'Password reset failed. Please check your internet connection and make sure you are using the latest requested link from your inbox';
+  const errorMessage =
+    'Password reset failed. Please check your internet connection and make sure you are using the latest requested link from your inbox';
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       dispatch(authOperationStart());
-      const response = await fetch(
-        'http://localhost:3001/auth/resetPassword',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            password,
-            resetPasswordToken
-          })
-        }
-      );
+      const response = await fetch(`${env.serverUrl}/auth/resetPassword`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          password,
+          resetPasswordToken
+        })
+      });
       if (response.status === 200) {
         dispatch(passwordResetSuccess());
       } else {
@@ -283,13 +300,13 @@ export const resetPassword = (password: string, resetPasswordToken: string) => {
       dispatch(authOperationFailed(errorMessage));
     }
   };
-}
+};
 
 export const authInit = () => {
   return {
     type: AuthActionTypes.AUTH_INIT
-  }
-}
+  };
+};
 
 export const setAuthRedirectPath = (path: string) => {
   return {

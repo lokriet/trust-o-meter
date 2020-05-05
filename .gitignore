@@ -36,3 +36,8 @@
 /server/Image1.png
 /server/src/config/settings.ts
 /server/prodEnv.json
+suspicious.png
+client/.firebaserc
+client/.gitignore
+client/firebase.json
+server/.gitignore

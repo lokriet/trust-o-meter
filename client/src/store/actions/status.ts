@@ -1,5 +1,6 @@
 import { Status } from '../model/status';
 import { State } from '../reducers/state';
+import env from '../../secret/environment';
 
 export const StatusActionTypes = {
   FETCH_STATUS_LIST_START: 'FETCH_STATUS_LIST_START',
@@ -27,7 +28,7 @@ export const fetchStatusList = (onOperationDone?: any) => {
     try {
       dispatch(fetchStatusListStart());
       const token = getState().auth.token;
-      const response = await fetch('http://localhost:3001/status', {
+      const response = await fetch(`${env.serverUrl}/status`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -50,8 +51,10 @@ export const fetchStatusList = (onOperationDone?: any) => {
   };
 };
 
-
-export const createStatus = (status: {name: string, minTrust: number}, onOperationDone: any) => {
+export const createStatus = (
+  status: { name: string; minTrust: number },
+  onOperationDone: any
+) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     const defaultErrorMessage =
       'Adding status failed. Please check your internet connection and try again';
@@ -59,7 +62,7 @@ export const createStatus = (status: {name: string, minTrust: number}, onOperati
       dispatch(initStatusOperation(null));
 
       const token = getState().auth.token;
-      const response = await fetch('http://localhost:3001/status', {
+      const response = await fetch(`${env.serverUrl}/status`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -88,7 +91,11 @@ export const createStatus = (status: {name: string, minTrust: number}, onOperati
   };
 };
 
-export const updateStatus = (statusId: string, update: {name?: string, minTrust?: number}, onOperationDone: any) => {
+export const updateStatus = (
+  statusId: string,
+  update: { name?: string; minTrust?: number },
+  onOperationDone: any
+) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     const defaultErrorMessage =
       'Status update failed. Please check your internet connection and try again';
@@ -96,7 +103,7 @@ export const updateStatus = (statusId: string, update: {name?: string, minTrust?
       dispatch(initStatusOperation(statusId));
 
       const token = getState().auth.token;
-      const response = await fetch(`http://localhost:3001/status/${statusId}`, {
+      const response = await fetch(`${env.serverUrl}/status/${statusId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -132,7 +139,7 @@ export const deleteStatus = (statusId: string, onOperationFailed: any) => {
       dispatch(initStatusOperation(statusId));
 
       const token = getState().auth.token;
-      const response = await fetch(`http://localhost:3001/status/${statusId}`, {
+      const response = await fetch(`${env.serverUrl}/status/${statusId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -153,7 +160,11 @@ export const deleteStatus = (statusId: string, onOperationFailed: any) => {
   };
 };
 
-export const createAction = (statusId: string, actionName: string, onOperationDone: any) => {
+export const createAction = (
+  statusId: string,
+  actionName: string,
+  onOperationDone: any
+) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     const defaultErrorMessage =
       'Adding action failed. Please check your internet connection and try again';
@@ -161,14 +172,17 @@ export const createAction = (statusId: string, actionName: string, onOperationDo
       dispatch(initActionOperation(statusId, null));
 
       const token = getState().auth.token;
-      const response = await fetch(`http://localhost:3001/status/${statusId}/actions`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({name: actionName})
-      });
+      const response = await fetch(
+        `${env.serverUrl}/status/${statusId}/actions`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: actionName })
+        }
+      );
 
       const responseData = await response.json();
       if (response.status === 201) {
@@ -190,7 +204,12 @@ export const createAction = (statusId: string, actionName: string, onOperationDo
   };
 };
 
-export const updateAction = (statusId: string, actionId: string, actionName: string, onOperationDone: any) => {
+export const updateAction = (
+  statusId: string,
+  actionId: string,
+  actionName: string,
+  onOperationDone: any
+) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     const defaultErrorMessage =
       'Action update failed. Please check your internet connection and try again';
@@ -198,14 +217,17 @@ export const updateAction = (statusId: string, actionId: string, actionName: str
       dispatch(initActionOperation(statusId, actionId));
 
       const token = getState().auth.token;
-      const response = await fetch(`http://localhost:3001/status/${statusId}/actions/${actionId}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({name: actionName})
-      });
+      const response = await fetch(
+        `${env.serverUrl}/status/${statusId}/actions/${actionId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: actionName })
+        }
+      );
 
       const responseData = await response.json();
       if (response.status === 200) {
@@ -226,7 +248,11 @@ export const updateAction = (statusId: string, actionId: string, actionName: str
   };
 };
 
-export const deleteAction = (statusId: string, actionId: string, onOperationFailed: any) => {
+export const deleteAction = (
+  statusId: string,
+  actionId: string,
+  onOperationFailed: any
+) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     const defaultErrorMessage =
       'Deleting action failed. Please check your internet connection and try again';
@@ -234,12 +260,15 @@ export const deleteAction = (statusId: string, actionId: string, onOperationFail
       dispatch(initActionOperation(statusId, actionId));
 
       const token = getState().auth.token;
-      const response = await fetch(`http://localhost:3001/status/${statusId}/actions/${actionId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await fetch(
+        `${env.serverUrl}/status/${statusId}/actions/${actionId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      });
+      );
 
       const responseData = await response.json();
       if (response.status === 200) {
@@ -259,7 +288,7 @@ export const deleteAction = (statusId: string, actionId: string, onOperationFail
 const fetchStatusListStart = () => {
   return {
     type: StatusActionTypes.FETCH_STATUS_LIST_START
-  }
+  };
 };
 
 const fetchStatusListFailed = (error: string) => {
@@ -276,21 +305,23 @@ const fetchStatusListSuccess = (statusList: Status[]) => {
   };
 };
 
-
-export const initStatusOperation = (statusId: string |  null) => {
+export const initStatusOperation = (statusId: string | null) => {
   return {
     type: StatusActionTypes.INIT_STATUS_OPERATION,
     statusId
   };
-}
+};
 
-export const initActionOperation = (statusId: string, actionId: string |  null) => {
+export const initActionOperation = (
+  statusId: string,
+  actionId: string | null
+) => {
   return {
     type: StatusActionTypes.INIT_ACTION_OPERATION,
     statusId,
     actionId
   };
-}
+};
 
 const createStatusFailed = (error: string) => {
   return {
@@ -336,7 +367,11 @@ const createActionFailed = (statusId: string, error: string) => {
   };
 };
 
-const updateActionFailed = (statusId: string, actionId: string, error: string) => {
+const updateActionFailed = (
+  statusId: string,
+  actionId: string,
+  error: string
+) => {
   return {
     type: StatusActionTypes.UPDATE_ACTION_FAILED,
     statusId,

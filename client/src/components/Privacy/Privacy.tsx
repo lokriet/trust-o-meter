@@ -16,7 +16,7 @@ const Privacy = () => {
         trustometer.app@gmail.com.
       </p>
       <p>
-        When you visit our website http://mysite.com, mobile application, and
+        When you visit our website https://trust-o-meter.firebaseapp.com/ and
         use our services, you trust us with your personal information. We take
         your privacy very seriously. In this privacy policy, we seek to explain
         to you in the clearest way possible what information we collect, how we
@@ -27,7 +27,7 @@ const Privacy = () => {
       </p>
       <p>
         This privacy policy applies to all information collected through our
-        website (such as http://mysite.com), mobile application, ("Apps"),
+        website (such as https://trust-o-meter.firebaseapp.com/)
         and/or any related services, sales, marketing or events (we refer to
         them collectively in this privacy policy as the "Services").
       </p>
@@ -35,14 +35,7 @@ const Privacy = () => {
         Please read this privacy policy carefully as it will help you make
         informed decisions about sharing your personal information with us.
       </p>
-      TABLE OF CONTENTS 1. WHAT INFORMATION DO WE COLLECT? 2. HOW DO WE USE YOUR
-      INFORMATION? 3. WILL YOUR INFORMATION BE SHARED WITH ANYONE? 4. DO WE USE
-      COOKIES AND OTHER TRACKING TECHNOLOGIES? 5. HOW DO WE HANDLE YOUR SOCIAL
-      LOGINS? 6. HOW LONG DO WE KEEP YOUR INFORMATION? 7. DO WE COLLECT
-      INFORMATION FROM MINORS? 8. WHAT ARE YOUR PRIVACY RIGHTS? 9. CONTROLS FOR
-      DO-NOT-TRACK FEATURES 10. DO CALIFORNIA RESIDENTS HAVE SPECIFIC PRIVACY
-      RIGHTS? 11. DO WE MAKE UPDATES TO THIS POLICY? 12. HOW CAN YOU CONTACT US
-      ABOUT THIS POLICY?
+      
       <p className={classes.SectionName}>1. WHAT INFORMATION DO WE COLLECT?</p>
       <p className={classes.SubHeader}>
         Personal information you disclose to us
@@ -64,12 +57,12 @@ const Privacy = () => {
       </p>
       <p>
         Publicly Available Personal Information. We collect email addresses;
-        first name, maiden name, last name, and nickname; social media; and
+        name or nickname; social media; and
         other similar data.
       </p>
       <p>
         Social Media Login Data. We may provide you with the option to register
-        using social media account details, like your Facebook, Twitter or other
+        using social media account details, like your Facebook, Google or other
         social media account. If you choose to register in this way, we will
         collect the Information described in the section called "HOW DO WE
         HANDLE YOUR SOCIAL LOGINS" below.
@@ -209,7 +202,7 @@ const Privacy = () => {
       <p>
         Our Services or Apps offer you the ability to register and login using
         your third party social media account details (like your Facebook or
-        Twitter logins). Where you choose to do this, we will receive certain
+        Google logins). Where you choose to do this, we will receive certain
         profile information about you from your social media provider. The
         profile Information we receive may vary depending on the social media
         provider concerned, but will often include your name, e-mail address,
@@ -307,7 +300,7 @@ const Privacy = () => {
       <p className={classes.SubHeader}>Account Information</p>
       <p>
         If you would at any time like to review or change the information in
-        your account or terminate your account, you can: ■ Log into your account
+        your account or terminate your account, you can log into your account
         settings and update your user account.
       </p>
       <p>
@@ -325,15 +318,6 @@ const Privacy = () => {
         services of our Services or Apps. To opt-out of interest-based
         advertising by advertisers on our Services or Apps visit
         http://www.aboutads.info/choices/.
-      </p>
-      <p>
-        Opting out of email marketing: You can unsubscribe from our marketing
-        email list at any time by clicking on the unsubscribe link in the emails
-        that we send or by contacting us using the details provided below. You
-        will then be removed from the marketing email list – however, we will
-        still need to send you service-related emails that are necessary for the
-        administration and use of your account. To otherwise opt-out, you may: ■
-        Note your preferences when you register an account with the site.
       </p>
       <p className={classes.SectionName}>
         9. CONTROLS FOR DO-NOT-TRACK FEATURES
@@ -400,8 +384,7 @@ const Privacy = () => {
       </p>
       <p>
         If you have questions or comments about this policy, you may email us at
-        trustometer.app@gmail.com or by post to: Trust-o-Meter __________
-        __________ Canada
+        trustometer.app@gmail.com
       </p>
       <p className={classes.SectionName}>
         HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?
@@ -410,7 +393,8 @@ const Privacy = () => {
         Based on the laws of some countries, you may have the right to request
         access to the personal information we collect from you, change that
         information, or delete it in some circumstances. To request to review,
-        update, or delete your personal information, please visit: __________.
+        update, or delete your personal information, please email us at
+        trustometer.app@gmail.com.
         We will respond to your request within 30 days.
       </p>
     </div>

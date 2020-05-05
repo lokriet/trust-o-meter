@@ -9,6 +9,7 @@ import { Link, Redirect } from 'react-router-dom';
 import * as Yup from 'yup';
 
 import logoImg from '../../../assets/img/suspicious.svg';
+import env from '../../../secret/environment';
 import * as actions from '../../../store/actions';
 import { State } from '../../../store/reducers/state';
 import Spinner from '../../UI/Spinner/Spinner';
@@ -110,7 +111,7 @@ const Login = (props: LoginProps) => {
           </div>
 
           <GoogleLogin
-            clientId="695540773830-ji5ld1tf3aprsgdd49fveaonq3mko2u4.apps.googleusercontent.com"
+            clientId={env.googleClientId}
             buttonText="Login"
             onSuccess={handleGoogleLoginSuccess}
             onFailure={handleGoogleLoginError}
@@ -142,7 +143,7 @@ const Login = (props: LoginProps) => {
             </div>
           ) : null}
           <FacebookLogin
-            appId="231998444544391"
+            appId={env.facebookAppId}
             autoLoad={false}
             fields="name"
             callback={handleFacebookLoginSuccess}
@@ -257,7 +258,6 @@ const Login = (props: LoginProps) => {
     </div>
   );
 
-  //console.log(`is logged in ${props.isLoggedIn} redirect path ${redirectPath}`);
   return props.isLoggedIn ? <Redirect to={redirectPath} /> : form;
 };
 

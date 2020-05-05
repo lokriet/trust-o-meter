@@ -1,3 +1,4 @@
+import env from '../../secret/environment';
 import { Contact } from '../model/contact';
 import { Profile } from '../model/profile';
 import { State } from '../reducers/state';
@@ -32,7 +33,7 @@ export const searchContacts = (searchString: string) => {
     try {
       dispatch(contactsSearchStart());
       const token = getState().auth.token;
-      const response = await fetch('http://localhost:3001/contacts/search', {
+      const response = await fetch(`${env.serverUrl}/contacts/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +69,7 @@ export const createContactRequest = (contactIdentificator: string, onOperationDo
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       const token = getState().auth.token;
-      const response = await fetch('http://localhost:3001/contacts/request', {
+      const response = await fetch(`${env.serverUrl}/contacts/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +109,7 @@ export const fetchUserContacts = (onOperationDone?: any) => {
     try {
       dispatch(contactsFetchingStart());
       const token = getState().auth.token;
-      const response = await fetch('http://localhost:3001/contacts', {
+      const response = await fetch(`${env.serverUrl}/contacts`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -142,7 +143,7 @@ export const approveContactRequest = (
     onOperationFailed,
     errorMessage:
       'Failed to approve friend request. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: 'http://localhost:3001/contacts/approve',
+    operationUrl: `${env.serverUrl}/contacts/approve`,
     hasResponseData: true,
     successAction: contactApproveSuccess
   });
@@ -157,7 +158,7 @@ export const rejectContactRequest = (
     onOperationFailed,
     errorMessage:
       'Failed to reject friend request. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: 'http://localhost:3001/contacts/reject',
+    operationUrl: `${env.serverUrl}/contacts/reject`,
     hasResponseData: false,
     successAction: contactRejectSuccess
   });
@@ -172,7 +173,7 @@ export const withdrawContactRequest = (
     onOperationFailed,
     errorMessage:
       'Failed to withdraw friend request. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: 'http://localhost:3001/contacts/withdraw',
+    operationUrl: `${env.serverUrl}/contacts/withdraw`,
     hasResponseData: false,
     successAction: requestWithdrawSuccess
   });
@@ -187,7 +188,7 @@ export const confirmSeenRejectedRequest = (
     onOperationFailed,
     errorMessage:
       'Operation failed. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: 'http://localhost:3001/contacts/seenRequestReject',
+    operationUrl: `${env.serverUrl}/contacts/seenRequestReject`,
     hasResponseData: false,
     successAction: confirmSeenRejectedRequestSuccess
   });
@@ -202,7 +203,7 @@ export const deleteContact = (
     onOperationFailed,
     errorMessage:
       'Failed to delete contact. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: 'http://localhost:3001/contacts/delete',
+    operationUrl: `${env.serverUrl}/contacts/delete`,
     hasResponseData: false,
     successAction: contactDeleteSuccess
   });
@@ -217,7 +218,7 @@ export const confirmSeenDeletedContact = (
     onOperationFailed,
     errorMessage:
       'Operation failed. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: 'http://localhost:3001/contacts/seenContactDelete',
+    operationUrl: `${env.serverUrl}/contacts/seenContactDelete`,
     hasResponseData: false,
     successAction: confirmSeenDeletedContactSuccess
   });
@@ -289,7 +290,7 @@ export const updateContactCustomName = (
   return updateContact({
     contactIdentificator,
     onOperationDone,
-    operationUrl: 'http://localhost:3001/contacts/updateCustomName',
+    operationUrl: `${env.serverUrl}/contacts/updateCustomName`,
     requestBody: {
       identificator: contactIdentificator,
       customName: newCustomName
@@ -304,7 +305,7 @@ export const increaseContactTrust = (
   return updateContact({
     contactIdentificator,
     onOperationDone,
-    operationUrl: 'http://localhost:3001/contacts/updateTrust',
+    operationUrl: `${env.serverUrl}/contacts/updateTrust`,
     requestBody: { identificator: contactIdentificator, increase: true }
   });
 };
@@ -316,7 +317,7 @@ export const decreaseContactTrust = (
   return updateContact({
     contactIdentificator,
     onOperationDone,
-    operationUrl: 'http://localhost:3001/contacts/updateTrust',
+    operationUrl: `${env.serverUrl}/contacts/updateTrust`,
     requestBody: { identificator: contactIdentificator, increase: false }
   });
 };
@@ -331,7 +332,7 @@ export const changeContactActionState = (
   return updateContact({
     contactIdentificator,
     onOperationDone,
-    operationUrl: 'http://localhost:3001/contacts/changeActionState',
+    operationUrl: `${env.serverUrl}/contacts/changeActionState`,
     requestBody: {
       identificator: contactIdentificator,
       statusId,

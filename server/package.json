@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/app.js",
   "scripts": {
+    "start": "ts-node src/app.ts",
     "dev": "nodemon src/app.ts",
     "debug": "nodemon --inspect src/app.ts"
   },
@@ -25,9 +26,7 @@
     "mongoose": "^5.9.9",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",
-    "pino": "^6.2.0"
-  },
-  "devDependencies": {
+    "pino": "^6.2.0",
     "@types/bcrypt-nodejs": "0.0.31",
     "@types/compression": "^1.7.0",
     "@types/cookie-parser": "^1.4.2",
@@ -51,6 +50,9 @@
     "ts-node": "^8.9.1",
     "tslint": "^6.1.1",
     "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    
   },
   "engines": {
     "node": "13.5.0"

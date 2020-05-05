@@ -80,7 +80,6 @@ const App = (props: AppProps): JSX.Element => {
   return (
     <>
       <Layout>{view}</Layout>
-      {/* {redirect} */}
     </>
   );
 };
