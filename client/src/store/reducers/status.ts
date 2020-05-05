@@ -1,5 +1,3 @@
-import { error } from 'console';
-
 import * as actionTypes from '../actions/actionTypes';
 import { Status } from '../model/status';
 

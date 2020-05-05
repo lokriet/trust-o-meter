@@ -69,7 +69,7 @@ const AddAction = ({
       setShowAddForm(false);
       dispatch(actions.initActionOperation(statusId, null));
     },
-    [dispatch],
+    [dispatch, statusId],
   )
 
   return (

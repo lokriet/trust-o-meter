@@ -35,13 +35,13 @@ const ContactSettings = (props: ContactSettingsProps) => {
     dispatch(
       actions.deleteContact(props.contact.contactProfile.identificator, handleDeleteFailed)
     );
-  }, [props.contact, dispatch]);
+  }, [props.contact, dispatch, handleDeleteFailed]);
 
   const handleCancelNameChange = useCallback(() => {
     setMyCustomName(props.contact.myCustomName || '');
     setChangeNameError(false);
     setShowCustomNameForm(false);
-  }, []);
+  }, [props.contact.myCustomName]);
 
   const handleChangeCustomNameDone = useCallback((success: boolean) => {
     setLoading(false);
@@ -62,7 +62,7 @@ const ContactSettings = (props: ContactSettingsProps) => {
         handleChangeCustomNameDone
       )
     );
-  }, [props.contact, dispatch, myCustomName]);
+  }, [props.contact, dispatch, myCustomName, handleChangeCustomNameDone]);
 
   return (
     <div className={classes.ExtraDetailsContainer}>

@@ -34,7 +34,7 @@ const ContactAction = ({
       setSavingFailed(false);
       onActionChange(event.target.checked, handleActionChangeDone);
     },
-    [onActionChange]
+    [onActionChange, handleActionChangeDone]
   );
 
   return (

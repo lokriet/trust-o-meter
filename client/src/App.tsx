@@ -11,6 +11,7 @@ import PasswordResetRequest from './components/Auth/PasswordResest/PasswordReset
 import Register from './components/Auth/Register/Register';
 import FindContacts from './components/Contacts/FindContacts/FindContacts';
 import Home from './components/Home/Home';
+import Privacy from './components/Privacy/Privacy';
 import EditProfile from './components/Profile/EditProfile/EditProfile';
 import Layout from './components/UI/Layout/Layout';
 import Spinner from './components/UI/Spinner/Spinner';
@@ -49,6 +50,7 @@ const App = (props: AppProps): JSX.Element => {
     view = (
       <Switch>
         <Route path="/" exact component={Home} />
+        <Route path="/privacy" component={Privacy} />
         <Route path="/register" component={Register} />
         <Route path="/login" component={Login} />
         <Route path="/editProfile" component={EditProfile} />
@@ -74,29 +76,6 @@ const App = (props: AppProps): JSX.Element => {
       </Switch>
     );
   }
-
-  // if (
-  //   props.isLoggedIn &&
-  //   !props.location.pathname.startsWith('/activateAccount/')
-  // ) {
-  //   if (
-  //     props.waitingForEmailConfirmation &&
-  //     !props.location.pathname.startsWith('/emailConfirmation')
-  //   ) {
-  //     console.log('redirecting to email confirmation', props.location.pathname);
-  //     // redirect = <Redirect to="/emailConfirmation" />;
-  //     props.history.push('/emailConfirmation');
-  //   } else if (
-  //     !props.waitingForEmailConfirmation &&
-  //     props.profileLoaded &&
-  //     !props.profileInitialized &&
-  //     !props.location.pathname.startsWith('/editProfile')
-  //   ) {
-  //     console.log('redirecting to edit');
-  //     // redirect = <Redirect to="/editProfile" />;
-  //     props.history.push('/editProfile');
-  //   }
-  // }
 
   return (
     <>

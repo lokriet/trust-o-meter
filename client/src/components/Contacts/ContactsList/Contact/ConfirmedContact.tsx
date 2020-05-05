@@ -82,7 +82,7 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
         )
       );
     },
-    [props.contact, dispatch]
+    [props.contact, dispatch, handleTrustUpdateDone]
   );
 
   const handleDecreaseTrust = useCallback(
@@ -97,7 +97,7 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
         )
       );
     },
-    [props.contact, dispatch]
+    [props.contact, dispatch, handleTrustUpdateDone]
   );
 
   const toggleShowExtraDetails = useCallback(() => {
