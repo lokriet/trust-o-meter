@@ -40,7 +40,7 @@ const IncomingRequest = (props: IncomingRequestProps) => {
     setLoading(true);
     dispatch(
       actions.approveContactRequest(
-        props.contact.contactProfile.identificator,
+        props.contact._id,
         () => setLoading(false)
       )
     );
@@ -50,7 +50,7 @@ const IncomingRequest = (props: IncomingRequestProps) => {
     setLoading(true);
     dispatch(
       actions.rejectContactRequest(
-        props.contact.contactProfile.identificator,
+        props.contact._id,
         () => setLoading(false)
       )
     );

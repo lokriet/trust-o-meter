@@ -40,7 +40,7 @@ const DeletedContact = (props: DeletedContactProps) => {
     setLoading(true);
     dispatch(
       actions.confirmSeenDeletedContact(
-        props.contact.contactProfile.identificator,
+        props.contact._id,
         () => setLoading(false)
       )
     );

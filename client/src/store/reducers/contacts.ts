@@ -207,16 +207,16 @@ const contactItemOperationFailed = (
 ): ContactsState => {
   return {
     ...state,
-    itemErrors: { ...state.itemErrors, [action.identificator]: action.error }
+    itemErrors: { ...state.itemErrors, [action.contactId]: action.error }
   };
 };
 
 const contactApproveSuccess = (state: ContactsState, action): ContactsState => {
   const contact: Contact = action.contact;
-  const identificator: string = contact.contactProfile.identificator;
-  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const contactId: string = contact._id;
+  const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newIncomingRequests = state.incomingRequests.filter(
-    (item: Contact) => item.contactProfile.identificator !== identificator
+    (item: Contact) => item._id !== contactId
   );
   const newConfirmedContacts = state.confirmedContacts.concat(contact);
   return {
@@ -228,10 +228,10 @@ const contactApproveSuccess = (state: ContactsState, action): ContactsState => {
 };
 
 const contactRejectSuccess = (state: ContactsState, action): ContactsState => {
-  const identificator: string = action.identificator;
-  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const contactId: string = action.contactId;
+  const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newIncomingRequests = state.incomingRequests.filter(
-    (item: Contact) => item.contactProfile.identificator !== identificator
+    (item: Contact) => item._id !== contactId
   );
   return {
     ...state,
@@ -241,10 +241,10 @@ const contactRejectSuccess = (state: ContactsState, action): ContactsState => {
 };
 
 const requestWithdrawSuccess = (state: ContactsState, action): ContactsState => {
-  const identificator: string = action.identificator;
-  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const contactId: string = action.contactId;
+  const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newOutgoingRequests = state.outgoingRequests.filter(
-    (item: Contact) => item.contactProfile.identificator !== identificator
+    (item: Contact) => item._id !== contactId
   );
   return {
     ...state,
@@ -254,10 +254,10 @@ const requestWithdrawSuccess = (state: ContactsState, action): ContactsState => 
 };
 
 const confirmSeenRejectedRequestSuccess = (state: ContactsState, action): ContactsState => {
-  const identificator: string = action.identificator;
-  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const contactId: string = action.contactId;
+  const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newOutgoingRequests = state.outgoingRequests.filter(
-    (item: Contact) => item.contactProfile.identificator !== identificator
+    (item: Contact) => item._id !== contactId
   );
   return {
     ...state,
@@ -267,10 +267,10 @@ const confirmSeenRejectedRequestSuccess = (state: ContactsState, action): Contac
 };
 
 const contactDeleteSuccess = (state: ContactsState, action): ContactsState => {
-  const identificator: string = action.identificator;
-  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const contactId: string = action.contactId;
+  const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newConfirmedContacts = state.confirmedContacts.filter(
-    (item: Contact) => item.contactProfile.identificator !== identificator
+    (item: Contact) => item._id !== contactId
   );
   return {
     ...state,
@@ -280,10 +280,10 @@ const contactDeleteSuccess = (state: ContactsState, action): ContactsState => {
 };
 
 const confirmSeenDeletedContact = (state: ContactsState, action): ContactsState => {
-  const identificator: string = action.identificator;
-  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const contactId: string = action.contactId;
+  const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newConfirmedContacts = state.confirmedContacts.filter(
-    (item: Contact) => item.contactProfile.identificator !== identificator
+    (item: Contact) => item._id !== contactId
   );
   return {
     ...state,
@@ -294,10 +294,10 @@ const confirmSeenDeletedContact = (state: ContactsState, action): ContactsState 
 
 const contactUpdateSuccess = (state: ContactsState, action): ContactsState => {
   const contact: Contact = action.contact;
-  const identificator: string = contact.contactProfile.identificator;
-  const newItemErrors = removeItemError(state.itemErrors, identificator);
+  const contactId: string = contact._id;
+  const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newConfirmedContacts = state.confirmedContacts.map((item: Contact) => {
-    if (item.contactProfile.identificator === identificator) {
+    if (item._id === contactId) {
       return contact;
     } else {
       return item;
@@ -310,11 +310,11 @@ const contactUpdateSuccess = (state: ContactsState, action): ContactsState => {
   };
 };
 
-const removeItemError = (itemErrors: any, identificator: string): any => {
+const removeItemError = (itemErrors: any, contactId: string): any => {
   let newErrors: any;
-  if (itemErrors[identificator] != null) {
+  if (itemErrors[contactId] != null) {
     newErrors = { ...itemErrors };
-    delete newErrors[identificator];
+    delete newErrors[contactId];
     if (newErrors == null) {
       newErrors = {};
     }

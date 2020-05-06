@@ -93,7 +93,7 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
       setTrustUpdateError(false);
       dispatch(
         actions.increaseContactTrust(
-          props.contact.contactProfile.identificator,
+          props.contact._id,
           handleTrustUpdateDone
         )
       );
@@ -108,7 +108,7 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
       setTrustUpdateError(false);
       dispatch(
         actions.decreaseContactTrust(
-          props.contact.contactProfile.identificator,
+          props.contact._id,
           handleTrustUpdateDone
         )
       );

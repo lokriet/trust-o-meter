@@ -40,7 +40,7 @@ const OutgoingRequest = (props: OutgoingRequestProps) => {
     setLoading(true);
     dispatch(
       actions.withdrawContactRequest(
-        props.contact.contactProfile.identificator,
+        props.contact._id,
         () => setLoading(false)
       )
     );
@@ -50,7 +50,7 @@ const OutgoingRequest = (props: OutgoingRequestProps) => {
     setLoading(true);
     dispatch(
       actions.confirmSeenRejectedRequest(
-        props.contact.contactProfile.identificator,
+        props.contact._id,
         () => setLoading(false)
       )
     );

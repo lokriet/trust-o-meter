@@ -49,7 +49,7 @@ const ContactSettings = (props: ContactSettingsProps) => {
     setDeleteError(false);
     setChangeNameError(false);
     dispatch(
-      actions.deleteContact(props.contact.contactProfile.identificator, handleDeleteFailed)
+      actions.deleteContact(props.contact._id, handleDeleteFailed)
     );
   }, [props.contact, dispatch, handleDeleteFailed]);
 
@@ -73,7 +73,7 @@ const ContactSettings = (props: ContactSettingsProps) => {
     setDeleteError(false);
     dispatch(
       actions.updateContactCustomName(
-        props.contact.contactProfile.identificator,
+        props.contact._id,
         myCustomName,
         handleChangeCustomNameDone
       )

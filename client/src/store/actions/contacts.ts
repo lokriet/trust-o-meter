@@ -151,97 +151,97 @@ export const fetchUserContacts = (onOperationDone?: any) => {
 };
 
 export const approveContactRequest = (
-  contactIdentificator: string,
+  contactId: string,
   onOperationFailed: any
 ) => {
   return contactStatusChange({
-    contactIdentificator,
+    contactId,
     onOperationFailed,
     errorMessage:
       'Failed to approve friend request. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: `${env.serverUrl}/contacts/approve`,
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/approve`,
     hasResponseData: true,
     successAction: contactApproveSuccess
   });
 };
 
 export const rejectContactRequest = (
-  contactIdentificator: string,
+  contactId: string,
   onOperationFailed: any
 ) => {
   return contactStatusChange({
-    contactIdentificator,
+    contactId,
     onOperationFailed,
     errorMessage:
       'Failed to reject friend request. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: `${env.serverUrl}/contacts/reject`,
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/reject`,
     hasResponseData: false,
     successAction: contactRejectSuccess
   });
 };
 
 export const withdrawContactRequest = (
-  contactIdentificator: string,
+  contactId: string,
   onOperationFailed: any
 ) => {
   return contactStatusChange({
-    contactIdentificator,
+    contactId,
     onOperationFailed,
     errorMessage:
       'Failed to withdraw friend request. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: `${env.serverUrl}/contacts/withdraw`,
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/withdraw`,
     hasResponseData: false,
     successAction: requestWithdrawSuccess
   });
 };
 
 export const confirmSeenRejectedRequest = (
-  contactIdentificator: string,
+  contactId: string,
   onOperationFailed: any
 ) => {
   return contactStatusChange({
-    contactIdentificator,
+    contactId,
     onOperationFailed,
     errorMessage:
       'Operation failed. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: `${env.serverUrl}/contacts/seenRequestReject`,
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/seenRequestReject`,
     hasResponseData: false,
     successAction: confirmSeenRejectedRequestSuccess
   });
 };
 
 export const deleteContact = (
-  contactIdentificator: string,
+  contactId: string,
   onOperationFailed: any
 ) => {
   return contactStatusChange({
-    contactIdentificator,
+    contactId,
     onOperationFailed,
     errorMessage:
       'Failed to delete contact. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: `${env.serverUrl}/contacts/delete`,
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/delete`,
     hasResponseData: false,
     successAction: contactDeleteSuccess
   });
 };
 
 export const confirmSeenDeletedContact = (
-  contactIdentificator: string,
+  contactId: string,
   onOperationFailed: any
 ) => {
   return contactStatusChange({
-    contactIdentificator,
+    contactId,
     onOperationFailed,
     errorMessage:
       'Operation failed. Please check your internet connection and refresh the page before trying again.',
-    operationUrl: `${env.serverUrl}/contacts/seenContactDelete`,
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/seenContactDelete`,
     hasResponseData: false,
     successAction: confirmSeenDeletedContactSuccess
   });
 };
 
 const contactStatusChange = (props: {
-  contactIdentificator: string;
+  contactId: string;
   errorMessage: string;
   operationUrl: string;
   successAction: any;
@@ -254,24 +254,20 @@ const contactStatusChange = (props: {
       const response = await fetch(props.operationUrl, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          identificator: props.contactIdentificator
-        })
+          Authorization: `Bearer ${token}`
+        }
       });
       if (response.status === 200) {
         if (props.hasResponseData) {
           const responseData = await response.json();
           dispatch(props.successAction(responseData));
         } else {
-          dispatch(props.successAction(props.contactIdentificator));
+          dispatch(props.successAction(props.contactId));
         }
       } else {
         dispatch(
           contactItemOperationFailed(
-            props.contactIdentificator,
+            props.contactId,
             props.errorMessage
           )
         );
@@ -281,7 +277,7 @@ const contactStatusChange = (props: {
       console.log(error);
       dispatch(
         contactItemOperationFailed(
-          props.contactIdentificator,
+          props.contactId,
           props.errorMessage
         )
       );
@@ -291,7 +287,7 @@ const contactStatusChange = (props: {
 };
 
 export const updateContactCustomName = (
-  contactIdentificator: string,
+  contactId: string,
   customName: string | null,
   onOperationDone: any
 ) => {
@@ -304,53 +300,51 @@ export const updateContactCustomName = (
   }
 
   return updateContact({
-    contactIdentificator,
+    contactId,
     onOperationDone,
-    operationUrl: `${env.serverUrl}/contacts/updateCustomName`,
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/updateCustomName`,
     requestBody: {
-      identificator: contactIdentificator,
       customName: newCustomName
     }
   });
 };
 
 export const increaseContactTrust = (
-  contactIdentificator: string,
+  contactId: string,
   onOperationDone: any
 ) => {
   return updateContact({
-    contactIdentificator,
+    contactId,
     onOperationDone,
-    operationUrl: `${env.serverUrl}/contacts/updateTrust`,
-    requestBody: { identificator: contactIdentificator, increase: true }
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/updateTrust`,
+    requestBody: { increase: true }
   });
 };
 
 export const decreaseContactTrust = (
-  contactIdentificator: string,
+  contactId: string,
   onOperationDone: any
 ) => {
   return updateContact({
-    contactIdentificator,
+    contactId,
     onOperationDone,
-    operationUrl: `${env.serverUrl}/contacts/updateTrust`,
-    requestBody: { identificator: contactIdentificator, increase: false }
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/updateTrust`,
+    requestBody: { increase: false }
   });
 };
 
 export const changeContactActionState = (
-  contactIdentificator: string,
+  contactId: string,
   statusId: string,
   actionId: string,
   actionDone: boolean,
   onOperationDone: any
 ) => {
   return updateContact({
-    contactIdentificator,
+    contactId,
     onOperationDone,
-    operationUrl: `${env.serverUrl}/contacts/changeActionState`,
+    operationUrl: `${env.serverUrl}/contacts/${contactId}/changeActionState`,
     requestBody: {
-      identificator: contactIdentificator,
       statusId,
       actionId,
       actionDone
@@ -359,7 +353,7 @@ export const changeContactActionState = (
 };
 
 const updateContact = (props: {
-  contactIdentificator: string;
+  contactId: string;
   operationUrl: string;
   requestBody: any;
   onOperationDone: any;
@@ -383,7 +377,7 @@ const updateContact = (props: {
       } else {
         dispatch(
           contactItemOperationFailed(
-            props.contactIdentificator,
+            props.contactId,
             'Failed to update details. Please check your internet connection and refresh the page before trying again.'
           )
         );
@@ -393,7 +387,7 @@ const updateContact = (props: {
       console.log(error);
       dispatch(
         contactItemOperationFailed(
-          props.contactIdentificator,
+          props.contactId,
           'Failed to update details. Please check your internet connection and refresh the page before trying again.'
         )
       );
@@ -462,10 +456,10 @@ const contactsOperationFailed = (error: string) => {
   };
 };
 
-const contactItemOperationFailed = (identificator: string, error: string) => {
+const contactItemOperationFailed = (contactId: string, error: string) => {
   return {
     type: ContactsActionTypes.CONTACT_ITEM_OPERATION_FAILED,
-    identificator,
+    contactId,
     error
   };
 };
@@ -477,38 +471,38 @@ const contactApproveSuccess = (contact: Contact) => {
   };
 };
 
-const contactRejectSuccess = (identificator: string) => {
+const contactRejectSuccess = (contactId: string) => {
   return {
     type: ContactsActionTypes.CONTACT_REJECT_SUCCESS,
-    identificator
+    contactId
   };
 };
 
-const requestWithdrawSuccess = (identificator: string) => {
+const requestWithdrawSuccess = (contactId: string) => {
   return {
     type: ContactsActionTypes.REQUEST_WITHDRAW_SUCCESS,
-    identificator
+    contactId
   };
 };
 
-const confirmSeenRejectedRequestSuccess = (identificator: string) => {
+const confirmSeenRejectedRequestSuccess = (contactId: string) => {
   return {
     type: ContactsActionTypes.REJECTED_REQUEST_SEEN_SUCCESS,
-    identificator
+    contactId
   };
 };
 
-const contactDeleteSuccess = (identificator: string) => {
+const contactDeleteSuccess = (contactId: string) => {
   return {
     type: ContactsActionTypes.CONTACT_DELETE_SUCCESS,
-    identificator
+    contactId
   };
 };
 
-const confirmSeenDeletedContactSuccess = (identificator: string) => {
+const confirmSeenDeletedContactSuccess = (contactId: string) => {
   return {
     type: ContactsActionTypes.DELETED_CONTACT_SEEN_SUCCESS,
-    identificator
+    contactId
   };
 };
 

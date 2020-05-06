@@ -33,7 +33,6 @@ import {
 } from '../validators/contacts';
 import { validateAndConvert } from '../validators/validationError';
 
-
 const contactsInListSearchCondition = (myProfileId: string): any => {
   return {
     $or: [
@@ -202,7 +201,7 @@ export const approveContactRequest = async (
   try {
     const updatedContact = await contactStatusChange({
       userProfileId: req.profileId,
-      contactIdentificator: req.body.identificator,
+      contactId: req.params.contactId,
       expectedUserStatus: ContactSideStatus.Pending,
       expectedContactStatus: ContactSideStatus.WantToConnect,
       changeToStatus: ContactSideStatus.WantToConnect,
@@ -225,7 +224,7 @@ export const rejectContactRequest = async (
   try {
     const updatedContact = await contactStatusChange({
       userProfileId: req.profileId,
-      contactIdentificator: req.body.identificator,
+      contactId: req.params.contactId,
       expectedUserStatus: ContactSideStatus.Pending,
       expectedContactStatus: ContactSideStatus.WantToConnect,
       changeToStatus: ContactSideStatus.DontWantToConnect,
@@ -245,7 +244,7 @@ export const withdrawContactRequest = async (
   try {
     const updatedContact = await contactStatusChange({
       userProfileId: req.profileId,
-      contactIdentificator: req.body.identificator,
+      contactId: req.params.contactId,
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.Pending,
       changeToStatus: ContactSideStatus.Deleted,
@@ -266,7 +265,7 @@ export const confirmRequestRejectSeen = async (
   try {
     const updatedContact = await contactStatusChange({
       userProfileId: req.profileId,
-      contactIdentificator: req.body.identificator,
+      contactId: req.params.contactId,
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.DontWantToConnect,
       changeToStatus: ContactSideStatus.Deleted,
@@ -287,7 +286,7 @@ export const deleteContact = async (
   try {
     const updatedContact = await contactStatusChange({
       userProfileId: req.profileId,
-      contactIdentificator: req.body.identificator,
+      contactId: req.params.contactId,
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.WantToConnect,
       changeToStatus: ContactSideStatus.Deleted,
@@ -307,7 +306,7 @@ export const confirmDeletedContactSeen = async (
   try {
     const updatedContact = await contactStatusChange({
       userProfileId: req.profileId,
-      contactIdentificator: req.body.identificator,
+      contactId: req.params.contactId,
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.Deleted,
       changeToStatus: ContactSideStatus.Deleted,
@@ -322,23 +321,15 @@ export const confirmDeletedContactSeen = async (
 
 const contactStatusChange = async (props: {
   userProfileId: string;
-  contactIdentificator: string;
+  contactId: string;
   expectedUserStatus: ContactSideStatus;
   expectedContactStatus: ContactSideStatus;
   changeToStatus: ContactSideStatus;
   finalStatus: boolean;
 }): Promise<IContact | null> => {
-  const contactProfile = await getContactProfile(props.contactIdentificator);
-  let existingContact: IContact = await getExistingContact(
-    contactProfile._id,
-    props.userProfileId
-  );
-
+  let existingContact: IContact = await Contact.findById(props.contactId);
   if (!existingContact) {
-    throw httpErrors.customValidationError(
-      'identificator',
-      'User is not in contacts list'
-    );
+    throw httpErrors.pageNotFoundError();
   }
 
   const userSideIndex = existingContact.sides.findIndex(
@@ -351,8 +342,8 @@ const contactStatusChange = async (props: {
       props.expectedContactStatus
   ) {
     throw httpErrors.customValidationError(
-      'identificator',
-      'Contact is not in pending incoming request status'
+      'contactId',
+      'Contact is in unexpected status'
     );
   }
 
@@ -364,7 +355,6 @@ const contactStatusChange = async (props: {
     existingContact = await existingContact.save();
     return existingContact;
   }
-
 };
 
 export const updateContactCustomName = async (
@@ -383,17 +373,11 @@ export const updateContactCustomName = async (
       return next(httpError);
     }
 
-    const contactProfile = await getContactProfile(requestData.identificator);
-    let existingContact: IContact = await getExistingContact(
-      contactProfile._id,
-      req.profileId
-    );
+    const contactId = req.params.contactId;
+    let existingContact: IContact = await Contact.findById(contactId);
 
     if (!existingContact) {
-      throw httpErrors.customValidationError(
-        'identificator',
-        'User is not in contacts list'
-      );
+      throw httpErrors.pageNotFoundError();
     }
 
     const userSideIndex = existingContact.sides.findIndex(
@@ -439,17 +423,11 @@ export const updateContactTrust = async (
       return next(httpError);
     }
 
-    const contactProfile = await getContactProfile(requestData.identificator);
-    let existingContact: IContact = await getExistingContact(
-      contactProfile._id,
-      req.profileId
-    );
+    const contactId = req.params.contactId;
+    let existingContact: IContact = await Contact.findById(contactId);
 
     if (!existingContact) {
-      throw httpErrors.customValidationError(
-        'identificator',
-        'User is not in contacts list'
-      );
+      throw httpErrors.pageNotFoundError();
     }
 
     const userSideIndex = existingContact.sides.findIndex(
@@ -497,24 +475,15 @@ export const changeActionState = async (
       return next(httpError);
     }
 
-    const contactProfile = await getContactProfile(requestData.identificator);
-    let existingContact: IContact = await getExistingContact(
-      contactProfile._id,
-      req.profileId
-    );
-
+    const contactId = req.params.contactId;
+    let existingContact: IContact = await Contact.findById(contactId);
     if (!existingContact) {
-      throw httpErrors.customValidationError(
-        'identificator',
-        'User is not in contacts list'
-      );
+      throw httpErrors.pageNotFoundError();
     }
 
     if (
-      existingContact.sides[0].status !==
-        ContactSideStatus.WantToConnect ||
-      existingContact.sides[1].status !==
-        ContactSideStatus.WantToConnect
+      existingContact.sides[0].status !== ContactSideStatus.WantToConnect ||
+      existingContact.sides[1].status !== ContactSideStatus.WantToConnect
     ) {
       throw httpErrors.customValidationError(
         'identificator',
@@ -523,14 +492,23 @@ export const changeActionState = async (
     }
 
     const status: IStatus = await Status.findById(requestData.statusId);
-    if (!status || !status.actions.some((action: IAction) => action._id.toString() === requestData.actionId)) {
+    if (
+      !status ||
+      !status.actions.some(
+        (action: IAction) => action._id.toString() === requestData.actionId
+      )
+    ) {
       throw httpErrors.customValidationError(
         'actionId',
         'Unexpected action identificator'
       );
     }
 
-    const contactTrust = Math.floor((existingContact.sides[0].trustPoints + existingContact.sides[1].trustPoints) / 2);
+    const contactTrust = Math.floor(
+      (existingContact.sides[0].trustPoints +
+        existingContact.sides[1].trustPoints) /
+        2
+    );
     if (status.minTrust > contactTrust) {
       throw httpErrors.customValidationError(
         'actionId',
@@ -538,7 +516,9 @@ export const changeActionState = async (
       );
     }
 
-    const actionIndex = existingContact.doneActions.indexOf(requestData.actionId);
+    const actionIndex = existingContact.doneActions.indexOf(
+      requestData.actionId
+    );
     if (requestData.actionDone && actionIndex < 0) {
       existingContact.doneActions.push(requestData.actionId);
     } else if (!requestData.actionDone && actionIndex >= 0) {

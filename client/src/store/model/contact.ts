@@ -25,6 +25,7 @@ export enum ContactStatus {
 };
 
 export interface Contact {
+  _id: string;
   status: ContactStatus;
   contactProfile: Profile;
   myCustomName: string | null;

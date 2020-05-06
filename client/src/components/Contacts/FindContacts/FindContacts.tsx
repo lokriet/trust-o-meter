@@ -38,6 +38,7 @@ interface FindContactsProps {
 const FindContacts = (props: FindContactsProps) => {
   const [searchString, setSearchString] = useState('');
   const [searchRequestSent, setSearchRequestSent] = useState(false);
+  const [searchStringValidationError, setSearchStringValidationError] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -45,8 +46,15 @@ const FindContacts = (props: FindContactsProps) => {
   }, [dispatch]);
 
   const handleFindContacts = useCallback(() => {
+    setSearchStringValidationError(false);
+
     const trimmed = searchString.trim();
-    if (trimmed !== '') {
+    if (trimmed === '') {
+      return;
+    } else if (trimmed.length < 3) {
+      setSearchStringValidationError(true);
+      return;
+    } else {
       dispatch(actions.searchContacts(trimmed));
       setSearchRequestSent(true);
     }
@@ -89,6 +97,7 @@ const FindContacts = (props: FindContactsProps) => {
         onKeyDown={(event) => handleKeyDown(event)}
       />
       {props.error && props.searchResult.length === 0 ? <Error>{props.error}</Error> : null}
+      {searchStringValidationError ? <Error>Please enter at least 3 characters</Error> : null}
       {contactsList}
     </div>
   );

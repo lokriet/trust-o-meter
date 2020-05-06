@@ -47,7 +47,7 @@ const ContactStatusList = (props: ContactStatusListProps) => {
     ) => {
       dispatch(
         actions.changeContactActionState(
-          props.contact.contactProfile.identificator,
+          props.contact._id,
           statusId,
           actionId,
           actionDone,

@@ -26,16 +26,16 @@ router.get('/', isAuthenticated, contactsController.getContacts);
 router.post('/search', isAuthenticated, contactsController.searchContacts);
 
 router.post('/request', isAuthenticated, contactsController.requestContact);
-router.post('/approve', isAuthenticated, contactsController.approveContactRequest);
+router.post('/:contactId/approve', isAuthenticated, contactsController.approveContactRequest);
 
-router.post('/reject', isAuthenticated, contactsController.rejectContactRequest);
-router.post('/withdraw', isAuthenticated, contactsController.withdrawContactRequest);
-router.post('/seenRequestReject', isAuthenticated, contactsController.confirmRequestRejectSeen);
-router.post('/delete', isAuthenticated, contactsController.deleteContact);
-router.post('/seenContactDelete', isAuthenticated, contactsController.confirmDeletedContactSeen);
+router.post('/:contactId/reject', isAuthenticated, contactsController.rejectContactRequest);
+router.post('/:contactId/withdraw', isAuthenticated, contactsController.withdrawContactRequest);
+router.post('/:contactId/seenRequestReject', isAuthenticated, contactsController.confirmRequestRejectSeen);
+router.post('/:contactId/delete', isAuthenticated, contactsController.deleteContact);
+router.post('/:contactId/seenContactDelete', isAuthenticated, contactsController.confirmDeletedContactSeen);
 
-router.post('/updateCustomName', isAuthenticated, contactsController.updateContactCustomName);
-router.post('/updateTrust', isAuthenticated, contactsController.updateContactTrust);
-router.post('/changeActionState', isAuthenticated, contactsController.changeActionState);
+router.post('/:contactId/updateCustomName', isAuthenticated, contactsController.updateContactCustomName);
+router.post('/:contactId/updateTrust', isAuthenticated, contactsController.updateContactTrust);
+router.post('/:contactId/changeActionState', isAuthenticated, contactsController.changeActionState);
 
 export default router;

@@ -93,7 +93,7 @@ const ContactsList = (props: ContactsListProps) => {
               key={incomingRequest.contactProfile.identificator}
               contact={incomingRequest}
               error={
-                props.itemErrors[incomingRequest.contactProfile.identificator]
+                props.itemErrors[incomingRequest._id]
               }
             />
           ))}
@@ -102,7 +102,7 @@ const ContactsList = (props: ContactsListProps) => {
               key={outgoingRequest.contactProfile.identificator}
               contact={outgoingRequest}
               error={
-                props.itemErrors[outgoingRequest.contactProfile.identificator]
+                props.itemErrors[outgoingRequest._id]
               }
             />
           ))}
@@ -111,13 +111,13 @@ const ContactsList = (props: ContactsListProps) => {
               <DeletedContact
                 key={contact.contactProfile.identificator}
                 contact={contact}
-                error={props.itemErrors[contact.contactProfile.identificator]}
+                error={props.itemErrors[contact._id]}
               />
             ) : (
               <ConfirmedContact
                 key={contact.contactProfile.identificator}
                 contact={contact}
-                error={props.itemErrors[contact.contactProfile.identificator]}
+                error={props.itemErrors[contact._id]}
               />
             )
           )}
