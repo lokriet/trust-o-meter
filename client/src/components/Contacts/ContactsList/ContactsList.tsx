@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2020 Evgenia Lazareva
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import React, { useCallback, useEffect, useState } from 'react';
-import { PullDownContent, PullToRefresh, ReleaseContent } from 'react-js-pull-to-refresh';
+import {
+  PullDownContent,
+  PullToRefresh,
+  ReleaseContent
+} from 'react-js-pull-to-refresh';
 import { connect, useDispatch } from 'react-redux';
 
 import withAuthCheck from '../../../hoc/withAuthCheck';
@@ -29,7 +34,6 @@ import classes from './ContactList.module.scss';
 import IncomingRequest from './IncomingRequest/IncomingRequest';
 import OutgoingRequest from './OutgoingRequest/OutgoingRequest';
 
- 
 interface ContactsListProps {
   confirmedContacts: Contact[];
   outgoingRequests: Contact[];
@@ -92,18 +96,14 @@ const ContactsList = (props: ContactsListProps) => {
             <IncomingRequest
               key={incomingRequest.contactProfile.identificator}
               contact={incomingRequest}
-              error={
-                props.itemErrors[incomingRequest._id]
-              }
+              error={props.itemErrors[incomingRequest._id]}
             />
           ))}
           {props.outgoingRequests.map((outgoingRequest: Contact) => (
             <OutgoingRequest
               key={outgoingRequest.contactProfile.identificator}
               contact={outgoingRequest}
-              error={
-                props.itemErrors[outgoingRequest._id]
-              }
+              error={props.itemErrors[outgoingRequest._id]}
             />
           ))}
           {props.confirmedContacts.map((contact: Contact) =>

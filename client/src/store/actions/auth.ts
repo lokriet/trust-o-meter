@@ -18,7 +18,6 @@ import { firebaseApp } from '../../firebase/firebase';
 import env from '../../secret/environment';
 import { State } from '../reducers/state';
 
- 
 export const AuthActionTypes = {
   AUTH_INIT: 'AUTH_INIT',
   AUTH_OPERATION_START: 'AUTH_OPERATION_START',
@@ -70,11 +69,17 @@ export const checkInitialAuthState = () => {
             );
             dispatch(actions.fetchStatusList());
           } else {
+            if ('caches' in window) {
+              caches.delete('app-details');
+            }
             localStorage.removeItem('jwtToken');
             dispatch(initialAuthCheckSuccess(false, null, false, false));
           }
         }
       } catch (error) {
+        if ('caches' in window) {
+          caches.delete('app-details');
+        }
         localStorage.removeItem('jwtToken');
         dispatch(initialAuthCheckSuccess(false, null, false, false));
       }
@@ -199,6 +204,9 @@ export const logout = () => {
       }
     } finally {
       localStorage.removeItem('jwtToken');
+      if ('caches' in window) {
+        caches.delete('app-details');
+      }
       //TODO reset other stores
       dispatch(actions.resetProfileStore());
       dispatch(actions.resetContactsStore());

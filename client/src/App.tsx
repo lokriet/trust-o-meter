@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2020 Evgenia Lazareva
  *
@@ -13,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import React, { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Route, Switch, withRouter } from 'react-router-dom';
@@ -26,6 +28,7 @@ import PasswordResetRequest from './components/Auth/PasswordResest/PasswordReset
 import Register from './components/Auth/Register/Register';
 import FindContacts from './components/Contacts/FindContacts/FindContacts';
 import Home from './components/Home/Home';
+import { InstallPromptContextProvider } from './components/InstallPromptContext/InstallPromptContext';
 import Privacy from './components/Privacy/Privacy';
 import EditProfile from './components/Profile/EditProfile/EditProfile';
 import Layout from './components/UI/Layout/Layout';
@@ -33,6 +36,7 @@ import Spinner from './components/UI/Spinner/Spinner';
 import * as actions from './store/actions';
 import { State } from './store/reducers/state';
 
+// import useInstallPrompt from './hooks/InstallPromptContext';
  
 interface AppProps {
   location: any;
@@ -47,6 +51,7 @@ interface AppProps {
 
 const App = (props: AppProps): JSX.Element => {
   const dispatch = useDispatch();
+  // const [installPrompt, showInstallButton] = useInstallPrompt();
 
   // authenticate
   useEffect(() => {
@@ -94,9 +99,9 @@ const App = (props: AppProps): JSX.Element => {
   }
 
   return (
-    <>
+    <InstallPromptContextProvider>
       <Layout>{view}</Layout>
-    </>
+    </InstallPromptContextProvider>
   );
 };
 
