@@ -59,6 +59,7 @@ export const checkInitialAuthState = () => {
           if (result.status === 200) {
             const resultData = await result.json();
             dispatch(actions.setProfile(resultData.profile));
+            dispatch(actions.setNotificationSettings(resultData.notificationSettings));
             dispatch(
               initialAuthCheckSuccess(
                 true,
@@ -169,6 +170,7 @@ const auth = (authUrl: string, fetchParams: any, onOperationDone?: any) => {
 
         await firebaseApp.doSignIn();
         dispatch(actions.setProfile(resultData.profile));
+        dispatch(actions.setNotificationSettings(resultData.notificationSettings));
         dispatch(
           loginSuccess(
             token,
@@ -210,6 +212,7 @@ export const logout = () => {
       //TODO reset other stores
       dispatch(actions.resetProfileStore());
       dispatch(actions.resetContactsStore());
+      dispatch(actions.resetNotificationsStore());
       dispatch(logoutSuccess());
     }
   };

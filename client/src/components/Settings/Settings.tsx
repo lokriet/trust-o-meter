@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2020 Evgenia Lazareva
  *
@@ -13,18 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useCallback, useContext, useState } from 'react';
-import { useDispatch } from 'react-redux';
+
+ import React, { useCallback, useContext, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 
 import withAuthCheck from '../../hoc/withAuthCheck';
 import * as actions from '../../store/actions';
-import {
-  InstallPromptContext,
-  InstallPromptContextValue
-} from '../InstallPromptContext/InstallPromptContext';
+import { NotificationSettings } from '../../store/model/notifications';
+import { State } from '../../store/reducers/state';
+import { InstallPromptContext, InstallPromptContextValue } from '../InstallPromptContext/InstallPromptContext';
+import { Error } from '../UI/Error/Error';
 import classes from './Settings.module.scss';
 
-const Settings = (props) => {
+interface SettingsProps {
+  error: string;
+  loading: boolean;
+  notificationSettings: NotificationSettings;
+}
+
+const Settings = (props: SettingsProps) => {
   const dispatch = useDispatch();
 
   const installPromptValues: InstallPromptContextValue = useContext(
@@ -60,26 +68,92 @@ const Settings = (props) => {
     });
   }, [dispatch]);
 
+  const handleNotifyTrustUpdateChanged = useCallback(() => {
+    dispatch(
+      actions.updateNotificationSettings({
+        notifyTrustUpdate: !props.notificationSettings.notifyTrustUpdate
+      })
+    );
+  }, [dispatch, props.notificationSettings.notifyTrustUpdate]);
+
+  const handleNotifyNewContactChanged = useCallback(() => {
+    dispatch(
+      actions.updateNotificationSettings({
+        notifyNewContact: !props.notificationSettings.notifyNewContact
+      })
+    );
+  }, [dispatch, props.notificationSettings.notifyNewContact]);
+
   return (
     <div className={classes.Content}>
       {installPromptValues.installPrompt &&
       installPromptValues.showInstallButton ? (
         <div>
-          <button onClick={handleInstallClicked}>Add to Home screen</button>
+          <h1>Add application link to your home screen</h1>
+          <p>Quick and easy access to Trust-o-Meter at your fingertips</p>
+          <button
+            className={classes.ActionButton}
+            onClick={handleInstallClicked}
+          >
+            Add to Home screen
+          </button>
         </div>
       ) : null}
 
       {showNotificationSettings ? (
         <div>
-          <button onClick={handleEnableNotifications}>
-            Enable notifications
+          <h1>Enable push notifications</h1>
+          <p>
+            You can always disable push notifications in app settings on your
+            device
+          </p>
+          <button
+            className={classes.ActionButton}
+            onClick={handleEnableNotifications}
+          >
+            Enable notifications on this device
           </button>
+          <div className={classes.NotificationCheckboxRow}>
+            <input
+              className={classes.NotificationCheckbox}
+              type="checkbox"
+              id="notifyTrustUpdate"
+              checked={props.notificationSettings.notifyTrustUpdate}
+              onChange={handleNotifyTrustUpdateChanged}
+              disabled={props.loading}
+            />
+            <label htmlFor="notifyTrustUpdate">
+              Get contact's trust changes notifications
+            </label>
+          </div>
+          <div className={classes.NotificationCheckboxRow}>
+            <input
+              className={classes.NotificationCheckbox}
+              type="checkbox"
+              id="notifyNewContact"
+              checked={props.notificationSettings.notifyNewContact}
+              onChange={handleNotifyNewContactChanged}
+              disabled={props.loading}
+            />
+            <label htmlFor="notifyNewContact">
+              Get new contact requests notifications
+            </label>
+          </div>
         </div>
       ) : null}
+      {props.error ? <Error>{props.error}</Error> : null}
     </div>
   );
 };
 
 Settings.propTypes = {};
 
-export default withAuthCheck(Settings);
+const mapStateToProps = (state: State) => {
+  return {
+    loading: state.notifications.loading,
+    error: state.notifications.error,
+    notificationSettings: state.notifications.notificationSettings
+  };
+};
+
+export default connect(mapStateToProps)(withAuthCheck(Settings));

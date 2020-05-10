@@ -28,6 +28,7 @@ import { authReducer } from './store/reducers/auth';
 import { contactsReducer } from './store/reducers/contacts';
 import { profileReducer } from './store/reducers/profile';
 import { statusReducer } from './store/reducers/status';
+import { notificationsReducer } from './store/reducers/notifications';
 
  
 const composeEnhancers =
@@ -40,7 +41,8 @@ const rootReducer = combineReducers({
   auth: authReducer,
   profile: profileReducer,
   contacts: contactsReducer,
-  status: statusReducer
+  status: statusReducer,
+  notifications: notificationsReducer
 });
 
 const store = createStore(

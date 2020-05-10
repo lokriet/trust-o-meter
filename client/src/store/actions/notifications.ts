@@ -16,14 +16,22 @@
 import env from '../../secret/environment';
 import { urlBase64ToUint8Array } from '../../util/utility';
 import { State } from '../reducers/state';
+import { NotificationSettings } from '../model/notifications';
 
-
-export const NotificationsActionTypes = {};
+export const NotificationsActionTypes = {
+  START_NOTIFICATIONS_OPERATION: 'START_NOTIFICATIONS_OPERATION',
+  NOTIFICATIONS_OPERATION_FAILED: 'NOTIFICATIONS_OPERATION_FAILED',
+  ENABLE_NOTIFICATIONS_SUCCESS: 'ENABLE_NOTIFICATIONS_SUCCESS',
+  UPDATE_NOTIFICATION_SETTINGS_SUCCESS: 'UPDATE_NOTIFICATION_SETTINGS_SUCCESS',
+  SET_NOTIFICATION_SETTINGS: 'SET_NOTIFICATION_SETTINGS',
+  RESET_NOTIFICATIONS_STORE: 'RESET_NOTIFICATIONS_STORE'
+};
 
 export const enableNotifications = () => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       if ('serviceWorker' in navigator) {
+        dispatch(startNotificationsOperation());
         const swRegistration = await navigator.serviceWorker.ready;
         let subscription = await swRegistration.pushManager.getSubscription();
         if (!subscription) {
@@ -34,47 +42,120 @@ export const enableNotifications = () => {
         }
 
         const token = getState().auth.token;
-        const result = await fetch(`${env.serverUrl}/notifications/subscription`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(subscription)
-        });
+        const result = await fetch(
+          `${env.serverUrl}/notifications/subscription`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(subscription)
+          }
+        );
 
         if (result.status === 200) {
-          // const resultData = await result.json();
-          // dispatch(profileOperationSuccess(resultData));
-          console.log('notifications subscription updated');
           navigator.serviceWorker.ready.then((swreg) => {
             const options = {
               body: 'You will now receive notifications as stuff happenz',
               icon: `${process.env.PUBLIC_URL}/icons/icon96.png`,
               badge: `${process.env.PUBLIC_URL}/icons/icon96.png`,
               tag: 'confirm-notification',
-              renotify: true,
-              actions: [
-                {
-                  action: 'confirm',
-                  title: 'Okay'
-                },
-                {
-                  action: 'cancel',
-                  title: 'Cancel'
-                }
-              ]
-            }
-            swreg.showNotification('Notifications for Trust-o-Meter enabled! (hello from sw)', options);
-          })
+              renotify: false
+            };
+            swreg.showNotification(
+              'Notifications for Trust-o-Meter enabled!',
+              options
+            );
+            dispatch(enableNotificationsSuccess());
+          });
         } else {
-          console.log('failed to update notifications subscription');
-          // dispatch(profileOperationFailed('Profile update failed'));
+          dispatch(
+            notificationsOperationFailed(
+              'Failed to update notifications subscription'
+            )
+          );
         }
       }
     } catch (error) {
-      console.log('failed to update notifications subscription');
-      // dispatch(profileOperationFailed('Profile update failed'));
+      dispatch(
+        notificationsOperationFailed(
+          'Failed to update notifications subscription'
+        )
+      );
     }
+  };
+};
+
+export const updateNotificationSettings = (
+  update: Partial<NotificationSettings>
+) => {
+  return async (dispatch: (...args: any[]) => void, getState: () => State) => {
+    try {
+      dispatch(startNotificationsOperation());
+      const token = getState().auth.token;
+      const result = await fetch(
+        `${env.serverUrl}/notifications/settings`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(update)
+        }
+      );
+      if (result.status === 200) {
+        dispatch(updateNotificationSettingsSuccess(update));
+      } else {
+        dispatch(notificationsOperationFailed('Failed to update notification settings. Please check your internet connection and try again'));
+      }
+    } catch (error) {
+      console.log(error);
+      dispatch(notificationsOperationFailed('Failed to update notification settings. Please check your internet connection and try again'));
+    }
+  };
+};
+
+const startNotificationsOperation = () => {
+  return {
+    type: NotificationsActionTypes.START_NOTIFICATIONS_OPERATION
+  };
+};
+
+const notificationsOperationFailed = (error: string) => {
+  return {
+    type: NotificationsActionTypes.NOTIFICATIONS_OPERATION_FAILED,
+    error
+  };
+};
+
+const enableNotificationsSuccess = () => {
+  return {
+    type: NotificationsActionTypes.ENABLE_NOTIFICATIONS_SUCCESS
+  };
+};
+
+const updateNotificationSettingsSuccess = (
+  update: Partial<NotificationSettings>
+) => {
+  return {
+    type: NotificationsActionTypes.UPDATE_NOTIFICATION_SETTINGS_SUCCESS,
+    update
+  };
+};
+
+export const setNotificationSettings = (
+  notificationSettings: NotificationSettings
+) => {
+  return {
+    type: NotificationsActionTypes.SET_NOTIFICATION_SETTINGS,
+    notificationSettings
+  };
+};
+
+export const resetNotificationsStore = () => {
+  return {
+    type: NotificationsActionTypes.RESET_NOTIFICATIONS_STORE
   };
 };

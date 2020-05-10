@@ -13,22 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import express from 'express';
+import Joi from '@hapi/joi';
 
-import * as notificationsController from '../controllers/notifications';
-import isAuthenticated from '../middleware/auth';
-
-
-const router = express.Router();
-
-router.post(
-  '/subscription', isAuthenticated,
-  notificationsController.addNotificationsSubscription
-);
-
-router.post(
-  '/settings', isAuthenticated,
-  notificationsController.updateNotificationSettings
-);
-
-export default router;
+export const updateNotificationSettingsRequestSchema = Joi.object().keys({
+  notifyTrustUpdate: Joi.bool(),
+  notifyNewContact: Joi.bool()
+}).or('notifyTrustUpdate', 'notifyNewContact');

@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {
+  faAngleDown,
   faCog,
   faSignOutAlt,
   faTools,
   faUserClock,
   faUserPlus
 } from '@fortawesome/free-solid-svg-icons';
-import React, { useCallback } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 
 import * as actions from '../../store/actions';
@@ -33,47 +34,81 @@ import ProfileIcon from './NavigationItem/ProfileIcon/ProfileIcon';
 
 interface NavigationProps {
   isAdmin: boolean;
+  username: string;
 }
 
 const Navigation = (props: NavigationProps) => {
+  const [submenuActive, setSubmenuActive] = useState(false);
+
   const dispatch = useDispatch();
   const handleLogout = useCallback(() => {
     dispatch(actions.logout());
   }, [dispatch]);
 
+  const handleToggleSubmenu = useCallback(
+    (event) => {
+      event.stopPropagation();
+      setSubmenuActive(!submenuActive);
+    },
+    [submenuActive]
+  );
+
+  const handleHideSubmenu = useCallback(() => {
+    setSubmenuActive(false);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('click', handleHideSubmenu);
+    return () => {
+      window.removeEventListener('click', handleHideSubmenu);
+    };
+  }, []);
+
   return (
-    <div className={classes.NavigationBar}>
-      <NavigationItem exact link="/" text="Home" icon={<HomeIcon />} />
-      <NavigationItem
-        link="/pendingContacts"
-        text="Pending"
-        faIcon={faUserClock}
-      />
-      <NavigationItem
-        link="/findContacts"
-        text="Add contacts"
-        faIcon={faUserPlus}
-      />
+    <div className={classes.NavigationBarContainer}>
+      <div className={classes.NavigationBar}>
+        <NavigationItem exact link="/" text="Home" icon={<HomeIcon />} />
+        <NavigationItem
+          link="/pendingContacts"
+          text="Pending"
+          faIcon={faUserClock}
+        />
+        <NavigationItem
+          link="/findContacts"
+          text="Add contacts"
+          faIcon={faUserPlus}
+        />
 
-      <div className={classes.Spacer}></div>
+        <div className={classes.Spacer}></div>
 
-      <div className={classes.Submenu}>
-        <NavigationItem onClick={() => {}} icon={<ProfileIcon />} />
-        <div className={classes.SubmenuList}>
-          {props.isAdmin ? (
-            <NavigationItem link="/admin" text="Admin" faIcon={faTools} />
-          ) : null}
-          <NavigationItem link="/settings" text="Settings" faIcon={faCog} />
-          <NavigationItem
-            link="/editProfile"
-            text="Profile"
-            icon={<ProfileIcon />}
-          />
-          <NavigationItem
-            onClick={handleLogout}
-            text="Logout"
-            faIcon={faSignOutAlt}
-          />
+        <div
+          className={`${classes.Submenu} ${
+            submenuActive ? classes.Active : ''
+          }`}
+        >
+          <div className={classes.SubmenuButton} onClick={handleToggleSubmenu}>
+            <div className={classes.SubmenuButtonName}>{props.username}</div>
+            <div className={classes.SubmenuButtonIcon}>
+              <ProfileIcon />
+            </div>
+            <FontAwesomeIcon icon={faAngleDown} />
+          </div>
+          <div className={classes.SubmenuList}>
+            {props.isAdmin ? (
+              <NavigationItem link="/admin" text="Admin" faIcon={faTools} />
+            ) : null}
+            <NavigationItem link="/settings" text="Settings" faIcon={faCog} />
+            <NavigationItem
+              link="/editProfile"
+              text="Profile"
+              icon={<ProfileIcon />}
+            />
+            <NavigationItem
+              onClick={handleLogout}
+              text="Logout"
+              faIcon={faSignOutAlt}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -82,7 +117,8 @@ const Navigation = (props: NavigationProps) => {
 
 const mapStateToProps = (state: State): NavigationProps => {
   return {
-    isAdmin: state.auth.isAdmin
+    isAdmin: state.auth.isAdmin,
+    username: state.profile.profile?.username || 'Guest'
   };
 };
 

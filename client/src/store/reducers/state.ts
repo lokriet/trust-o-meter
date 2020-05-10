@@ -17,6 +17,7 @@ import { AuthState } from './auth';
 import { ContactsState } from './contacts';
 import { ProfileState } from './profile';
 import { StatusState } from './status';
+import { NotificationsState } from './notifications';
 
  
 export interface State {
@@ -24,4 +25,5 @@ export interface State {
   profile: ProfileState;
   contacts: ContactsState;
   status: StatusState;
+  notifications: NotificationsState;
 }

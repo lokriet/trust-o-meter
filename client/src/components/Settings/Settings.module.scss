@@ -1,3 +1,24 @@
+@import '../../assets/scss/buttons.scss';
+
 .Content {
-  margin: 2rem;
+  margin: 0 auto;
+  width: 80%;
+  max-width: 40rem;
+
+  h1 {
+    text-align: left;
+    margin-top: 2rem;
+  }
+
+  .ActionButton {
+    margin: 0;
+  }
+}
+
+.NotificationCheckboxRow {
+  margin: 1rem 0 0 1rem;
+}
+
+.NotificationCheckbox {
+  margin-right: 0.5rem;
 }

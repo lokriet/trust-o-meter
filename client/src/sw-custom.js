@@ -81,4 +81,95 @@ if ('function' === typeof importScripts) {
       cacheName: 'app-details'
     })
   );
+
+
+  const clientUrl = 'https://trust-o-meter.firebaseapp.com';
+  self.addEventListener('notificationclick', (event) => {
+    const notification = event.notification;
+    const action = event.action;
+
+    console.log('[Service Worker] notification clicked', notification);
+    if (action === 'confirm' || action === '' || action == null) {
+      let urlToOpen;
+      if (notification.tag === 'contact-request') {
+        urlToOpen = `${clientUrl}/pendingContacts`;
+      } else if (notification.tag === 'confirm-notification') {
+        urlToOpen = `${clientUrl}/settings`;
+      } else {
+        urlToOpen = clientUrl;
+      }
+      event.waitUntil(
+        clients.matchAll().then((clis) => {
+          let client = clis.find(
+            (cli) =>
+              cli.visibilityState === 'visible' || cli.url.startsWith(clientUrl)
+          );
+          if (client) {
+            if (client.url !== urlToOpen) {
+              client.navigate(urlToOpen);
+            }
+            client.focus();
+          } else {
+            clients.openWindow(clientUrl);
+          }
+        })
+      );
+    }
+    notification.close();
+  });
+
+  function isClientFocused() {
+    return clients
+      .matchAll({
+        type: 'window',
+        includeUncontrolled: true
+      })
+      .then((windowClients) => {
+        let clientIsFocused = false;
+
+        for (let i = 0; i < windowClients.length; i++) {
+          const windowClient = windowClients[i];
+          if (windowClient.url.startsWith(clientUrl) && windowClient.focused) {
+            clientIsFocused = true;
+            break;
+          }
+        }
+
+        return clientIsFocused;
+      });
+  }
+
+  self.addEventListener('push', (event) => {
+    event.waitUntil(
+      isClientFocused()
+        .then((clientIsFocused) => {
+          if (clientIsFocused) {
+            console.log("Don't need to show a notification.");
+            return;
+          }
+          console.log("Client isn't focused, we need to show a notification.");
+          // Client isn't focused, we need to show a notification.
+          let data = {
+            title: 'Something happened!',
+            content: 'Open Trust-o-Meter to see updates',
+            tag: 'general'
+          };
+          if (event.data) {
+            data = JSON.parse(event.data.text());
+          }
+
+          const options = {
+            body: data.content,
+            icon: `/icons/icon96.png`,
+            badge: `/icons/iconBadge.png`,
+            tag: data.tag,
+            renotify: false
+          };
+          return self.registration.showNotification(data.title, options);
+        })
+        .catch((error) => {
+          console.log('error', error);
+        })
+    );
+  });
 }

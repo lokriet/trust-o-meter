@@ -19,7 +19,15 @@ import { Document, model, Schema, Types } from 'mongoose';
 import Profile, { IProfile } from './Profile';
 
 const NotificationSettingsSchema = new Schema({
-  subscription: Object
+  notifyTrustUpdate: {
+    type: Boolean
+  },
+  notifyNewContact: {
+    type: Boolean
+  },
+  subscriptions: [{
+    type: Object
+  }]
 });
 
 const UserSchema = new Schema({
@@ -64,9 +72,9 @@ const UserSchema = new Schema({
     required: true
   },
 
-  notificationSettings: [{
+  notificationSettings: {
     type: NotificationSettingsSchema
-  }]
+  }
 });
 
 UserSchema.methods.comparePassword = function (passw: string): Promise<boolean> {
@@ -82,7 +90,9 @@ UserSchema.methods.comparePassword = function (passw: string): Promise<boolean> 
 };
 
 export interface INotificationSettings extends Document {
-  subscription: any | null;
+  notifyTrustUpdate?: boolean;
+  notifyNewContact?: boolean;
+  subscriptions: Types.Array<object>;
 }
 
 interface IUserSchema extends Document {
@@ -97,7 +107,7 @@ interface IUserSchema extends Document {
   googleId?: string;
   facebookId?: string;
 
-  notificationSettings?: Types.Array<INotificationSettings>;
+  notificationSettings?: INotificationSettings;
 }
 
 interface IUserBase extends IUserSchema {

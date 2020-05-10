@@ -39,17 +39,23 @@ const EditProfile = (props: ProfileProps) => {
   const [isNew] = useState(!(props.profile && props.profile.initialized));
   const history = useHistory();
 
-  useEffect(() => {
-    if (isNew && props.profile && props.profile.initialized) {
-      history.push('/');
-    }
-  }, [props.profile, isNew, history]);
+  // useEffect(() => {
+  //   if (isNew && props.profile && props.profile.initialized) {
+  //     history.push('/');
+  //   }
+  // }, [props.profile, isNew, history]);
 
   const dispatch = useDispatch();
 
+  const handleProfileUpdated = useCallback((success: boolean) => {
+    if (success && isNew) {
+      history.push('/settings');
+    }
+  }, []);
+
   const handleSubmit = useCallback(
     (formValues) => {
-      dispatch(actions.updateProfile(formValues));
+      dispatch(actions.updateProfile(formValues, handleProfileUpdated));
     },
     [dispatch]
   );

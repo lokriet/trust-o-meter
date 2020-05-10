@@ -35,7 +35,7 @@ import {
   resetPasswordErrorSchema,
   resetPasswordRequestSchema,
   sendResetPasswordEmailErrorSchema,
-  sendResetPasswordEmailRequestSchema,
+  sendResetPasswordEmailRequestSchema
 } from '../validators/auth';
 import { validateAndConvert } from '../validators/validationError';
 
@@ -80,7 +80,11 @@ export const registerWithEmailAndPassword = async (
       email: requestData.email,
       password: requestData.password,
       emailConfirmed: false,
-      profile: newProfile._id
+      profile: newProfile._id,
+      notificationSettings: {
+        notifyNewContact: true,
+        notifyTrustUpdate: true
+      }
     });
 
     newUser = await newUser.save();
@@ -103,6 +107,10 @@ export const registerWithEmailAndPassword = async (
       token,
       isAdmin: newUser.isAdmin,
       waitingForEmailConfirmation: true,
+      notificationSettings: {
+        notifyNewContact: newUser.notificationSettings.notifyNewContact,
+        notifyTrustUpdate: newUser.notificationSettings.notifyTrustUpdate
+      },
       profile: newProfile.toUserProfile(true)
     });
   } catch (error) {
@@ -147,10 +155,25 @@ export const loginWithEmailAndPassword = async (
       profileId: profile._id
     };
     const token = createAuthToken(payload);
+
+    let notifyNewContact = true;
+    let notifyTrustUpdate = true;
+    if (user.notificationSettings) {
+      if (user.notificationSettings.notifyTrustUpdate != null) {
+        notifyTrustUpdate = user.notificationSettings.notifyTrustUpdate;
+      }
+      if (user.notificationSettings.notifyNewContact != null) {
+        notifyNewContact = user.notificationSettings.notifyNewContact;
+      }
+    }
     res.status(200).json({
       token,
       isAdmin: user.isAdmin,
       waitingForEmailConfirmation: user.emailConfirmed === false,
+      notificationSettings: {
+        notifyNewContact,
+        notifyTrustUpdate
+      },
       profile: profile.toUserProfile(true)
     });
   } catch (error) {
@@ -192,7 +215,11 @@ export const loginWithGoogle = async (
         user = new User({
           isAdmin: false,
           googleId: email,
-          profile: profile._id
+          profile: profile._id,
+          notificationSettings: {
+            notifyNewContact: true,
+            notifyTrustUpdate: true
+          }
         });
         await user.save();
       } else {
@@ -203,12 +230,27 @@ export const loginWithGoogle = async (
         userId: user._id,
         profileId: profile._id
       };
-
       const token = createAuthToken(payload);
+
+      let notifyNewContact = true;
+      let notifyTrustUpdate = true;
+      if (user.notificationSettings) {
+        if (user.notificationSettings.notifyTrustUpdate != null) {
+          notifyTrustUpdate = user.notificationSettings.notifyTrustUpdate;
+        }
+        if (user.notificationSettings.notifyNewContact != null) {
+          notifyNewContact = user.notificationSettings.notifyNewContact;
+        }
+      }
+
       res.status(200).json({
         token,
         isAdmin: user.isAdmin,
         waitingForEmailConfirmation: false,
+        notificationSettings: {
+          notifyNewContact,
+          notifyTrustUpdate
+        },
         profile: profile.toUserProfile(true)
       });
     } else {
@@ -255,7 +297,11 @@ export const loginWithFacebook = async (
       user = new User({
         isAdmin: false,
         facebookId: authCheckResponseData.id,
-        profile: profile._id
+        profile: profile._id,
+        notificationSettings: {
+          notifyNewContact: true,
+          notifyTrustUpdate: true
+        }
       });
       await user.save();
     } else {
@@ -266,12 +312,27 @@ export const loginWithFacebook = async (
       userId: user._id,
       profileId: profile._id
     };
-
     const token = createAuthToken(payload);
+
+    let notifyNewContact = true;
+    let notifyTrustUpdate = true;
+    if (user.notificationSettings) {
+      if (user.notificationSettings.notifyTrustUpdate != null) {
+        notifyTrustUpdate = user.notificationSettings.notifyTrustUpdate;
+      }
+      if (user.notificationSettings.notifyNewContact != null) {
+        notifyNewContact = user.notificationSettings.notifyNewContact;
+      }
+    }
+
     res.status(200).json({
       token,
       isAdmin: user.isAdmin,
       waitingForEmailConfirmation: false,
+      notificationSettings: {
+        notifyNewContact,
+        notifyTrustUpdate
+      },
       profile: profile.toUserProfile(true)
     });
   } catch (error) {
@@ -288,9 +349,24 @@ export const getAuthDetails = async (
     const user: IUser = await User.findById(req.userId);
     const profile: IProfile = await Profile.findById(user.profile);
 
+    let notifyNewContact = true;
+    let notifyTrustUpdate = true;
+    if (user.notificationSettings) {
+      if (user.notificationSettings.notifyTrustUpdate != null) {
+        notifyTrustUpdate = user.notificationSettings.notifyTrustUpdate;
+      }
+      if (user.notificationSettings.notifyNewContact != null) {
+        notifyNewContact = user.notificationSettings.notifyNewContact;
+      }
+    }
+
     res.status(200).json({
       isAdmin: user.isAdmin,
       waitingForEmailConfirmation: user.emailConfirmed === false,
+      notificationSettings: {
+        notifyNewContact,
+        notifyTrustUpdate
+      },
       profile: profile.toUserProfile(true)
     });
   } catch (error) {

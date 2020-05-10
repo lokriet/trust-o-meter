@@ -17,8 +17,9 @@
  @import '../../../assets//scss/buttons.scss';
 
 .Content {
-  margin-top: 1rem;
-  padding: 0 2rem;
+  margin: 1rem auto;
+  width: 80%;
+  max-width: 40rem;
 }
 
 .FieldHeader {

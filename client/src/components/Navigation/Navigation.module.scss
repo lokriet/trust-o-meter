@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-.NavigationBar {
+
+.NavigationBarContainer {
   height: 4rem;
+  width: 100%;
+  border-bottom: 1px solid var(--secondary-color);
+  z-index: 3;
+}
+
+.NavigationBar {
+  height: 100%;
+  width: 100%;
+  max-width: 50rem;
+  margin: 0 auto;
   display: flex;
   align-items: stretch;
   padding: 0 1rem;
-  border-bottom: 1px solid var(--secondary-color);
-  z-index: 3;
 }
 
 .Spacer {
@@ -35,37 +43,72 @@
   justify-content: flex-end;
 }
 
-.SubmenuIcon {
-  height: 2rem;
-  width: 2rem;
+.SubmenuButton {
+  padding-left: 1rem;
+  display: flex;
+  align-items: center;
   cursor: pointer;
+  border-bottom: 4px solid transparent;
+
+  & > * {
+    margin-right: 0.5rem;
+  }
+
+  .SubmenuButtonName {
+    white-space: nowrap;
+    max-width: 12rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .SubmenuButtonIcon {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+@media (hover: hover) {
+  .SubmenuButton:hover {
+    color: var(--main-color);
+  }
+}
+
+@media (max-width: 45rem) {
+  .SubmenuButtonName {
+    display: none;
+  }
 }
 
 .SubmenuList {
   position: absolute;
   top: calc(100% + 1px);
   right: 0;
-  
+
   display: none;
 }
 
-.Submenu:hover .SubmenuList {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  background-color: var(--background-color);
-  padding-bottom: 1rem;
-
-  z-index: 2;
-
-  :global .NavigationItem {
-    justify-content: flex-start;
-    height: 3rem;
-    margin: 0;
+.Submenu.Active {
+  .SubmenuButton {
+    border-color: var(--main-color);
   }
 
-  :global .NavigationItemText {
-    display: block;
+  .SubmenuList {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background-color: var(--background-color);
+    padding-bottom: 1rem;
+
+    z-index: 2;
+
+    :global .NavigationItem {
+      justify-content: flex-start;
+      height: 3rem;
+      margin: 0;
+    }
+
+    :global .NavigationItemText {
+      display: block;
+    }
   }
 }
-

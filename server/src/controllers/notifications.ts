@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 import { NextFunction, Response } from 'express';
+import logger from '../util/logger';
 
-import User, { INotificationSettings, NotificationSettings } from '../model/User';
+import User from '../model/User';
+import * as httpErrors from '../util/httpErrors';
+import { updateNotificationSettingsRequestSchema } from '../validators/notifications';
 
-export const updateNotificationsSubscription = async (
+export const addNotificationsSubscription = async (
   req: any,
   res: Response,
   next: NextFunction
@@ -28,16 +31,57 @@ export const updateNotificationsSubscription = async (
     const user = await User.findById(req.userId);
     if (
       !user.notificationSettings ||
-      !user.notificationSettings.some(
-        (notificationSettingsItem) =>
-          notificationSettingsItem.subscription.endpoint ===
-          subscription.endpoint
+      !user.notificationSettings.subscriptions.some(
+        (subscriptionItem: any) =>
+          subscriptionItem.endpoint === subscription.endpoint
       )
     ) {
+      logger.debug(subscription);
       await User.findByIdAndUpdate(req.userId, {
-        $push: { notificationSettings: { subscription } }
+        $push: { 'notificationSettings.subscriptions': subscription }
       });
     }
+
+    return res.status(200).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateNotificationSettings = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const settings = req.body;
+    const validationResult = updateNotificationSettingsRequestSchema.validate(
+      settings
+    );
+    if (validationResult.error) {
+      next(
+        httpErrors.customValidationError(
+          'settings',
+          'Settings should include either notifyTrustUpdate or notifyNewContact'
+        )
+      );
+    }
+
+    const settingsUpdate: any = {
+      $set: {}
+    };
+    if (settings.notifyTrustUpdate != null) {
+      // tslint:disable-next-line: no-string-literal
+      settingsUpdate['$set']['notificationSettings.notifyTrustUpdate'] =
+        settings.notifyTrustUpdate;
+    }
+    if (settings.notifyNewContact != null) {
+      // tslint:disable-next-line: no-string-literal
+      settingsUpdate['$set']['notificationSettings.notifyNewContact'] =
+        settings.notifyNewContact;
+    }
+
+    await User.findByIdAndUpdate(req.userId, settingsUpdate);
 
     return res.status(200).send();
   } catch (error) {

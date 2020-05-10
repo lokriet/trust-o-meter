@@ -18,7 +18,6 @@ import express from 'express';
 import * as authController from '../controllers/auth';
 import isAuthenticated from '../middleware/auth';
 
-
 const router = express.Router();
 
 /**
@@ -35,6 +34,10 @@ const router = express.Router();
  *   token: string
  *   isAdmin: boolean
  *   waitingForEmailConfirmation: true
+ *   notificationSettings: {
+ *     notifyNewContact: boolean
+ *     notifyTrustUpdate: boolean
+ *   }
  *   profile: {
  *     initialized: false
  *     identificator: string
@@ -63,6 +66,10 @@ router.post(
  *   token: string
  *   isAdmin: boolean
  *   waitingForEmailConfirmation: boolean
+ *   notificationSettings: {
+ *     notifyNewContact: boolean
+ *     notifyTrustUpdate: boolean
+ *   }
  *   profile: {
  *     initialized: boolean
  *     identificator: string
@@ -94,6 +101,10 @@ router.post(
  *   token: string
  *   isAdmin: boolean
  *   waitingForEmailConfirmation: false
+ *   notificationSettings: {
+ *     notifyNewContact: boolean
+ *     notifyTrustUpdate: boolean
+ *   }
  *   profile: {
  *     initialized: boolean
  *     identificator: string
@@ -123,6 +134,10 @@ router.post('/loginWithGoogle', authController.loginWithGoogle);
  *   token: string
  *   isAdmin: boolean
  *   waitingForEmailConfirmation: false
+ *   notificationSettings: {
+ *     notifyNewContact: boolean
+ *     notifyTrustUpdate: boolean
+ *   }
  *   profile: {
  *     initialized: boolean
  *     identificator: string
@@ -146,6 +161,10 @@ router.post('/loginWithFacebook', authController.loginWithFacebook);
  * {
  *   isAdmin: boolean
  *   waitingForEmailConfirmation: boolean
+ *   notificationSettings: {
+ *     notifyNewContact: boolean
+ *     notifyTrustUpdate: boolean
+ *   }
  *   profile: {
  *     initialized: boolean
  *     identificator: string

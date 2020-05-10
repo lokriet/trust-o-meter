@@ -62,4 +62,9 @@ export {
   resetStatusStore
 } from './status';
 
-export { enableNotifications } from './notifications';
+export {
+  enableNotifications,
+  updateNotificationSettings,
+  setNotificationSettings,
+  resetNotificationsStore
+} from './notifications';

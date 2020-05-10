@@ -33,7 +33,7 @@ export const setProfile = (profile: Profile) => {
   };
 };
 
-export const updateProfile = (profileData: Partial<Profile>) => {
+export const updateProfile = (profileData: Partial<Profile>, onOperationDone: any) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
       dispatch(profileOperationStart());
@@ -50,12 +50,15 @@ export const updateProfile = (profileData: Partial<Profile>) => {
       if (result.status === 200) {
         const resultData = await result.json();
         dispatch(profileOperationSuccess(resultData));
+        onOperationDone(true);
       } else {
         dispatch(profileOperationFailed('Profile update failed'));
+        onOperationDone(false);
       }
     } catch (error) {
       console.log('update profile failed', error);
       dispatch(profileOperationFailed('Profile update failed'));
+      onOperationDone(false);
     }
   };
 };

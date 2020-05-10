@@ -17,6 +17,7 @@ import mongoose from 'mongoose';
 
 import logger from './logger';
 
+const debug = false;
 
 const initDatabase = () => {
   // Removes the warning with promises
@@ -43,20 +44,20 @@ const initDatabase = () => {
       throw e;
     });
 
-  // if (process.env.NODE_ENV === 'development') {
-  //   mongoose.set(
-  //     'debug',
-  //     (collectionName: string, method: string, query: any, doc: any, options: any) => {
-  //       logger.debug(
-  //         `${collectionName}.${method}\n${JSON.stringify(
-  //           query,
-  //           null,
-  //           2
-  //         )}`
-  //       );
-  //     }
-  //   );
-  // }
+  if (process.env.NODE_ENV === 'development' && debug) {
+    mongoose.set(
+      'debug',
+      (collectionName: string, method: string, query: any, doc: any, options: any) => {
+        logger.debug(
+          `${collectionName}.${method}\n${JSON.stringify(
+            query,
+            null,
+            2
+          )}`
+        );
+      }
+    );
+  }
 };
 
 export default initDatabase;

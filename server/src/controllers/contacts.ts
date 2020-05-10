@@ -22,7 +22,7 @@ import Contact, { IContact, IContactSide, UserContact } from '../model/Contact';
 import { ContactSideStatus } from '../model/Contact';
 import Profile, { IProfile } from '../model/Profile';
 import Status, { IAction, IStatus } from '../model/Status';
-import User from '../model/User';
+import User, { NotificationSettings } from '../model/User';
 import * as httpErrors from '../util/httpErrors';
 import logger from '../util/logger';
 import {
@@ -31,7 +31,7 @@ import {
   updateContactCustomNameErrorSchema,
   updateContactCustomNameRequestSchema,
   updateContactTrustErrorSchema,
-  updateContactTrustRequestSchema,
+  updateContactTrustRequestSchema
 } from '../validators/contacts';
 import { validateAndConvert } from '../validators/validationError';
 
@@ -190,8 +190,13 @@ export const requestContact = async (
     contact = await contact.save();
 
     try {
+      logger.debug('checking for notifications...');
       const contactUser = await User.findOne({ profile: contactProfile._id });
-      if (contactUser.notificationSettings) {
+      if (
+        contactUser.notificationSettings &&
+        (contactUser.notificationSettings.notifyNewContact == null ||
+          contactUser.notificationSettings.notifyNewContact === true)
+      ) {
         logger.debug(
           `Sending webpush notification to ${contactProfile.username}`
         );
@@ -202,28 +207,33 @@ export const requestContact = async (
         );
 
         const promises: Promise<any>[] = [];
-        contactUser.notificationSettings.forEach((notificationSettingsItem) => {
-          if (notificationSettingsItem.subscription) {
-            const pushConfig = {
-              endpoint: notificationSettingsItem.subscription.endpoint,
-              keys: {
-                auth: notificationSettingsItem.subscription.keys.auth,
-                p256dh: notificationSettingsItem.subscription.keys.p256dh
-              }
-            };
-            logger.debug(
-              `Sending next webpush notification to ${pushConfig.endpoint}`
-            );
-            promises.push(webpush.sendNotification(
-              pushConfig,
-              JSON.stringify({
-                title: 'New contact request',
-                content:
-                  'Approve or reject new contact request in Trust-o-Meter'
-              })
-            ));
+        contactUser.notificationSettings.subscriptions.forEach(
+          (subscription: any) => {
+            if (subscription) {
+              const pushConfig = {
+                endpoint: subscription.endpoint,
+                keys: {
+                  auth: subscription.keys.auth,
+                  p256dh: subscription.keys.p256dh
+                }
+              };
+              logger.debug(
+                `Sending next webpush notification to ${pushConfig.endpoint}`
+              );
+              promises.push(
+                webpush.sendNotification(
+                  pushConfig,
+                  JSON.stringify({
+                    title: 'New contact request',
+                    content:
+                      'Approve or reject new contact request in Trust-o-Meter',
+                    tag: 'contact-request'
+                  })
+                )
+              );
+            }
           }
-        });
+        );
         if (promises.length > 0) {
           await Promise.all(promises);
         }
@@ -500,6 +510,63 @@ export const updateContactTrust = async (
     const updatedUserContact: UserContact = await existingContact.toUserContact(
       req.profileId
     );
+
+    try {
+      const contactUser = await User.findOne({
+        profile: existingContact.sides[contactSideIndex].profile
+      });
+      if (
+        contactUser.notificationSettings &&
+        (contactUser.notificationSettings.notifyTrustUpdate == null ||
+          contactUser.notificationSettings.notifyTrustUpdate === true)
+      ) {
+        logger.debug(
+          `Sending webpush notification to ${existingContact.sides[
+            contactSideIndex
+          ].profile.toString()}`
+        );
+        webpush.setVapidDetails(
+          `mailto:${process.env.EMAIL_FROM}`,
+          process.env.VAPID_PUBLIC_KEY,
+          process.env.VAPID_PRIVATE_KEY
+        );
+
+        const promises: Promise<any>[] = [];
+        contactUser.notificationSettings.subscriptions.forEach(
+          (subscription: any) => {
+            if (subscription) {
+              const pushConfig = {
+                endpoint: subscription.endpoint,
+                keys: {
+                  auth: subscription.keys.auth,
+                  p256dh: subscription.keys.p256dh
+                }
+              };
+              logger.debug(
+                `Sending next webpush notification to ${pushConfig.endpoint}`
+              );
+              promises.push(
+                webpush.sendNotification(
+                  pushConfig,
+                  JSON.stringify({
+                    title: 'Trust updated!',
+                    content: 'See your new friendship level in Trust-o-Meter',
+                    tag: 'trust-update'
+                  })
+                )
+              );
+            }
+          }
+        );
+        if (promises.length > 0) {
+          await Promise.all(promises);
+        }
+      }
+    } catch (error) {
+      logger.error('Failed to send webpush notification');
+      logger.error(error);
+    }
+
     res.status(200).json(updatedUserContact);
   } catch (error) {
     next(error);
