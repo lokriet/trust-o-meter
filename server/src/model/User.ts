@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 import bcrypt from 'bcrypt-nodejs';
-import { Document, model, Schema } from 'mongoose';
+import { Document, model, Schema, Types } from 'mongoose';
 
 import Profile, { IProfile } from './Profile';
 
+const NotificationSettingsSchema = new Schema({
+  subscription: Object
+});
 
 const UserSchema = new Schema({
   isAdmin: {
@@ -59,7 +62,11 @@ const UserSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Profile',
     required: true
-  }
+  },
+
+  notificationSettings: [{
+    type: NotificationSettingsSchema
+  }]
 });
 
 UserSchema.methods.comparePassword = function (passw: string): Promise<boolean> {
@@ -74,6 +81,10 @@ UserSchema.methods.comparePassword = function (passw: string): Promise<boolean> 
   });
 };
 
+export interface INotificationSettings extends Document {
+  subscription: any | null;
+}
+
 interface IUserSchema extends Document {
   isAdmin: boolean;
 
@@ -85,6 +96,8 @@ interface IUserSchema extends Document {
 
   googleId?: string;
   facebookId?: string;
+
+  notificationSettings?: Types.Array<INotificationSettings>;
 }
 
 interface IUserBase extends IUserSchema {
@@ -125,5 +138,6 @@ UserSchema.pre<IUser>('remove', function (next) {
   next();
 });
 
+export const NotificationSettings = model<INotificationSettings>('NotificationSettings', NotificationSettingsSchema);
 const User = model<IUser>('User', UserSchema);
 export default User;

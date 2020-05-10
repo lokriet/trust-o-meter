@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2020 Evgenia Lazareva
  *
@@ -31,13 +30,15 @@ import Home from './components/Home/Home';
 import { InstallPromptContextProvider } from './components/InstallPromptContext/InstallPromptContext';
 import Privacy from './components/Privacy/Privacy';
 import EditProfile from './components/Profile/EditProfile/EditProfile';
+import Settings from './components/Settings/Settings';
 import Layout from './components/UI/Layout/Layout';
 import Spinner from './components/UI/Spinner/Spinner';
 import * as actions from './store/actions';
 import { State } from './store/reducers/state';
+import ContactsList, {
+  ContactListType
+} from './components/Contacts/ContactsList/ContactsList';
 
-// import useInstallPrompt from './hooks/InstallPromptContext';
- 
 interface AppProps {
   location: any;
   history: any;
@@ -71,10 +72,20 @@ const App = (props: AppProps): JSX.Element => {
     view = (
       <Switch>
         <Route path="/" exact component={Home} />
+        <Route
+          path="/pendingContacts"
+          render={(routeProps) => (
+            <ContactsList
+              listType={ContactListType.PendingContacts}
+              {...routeProps}
+            />
+          )}
+        />
         <Route path="/privacy" component={Privacy} />
         <Route path="/register" component={Register} />
         <Route path="/login" component={Login} />
         <Route path="/editProfile" component={EditProfile} />
+        <Route path="/settings" component={Settings} />
         <Route path="/findContacts" component={FindContacts} />
         <Route path="/emailConfirmation" component={EmailConfirmation} />
         <Route

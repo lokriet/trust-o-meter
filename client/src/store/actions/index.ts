@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 export {
   checkInitialAuthState,
   authInit,
@@ -29,37 +29,28 @@ export {
   resetPassword
 } from './auth';
 
-export {
-  setProfile,
-  updateProfile,
-  resetProfileStore
-} from './profile';
+export { setProfile, updateProfile, resetProfileStore } from './profile';
 
 export {
   fetchUserContacts,
-
   searchContacts,
   contactsOperationReset,
   createContactRequest,
-  
   approveContactRequest,
   rejectContactRequest,
   confirmSeenRejectedRequest,
   withdrawContactRequest,
   deleteContact,
   confirmSeenDeletedContact,
-  
   updateContactCustomName,
   increaseContactTrust,
   decreaseContactTrust,
   changeContactActionState,
-
   resetContactsStore
 } from './contacts';
 
 export {
   fetchStatusList,
-
   initStatusOperation,
   initActionOperation,
   createStatus,
@@ -68,6 +59,7 @@ export {
   createAction,
   updateAction,
   deleteAction,
-
   resetStatusStore
 } from './status';
+
+export { enableNotifications } from './notifications';

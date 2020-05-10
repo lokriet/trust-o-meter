@@ -18,7 +18,7 @@ import { connect } from 'react-redux';
 
 import withAuthCheck from '../../hoc/withAuthCheck';
 import { State } from '../../store/reducers/state';
-import ContactsList from '../Contacts/ContactsList/ContactsList';
+import ContactsList, { ContactListType } from '../Contacts/ContactsList/ContactsList';
 
  
 interface HomeProps {
@@ -26,7 +26,7 @@ interface HomeProps {
 }
 
 const Home = (props: HomeProps) => {
-  return props.isLoggedIn ? <ContactsList /> : <div></div>;
+  return props.isLoggedIn ? <ContactsList listType={ContactListType.ConfirmedContacts} /> : <div></div>;
 
 };
 

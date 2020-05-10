@@ -13,9 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-export { AuthActionTypes as auth } from './auth';
-export { ProfileActionTypes as profile } from './profile';
-export { ContactsActionTypes as contacts } from './contacts';
-export { StatusActionTypes as status } from './status';
-export { NotificationsActionTypes as notifications } from './notifications';
+import express from 'express';
+
+import * as notificationsController from '../controllers/notifications';
+import isAuthenticated from '../middleware/auth';
+
+
+const router = express.Router();
+
+router.post(
+  '/subscription', isAuthenticated,
+  notificationsController.updateNotificationsSubscription
+);
+
+export default router;

@@ -16,11 +16,13 @@
 import { NextFunction, Response } from 'express';
 import _ from 'lodash';
 import { Types } from 'mongoose';
+import webpush from 'web-push';
 
 import Contact, { IContact, IContactSide, UserContact } from '../model/Contact';
 import { ContactSideStatus } from '../model/Contact';
 import Profile, { IProfile } from '../model/Profile';
 import Status, { IAction, IStatus } from '../model/Status';
+import User from '../model/User';
 import * as httpErrors from '../util/httpErrors';
 import logger from '../util/logger';
 import {
@@ -186,6 +188,51 @@ export const requestContact = async (
     });
 
     contact = await contact.save();
+
+    try {
+      const contactUser = await User.findOne({ profile: contactProfile._id });
+      if (contactUser.notificationSettings) {
+        logger.debug(
+          `Sending webpush notification to ${contactProfile.username}`
+        );
+        webpush.setVapidDetails(
+          `mailto:${process.env.EMAIL_FROM}`,
+          process.env.VAPID_PUBLIC_KEY,
+          process.env.VAPID_PRIVATE_KEY
+        );
+
+        const promises: Promise<any>[] = [];
+        contactUser.notificationSettings.forEach((notificationSettingsItem) => {
+          if (notificationSettingsItem.subscription) {
+            const pushConfig = {
+              endpoint: notificationSettingsItem.subscription.endpoint,
+              keys: {
+                auth: notificationSettingsItem.subscription.keys.auth,
+                p256dh: notificationSettingsItem.subscription.keys.p256dh
+              }
+            };
+            logger.debug(
+              `Sending next webpush notification to ${pushConfig.endpoint}`
+            );
+            promises.push(webpush.sendNotification(
+              pushConfig,
+              JSON.stringify({
+                title: 'New contact request',
+                content:
+                  'Approve or reject new contact request in Trust-o-Meter'
+              })
+            ));
+          }
+        });
+        if (promises.length > 0) {
+          await Promise.all(promises);
+        }
+      }
+    } catch (error) {
+      logger.error('Failed to send webpush notification');
+      logger.error(error);
+    }
+
     const result = await contact.toUserContact(req.profileId);
     res.status(200).json(result);
   } catch (error) {

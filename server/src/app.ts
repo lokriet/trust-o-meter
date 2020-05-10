@@ -23,6 +23,7 @@ import morganLogger from 'morgan';
 
 import authRouter from './routes/auth';
 import contactsRouter from './routes/contacts';
+import notificationsRouter from './routes/notifications';
 import profileRouter from './routes/profile';
 import statusRouter from './routes/status';
 import * as connectionUtils from './util/connectionUtils';
@@ -70,6 +71,7 @@ app.use('/auth', authRouter);
 app.use('/profile', profileRouter);
 app.use('/contacts', contactsRouter);
 app.use('/status', statusRouter);
+app.use('/notifications', notificationsRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   throw httpErrors.pageNotFoundError();

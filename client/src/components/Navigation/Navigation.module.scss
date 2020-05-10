@@ -14,14 +14,58 @@
  * limitations under the License.
  */
  
- .NavigationBar {
+.NavigationBar {
   height: 4rem;
   display: flex;
   align-items: stretch;
   padding: 0 1rem;
   border-bottom: 1px solid var(--secondary-color);
+  z-index: 3;
 }
 
 .Spacer {
   flex-grow: 1;
 }
+
+.Submenu {
+  position: relative;
+  width: 6rem;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.SubmenuIcon {
+  height: 2rem;
+  width: 2rem;
+  cursor: pointer;
+}
+
+.SubmenuList {
+  position: absolute;
+  top: calc(100% + 1px);
+  right: 0;
+  
+  display: none;
+}
+
+.Submenu:hover .SubmenuList {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background-color: var(--background-color);
+  padding-bottom: 1rem;
+
+  z-index: 2;
+
+  :global .NavigationItem {
+    justify-content: flex-start;
+    height: 3rem;
+    margin: 0;
+  }
+
+  :global .NavigationItemText {
+    display: block;
+  }
+}
+

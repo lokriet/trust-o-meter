@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  PullDownContent,
-  PullToRefresh,
-  ReleaseContent
-} from 'react-js-pull-to-refresh';
+import { PullDownContent, PullToRefresh, ReleaseContent } from 'react-js-pull-to-refresh';
 import { connect, useDispatch } from 'react-redux';
 
 import withAuthCheck from '../../../hoc/withAuthCheck';
@@ -34,7 +30,15 @@ import classes from './ContactList.module.scss';
 import IncomingRequest from './IncomingRequest/IncomingRequest';
 import OutgoingRequest from './OutgoingRequest/OutgoingRequest';
 
+
+export enum ContactListType {
+  ConfirmedContacts,
+  PendingContacts
+}
+
 interface ContactsListProps {
+  listType: ContactListType;
+
   confirmedContacts: Contact[];
   outgoingRequests: Contact[];
   incomingRequests: Contact[];
@@ -70,6 +74,14 @@ const ContactsList = (props: ContactsListProps) => {
     }
   }, [dispatch, pullUpdating]);
 
+  let contactsCount = 0;
+  if (props.listType === ContactListType.ConfirmedContacts) {
+    contactsCount = props.confirmedContacts.length;
+  } else if (props.listType === ContactListType.PendingContacts) {
+    contactsCount += props.incomingRequests.length;
+    contactsCount += props.outgoingRequests.length;
+  }
+
   let view: JSX.Element;
   if (props.loading && !pullUpdating) {
     view = <Spinner />;
@@ -92,35 +104,44 @@ const ContactsList = (props: ContactsListProps) => {
               and try again.
             </Error>
           ) : null}
-          {props.incomingRequests.map((incomingRequest: Contact) => (
-            <IncomingRequest
-              key={incomingRequest.contactProfile.identificator}
-              contact={incomingRequest}
-              error={props.itemErrors[incomingRequest._id]}
-            />
-          ))}
-          {props.outgoingRequests.map((outgoingRequest: Contact) => (
-            <OutgoingRequest
-              key={outgoingRequest.contactProfile.identificator}
-              contact={outgoingRequest}
-              error={props.itemErrors[outgoingRequest._id]}
-            />
-          ))}
-          {props.confirmedContacts.map((contact: Contact) =>
-            contact.status === ContactStatus.ContactDeleted ? (
-              <DeletedContact
-                key={contact.contactProfile.identificator}
-                contact={contact}
-                error={props.itemErrors[contact._id]}
-              />
-            ) : (
-              <ConfirmedContact
-                key={contact.contactProfile.identificator}
-                contact={contact}
-                error={props.itemErrors[contact._id]}
-              />
-            )
-          )}
+          {props.listType === ContactListType.PendingContacts ? (
+            <>
+              {props.incomingRequests.map((incomingRequest: Contact) => (
+                <IncomingRequest
+                  key={incomingRequest.contactProfile.identificator}
+                  contact={incomingRequest}
+                  error={props.itemErrors[incomingRequest._id]}
+                />
+              ))}
+              {props.outgoingRequests.map((outgoingRequest: Contact) => (
+                <OutgoingRequest
+                  key={outgoingRequest.contactProfile.identificator}
+                  contact={outgoingRequest}
+                  error={props.itemErrors[outgoingRequest._id]}
+                />
+              ))}
+            </>
+          ) : null}
+          {props.listType === ContactListType.ConfirmedContacts ? (
+            <>
+              {props.confirmedContacts.map((contact: Contact) =>
+                contact.status === ContactStatus.Connected ? (
+                  <ConfirmedContact
+                    key={contact.contactProfile.identificator}
+                    contact={contact}
+                    error={props.itemErrors[contact._id]}
+                  />
+                ) : (
+                  <DeletedContact
+                    key={contact.contactProfile.identificator}
+                    contact={contact}
+                    error={props.itemErrors[contact._id]}
+                  />
+                )
+              )}
+              {contactsCount === 0 ? (<div>No contacts found</div>) : null}
+            </>
+          ) : null}
         </div>
       </PullToRefresh>
     );
@@ -128,9 +149,11 @@ const ContactsList = (props: ContactsListProps) => {
   return view;
 };
 
-ContactsList.propTypes = {};
+ContactsList.propTypes = {
+  listType: PropTypes.number.isRequired
+};
 
-const mapStateToProps = (state: State): ContactsListProps => {
+const mapStateToProps = (state: State): Partial<ContactsListProps> => {
   return {
     confirmedContacts: state.contacts.confirmedContacts,
     outgoingRequests: state.contacts.outgoingRequests,

@@ -26,7 +26,7 @@ if ('function' === typeof importScripts) {
   // TODO change to false!
   workbox.setConfig({ debug: true });
 
-  workbox.precaching.precacheAndRoute(self.__WB_MANIFEST, {
+  workbox.precaching.precacheAndRoute([], {
     cleanURLs: false
   });
 
@@ -81,4 +81,50 @@ if ('function' === typeof importScripts) {
       cacheName: 'app-details'
     })
   );
+
+    self.addEventListener('notificationclick', (event) => {
+      const notification = event.notification;
+      const action = event.action;
+
+      console.log('[Service Worker] notification clicked', notification);
+      if (action === 'confirm') {
+        console.log('confirm was chosen');
+      } else {
+        console.log(action);
+        event.waitUntil(
+          clients.matchAll().then(
+            clis => {
+              let client = clis.find(cli => cli.visibilityState === 'visible');
+              if (client) {
+                client.navigate('http://localhost:3000');
+                client.focus();
+              } else {
+                clients.openWindow('http://localhost:3000');
+              }
+            }
+          )
+        )
+      }
+      notification.close();
+    })
+
+  self.addEventListener('push', (event) => {
+    console.log('push notification received', event);
+
+    let data = {
+      title: 'Something happened!',
+      content: 'Open Trust-o-Meter to see updates'
+    };
+    if (event.data) {
+      data = JSON.parse(event.data.text());
+    }
+
+    const options = {
+      body: data.content,
+      icon: `/icons/icon96.png`,
+      badge: `/icons/iconBadge.png`
+    };
+
+    event.waitUntil(self.registration.showNotification(data.title, options));
+  });
 }
