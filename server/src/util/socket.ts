@@ -30,6 +30,17 @@ export enum SocketEvents {
   ContactDelete = 'contactDelete'
 }
 
+export enum ContactEventTypes {
+  ContactRequest = 'contactRequest',
+  ContactRequestApproved = 'contactRequestApproved',
+  ContactRequestRejected = 'contactRequestRejected',
+  ContactRequestWithdrawn = 'contactRequestWithdrawn',
+  ContactDeleted = 'contactDeleted',
+  ContactNameUpdated = 'contactNameUpdated',
+  ContactTrustUpdated = 'contactTrustUpdated',
+  ContactDoneActionsUpdated = 'contactDoneActionsUpdated'
+}
+
 const authenticateSocket = (namespace: string) => {
   return (socket: any, next: any) => {
     if (socket.handshake.query && socket.handshake.query.token) {

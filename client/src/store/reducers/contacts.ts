@@ -323,6 +323,8 @@ const contactUpdateSuccess = (state: ContactsState, action): ContactsState => {
 };
 
 const applyContactUpdate = (state: ContactsState, action): ContactsState => {
+  console.log('apply contact update', action);
+  
   const updatedContact: Contact = action.updatedContact;
 
   switch (updatedContact.status) {

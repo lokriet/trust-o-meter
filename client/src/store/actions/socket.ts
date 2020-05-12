@@ -18,20 +18,20 @@ import socketIo from 'socket.io-client';
 import * as actions from '.';
 import env from '../../secret/environment';
 import { Contact } from '../model/contact';
+import {
+  ContactEventTypes,
+  SocketContactUpdate,
+  SocketEvents
+} from '../model/socketUpdate';
 import { Status } from '../model/status';
 import { State } from '../reducers/state';
+import { generateIdentificator } from '../../util/utility';
 
 export const SocketActionTypes = {
-  SET_SOCKETS: 'SET_SOCKETS'
+  SET_SOCKETS: 'SET_SOCKETS',
+  ADD_UPDATE: 'ADD_UPDATE',
+  PICK_UPDATE_FOR_SHOWING: 'PICK_UPDATE_FOR_SHOWING'
 };
-
-enum SocketEvents {
-  StatusUpdated = 'statusUpdated',
-  StatusDeleted = 'statusDeleted',
-
-  ContactUpdate = 'contactUpdate',
-  ContactDelete = 'contactDelete'
-}
 
 export const initSocketConnection = () => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
@@ -50,24 +50,61 @@ export const initSocketConnection = () => {
           console.log('Received status update socket message', updatedStatus);
           dispatch(actions.applyStatusUpdate(updatedStatus));
         });
-        commonSocket.on(SocketEvents.StatusDeleted, (updatedStatusId: string) => {
-          console.log('Received status delete socket message', updatedStatusId);
-          dispatch(actions.applyStatusDelete(updatedStatusId));
-        });
-
+        commonSocket.on(
+          SocketEvents.StatusDeleted,
+          (updatedStatusId: string) => {
+            console.log(
+              'Received status delete socket message',
+              updatedStatusId
+            );
+            dispatch(actions.applyStatusDelete(updatedStatusId));
+          }
+        );
 
         const userSocket = socketIo.connect(`${env.serverUrl}/${profile._id}`, {
           query: { token }
         });
         console.log('Connected to user socket io', userSocket);
-        userSocket.on(SocketEvents.ContactUpdate, (updatedContact: Contact) => {
-          console.log('Received contact update socket message', updatedContact);
-          dispatch(actions.applyContactUpdate(updatedContact));
-        });
-        userSocket.on(SocketEvents.ContactDelete, (contactId: string) => {
-          console.log('Received contact delete socket message', contactId);
-          dispatch(actions.applyContactDelete(contactId));
-        });
+        userSocket.on(
+          SocketEvents.ContactUpdate,
+          (
+            updatedContact: Contact,
+            contactSocketEventType: ContactEventTypes
+          ) => {
+            console.log(
+              'Received contact update socket message',
+              updatedContact
+            );
+            dispatch(actions.applyContactUpdate(updatedContact));
+            dispatch(
+              addUpdate({
+                id: generateIdentificator(),
+                contact: updatedContact,
+                updateType: contactSocketEventType
+              })
+            );
+          }
+        );
+        userSocket.on(
+          SocketEvents.ContactDelete,
+          (
+            deletedContact: Contact,
+            contactSocketEventType: ContactEventTypes
+          ) => {
+            console.log(
+              'Received contact delete socket message',
+              deletedContact._id
+            );
+            dispatch(actions.applyContactDelete(deletedContact._id));
+            dispatch(
+              addUpdate({
+                id: generateIdentificator(),
+                contact: deletedContact,
+                updateType: contactSocketEventType
+              })
+            );
+          }
+        );
 
         dispatch(setSockets(commonSocket, userSocket));
       }
@@ -112,5 +149,19 @@ const setSockets = (commonSocket, userSocket) => {
     type: SocketActionTypes.SET_SOCKETS,
     commonSocket,
     userSocket
+  };
+};
+
+const addUpdate = (update: SocketContactUpdate) => {
+  return {
+    type: SocketActionTypes.ADD_UPDATE,
+    update
+  };
+};
+
+export const pickUpdateForShowing = (updateId: string) => {
+  return {
+    type: SocketActionTypes.PICK_UPDATE_FOR_SHOWING,
+    updateId
   };
 };

@@ -79,5 +79,6 @@ export {
 
 export {
   initSocketConnection,
-  disconnectSocket
+  disconnectSocket,
+  pickUpdateForShowing
 } from './socket';

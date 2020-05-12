@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 import { State } from '../../../store/reducers/state';
 import Navigation from '../../Navigation/Navigation';
 import classes from './Layout.module.scss';
+import UpdatePopup from '../../UpdatePopup/UpdatePopup';
 
  
 interface LayoutProps {
@@ -36,6 +37,7 @@ const Layout = (props: LayoutProps) => {
     <div className={classes.Container}>
       {/* {props.profileInitialized ? <Navigation /> : null} */}
       <Navigation />
+      <UpdatePopup />
       <div className={classes.Content}>{props.children}</div>
     </div>
   ) : (

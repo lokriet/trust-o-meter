@@ -14,23 +14,38 @@
  * limitations under the License.
  */
 import * as actionTypes from '../actions/actionTypes';
+import { SocketContactUpdate } from '../model/socketUpdate';
 
 export interface SocketState {
   commonSocket: any;
   userSocket: any;
+  updates: SocketContactUpdate[];
 }
 
 const initialState: SocketState = {
   commonSocket: null,
-  userSocket: null
+  userSocket: null,
+  updates: []
 };
 
-export const socketReducer = (state: SocketState = initialState, action) => {
+export const socketReducer = (state: SocketState = initialState, action): SocketState => {
   switch (action.type) {
     case actionTypes.socket.SET_SOCKETS:
       return {
-        socket: action.socket
+        ...state,
+        commonSocket: action.commonSocket,
+        userSocket: action.userSocket
       };
+    case actionTypes.socket.ADD_UPDATE:
+      return {
+        ...state,
+        updates: [action.update, ...state.updates]
+      }
+    case actionTypes.socket.PICK_UPDATE_FOR_SHOWING:
+      return {
+        ...state,
+        updates: state.updates.filter(update => update.id !== action.updateId)
+      }
     default:
       return state;
   }

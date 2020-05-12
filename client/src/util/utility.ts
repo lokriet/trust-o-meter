@@ -12,3 +12,8 @@ export const urlBase64ToUint8Array = (base64String) => {
   }
   return outputArray;
 }
+
+export const generateIdentificator = (): string => {
+  const result = (Date.now() + Math.floor(Math.random() * 8000000000)).toString(36);
+  return result;
+};

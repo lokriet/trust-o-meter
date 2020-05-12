@@ -25,14 +25,14 @@ import Status, { IAction, IStatus } from '../model/Status';
 import User from '../model/User';
 import * as httpErrors from '../util/httpErrors';
 import logger from '../util/logger';
-import { messageUser, SocketEvents } from '../util/socket';
+import { messageUser, SocketEvents, ContactEventTypes } from '../util/socket';
 import {
   changeActionStateErrorSchema,
   changeActionStateRequestSchema,
   updateContactCustomNameErrorSchema,
   updateContactCustomNameRequestSchema,
   updateContactTrustErrorSchema,
-  updateContactTrustRequestSchema,
+  updateContactTrustRequestSchema
 } from '../validators/contacts';
 import { validateAndConvert } from '../validators/validationError';
 
@@ -249,7 +249,8 @@ export const requestContact = async (
       messageUser(
         contactProfile._id.toString(),
         SocketEvents.ContactUpdate,
-        otherSideResult
+        otherSideResult,
+        ContactEventTypes.ContactRequest
       );
     } catch (error) {
       logger.error(
@@ -277,28 +278,30 @@ export const approveContactRequest = async (
       expectedUserStatus: ContactSideStatus.Pending,
       expectedContactStatus: ContactSideStatus.WantToConnect,
       changeToStatus: ContactSideStatus.WantToConnect,
-      finalStatus: false
+      finalStatus: false,
+      socketEvent: SocketEvents.ContactUpdate,
+      contactSocketEventType: ContactEventTypes.ContactRequestApproved
     });
 
-    try {
-      const otherSideProfileId =
-        updatedContact.sides[0].profile.toString() === req.profileId
-          ? updatedContact.sides[1].profile.toString()
-          : updatedContact.sides[0].profile.toString();
-      const otherSideResult = await updatedContact.toUserContact(
-        otherSideProfileId
-      );
-      messageUser(
-        otherSideProfileId,
-        SocketEvents.ContactUpdate,
-        otherSideResult
-      );
-    } catch (error) {
-      logger.error(
-        `Failed to send approve contact request socket update for contact id ${req.params.contactId}`
-      );
-      logger.error(error);
-    }
+    // try {
+    //   const otherSideProfileId =
+    //     updatedContact.sides[0].profile.toString() === req.profileId
+    //       ? updatedContact.sides[1].profile.toString()
+    //       : updatedContact.sides[0].profile.toString();
+    //   const otherSideResult = await updatedContact.toUserContact(
+    //     otherSideProfileId
+    //   );
+    //   messageUser(
+    //     otherSideProfileId,
+    //     SocketEvents.ContactUpdate,
+    //     otherSideResult
+    //   );
+    // } catch (error) {
+    //   logger.error(
+    //     `Failed to send approve contact request socket update for contact id ${req.params.contactId}`
+    //   );
+    //   logger.error(error);
+    // }
 
     const userContact: UserContact = await updatedContact.toUserContact(
       req.profileId
@@ -321,26 +324,30 @@ export const rejectContactRequest = async (
       expectedUserStatus: ContactSideStatus.Pending,
       expectedContactStatus: ContactSideStatus.WantToConnect,
       changeToStatus: ContactSideStatus.DontWantToConnect,
-      finalStatus: false
+      finalStatus: false,
+      socketEvent: SocketEvents.ContactUpdate,
+      contactSocketEventType: ContactEventTypes.ContactRequestRejected
     });
 
-    try {
-      const otherSideProfileId =
-        updatedContact.sides[0].profile.toString() === req.profileId
-          ? updatedContact.sides[1].profile.toString()
-          : updatedContact.sides[0].profile.toString();
-
-      messageUser(
-        otherSideProfileId,
-        SocketEvents.ContactDelete,
-        updatedContact._id.toString()
-      );
-    } catch (error) {
-      logger.error(
-        `Failed to send reject contact request socket update for contact id ${req.params.contactId}`
-      );
-      logger.error(error);
-    }
+    // try {
+    //   const otherSideProfileId =
+    //     updatedContact.sides[0].profile.toString() === req.profileId
+    //       ? updatedContact.sides[1].profile.toString()
+    //       : updatedContact.sides[0].profile.toString();
+    //   const otherSideResult = await updatedContact.toUserContact(
+    //     otherSideProfileId
+    //   );
+    //   messageUser(
+    //     otherSideProfileId,
+    //     SocketEvents.ContactUpdate,
+    //     otherSideResult
+    //   );
+    // } catch (error) {
+    //   logger.error(
+    //     `Failed to send reject contact request socket update for contact id ${req.params.contactId}`
+    //   );
+    //   logger.error(error);
+    // }
 
     res.status(200).send();
   } catch (error) {
@@ -360,26 +367,28 @@ export const withdrawContactRequest = async (
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.Pending,
       changeToStatus: ContactSideStatus.Deleted,
-      finalStatus: true
+      finalStatus: true,
+      socketEvent: SocketEvents.ContactDelete,
+      contactSocketEventType: ContactEventTypes.ContactRequestWithdrawn
     });
 
-    try {
-      const otherSideProfileId =
-        updatedContact.sides[0].profile.toString() === req.profileId
-          ? updatedContact.sides[1].profile.toString()
-          : updatedContact.sides[0].profile.toString();
+    // try {
+    //   const otherSideProfileId =
+    //     updatedContact.sides[0].profile.toString() === req.profileId
+    //       ? updatedContact.sides[1].profile.toString()
+    //       : updatedContact.sides[0].profile.toString();
 
-      messageUser(
-        otherSideProfileId,
-        SocketEvents.ContactDelete,
-        req.params.contactId
-      );
-    } catch (error) {
-      logger.error(
-        `Failed to send withdraw contact request socket update for contact id ${req.params.contactId}`
-      );
-      logger.error(error);
-    }
+    //   messageUser(
+    //     otherSideProfileId,
+    //     SocketEvents.ContactDelete,
+    //     req.params.contactId
+    //   );
+    // } catch (error) {
+    //   logger.error(
+    //     `Failed to send withdraw contact request socket update for contact id ${req.params.contactId}`
+    //   );
+    //   logger.error(error);
+    // }
 
     res.status(200).send();
   } catch (error) {
@@ -399,7 +408,9 @@ export const confirmRequestRejectSeen = async (
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.DontWantToConnect,
       changeToStatus: ContactSideStatus.Deleted,
-      finalStatus: true
+      finalStatus: true,
+      socketEvent: null,
+      contactSocketEventType: null
     });
 
     res.status(200).send();
@@ -420,28 +431,30 @@ export const deleteContact = async (
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.WantToConnect,
       changeToStatus: ContactSideStatus.Deleted,
-      finalStatus: false
+      finalStatus: false,
+      socketEvent: SocketEvents.ContactUpdate,
+      contactSocketEventType: ContactEventTypes.ContactDeleted
     });
 
-    try {
-      const otherSideProfileId =
-        updatedContact.sides[0].profile.toString() === req.profileId
-          ? updatedContact.sides[1].profile.toString()
-          : updatedContact.sides[0].profile.toString();
-      const otherSideResult = await updatedContact.toUserContact(
-        otherSideProfileId
-      );
-      messageUser(
-        otherSideProfileId,
-        SocketEvents.ContactUpdate,
-        otherSideResult
-      );
-    } catch (error) {
-      logger.error(
-        `Failed to send delete contact socket update for contact id ${req.params.contactId}`
-      );
-      logger.error(error);
-    }
+    // try {
+    //   const otherSideProfileId =
+    //     updatedContact.sides[0].profile.toString() === req.profileId
+    //       ? updatedContact.sides[1].profile.toString()
+    //       : updatedContact.sides[0].profile.toString();
+    //   const otherSideResult = await updatedContact.toUserContact(
+    //     otherSideProfileId
+    //   );
+    //   messageUser(
+    //     otherSideProfileId,
+    //     SocketEvents.ContactUpdate,
+    //     otherSideResult
+    //   );
+    // } catch (error) {
+    //   logger.error(
+    //     `Failed to send delete contact socket update for contact id ${req.params.contactId}`
+    //   );
+    //   logger.error(error);
+    // }
 
     res.status(200).send();
   } catch (error) {
@@ -461,7 +474,9 @@ export const confirmDeletedContactSeen = async (
       expectedUserStatus: ContactSideStatus.WantToConnect,
       expectedContactStatus: ContactSideStatus.Deleted,
       changeToStatus: ContactSideStatus.Deleted,
-      finalStatus: true
+      finalStatus: true,
+      socketEvent: null,
+      contactSocketEventType: null
     });
 
     res.status(200).send();
@@ -477,6 +492,8 @@ const contactStatusChange = async (props: {
   expectedContactStatus: ContactSideStatus;
   changeToStatus: ContactSideStatus;
   finalStatus: boolean;
+  socketEvent: SocketEvents | null;
+  contactSocketEventType: ContactEventTypes | null;
 }): Promise<IContact | null> => {
   let existingContact: IContact = await Contact.findById(props.contactId);
   if (!existingContact) {
@@ -497,15 +514,32 @@ const contactStatusChange = async (props: {
       'Contact is in unexpected status'
     );
   }
+  existingContact.sides[userSideIndex].status = props.changeToStatus;
+  existingContact = await existingContact.save();
+
+  if (props.socketEvent != null) {
+    try {
+      const otherSideResult = await existingContact.toUserContact(
+        existingContact.sides[contactSideIndex].profile._id
+      );
+
+      messageUser(
+        existingContact.sides[contactSideIndex].profile._id.toString(),
+        props.socketEvent,
+        otherSideResult,
+        props.contactSocketEventType
+      );
+    } catch(error) {
+      logger.error('Failed to socket message user for contact update');
+      logger.error(error);
+    }
+  }
 
   if (props.finalStatus) {
     await existingContact.remove();
-    return existingContact;
-  } else {
-    existingContact.sides[userSideIndex].status = props.changeToStatus;
-    existingContact = await existingContact.save();
-    return existingContact;
   }
+
+  return existingContact;
 };
 
 export const updateContactCustomName = async (
@@ -562,7 +596,8 @@ export const updateContactCustomName = async (
       messageUser(
         otherSideProfileId,
         SocketEvents.ContactUpdate,
-        otherSideResult
+        otherSideResult,
+        ContactEventTypes.ContactNameUpdated
       );
     } catch (error) {
       logger.error(
@@ -695,7 +730,8 @@ export const updateContactTrust = async (
       messageUser(
         otherSideProfileId,
         SocketEvents.ContactUpdate,
-        otherSideResult
+        otherSideResult,
+        ContactEventTypes.ContactTrustUpdated
       );
     } catch (error) {
       logger.error(
@@ -780,9 +816,9 @@ export const changeActionState = async (
 
     try {
       const otherSideProfileId =
-      existingContact.sides[0].profile.toString() === req.profileId
-        ? existingContact.sides[1].profile.toString()
-        : existingContact.sides[0].profile.toString();
+        existingContact.sides[0].profile.toString() === req.profileId
+          ? existingContact.sides[1].profile.toString()
+          : existingContact.sides[0].profile.toString();
 
       const otherSideResult = await existingContact.toUserContact(
         otherSideProfileId
@@ -791,7 +827,8 @@ export const changeActionState = async (
       messageUser(
         otherSideProfileId,
         SocketEvents.ContactUpdate,
-        otherSideResult
+        otherSideResult,
+        ContactEventTypes.ContactDoneActionsUpdated
       );
     } catch (error) {
       logger.error(
