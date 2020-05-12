@@ -20,6 +20,8 @@ import { Types } from 'mongoose';
 import Status, { IAction, IStatus } from '../model/Status';
 import { customValidationError } from '../util/httpErrors';
 import * as httpErrors from '../util/httpErrors';
+import logger from '../util/logger';
+import { messageAll, SocketEvents } from '../util/socket';
 import { createStatusErrorSchema, createStatusRequestSchema } from '../validators/status';
 import { validateAndConvert } from '../validators/validationError';
 
@@ -79,6 +81,15 @@ export const createStatus = async (
     });
     newStatus = await newStatus.save();
 
+    try {
+      messageAll(SocketEvents.StatusUpdated, newStatus);
+    } catch(error) {
+      logger.error(
+        `Failed to send status update`
+      );
+      logger.error(error);
+    }
+
     res.status(201).json(newStatus);
   } catch (error) {
     next(error);
@@ -130,6 +141,15 @@ export const updateStatus = async (
 
     updatedStatus = await updatedStatus.save();
 
+    try {
+      messageAll(SocketEvents.StatusUpdated, updatedStatus);
+    } catch(error) {
+      logger.error(
+        `Failed to send status update`
+      );
+      logger.error(error);
+    }
+
     res.status(200).json(updatedStatus);
   } catch (error) {
     next(error);
@@ -150,6 +170,15 @@ export const deleteStatus = async (
     }
 
     await deletedStatus.remove();
+
+    try {
+      messageAll(SocketEvents.StatusDeleted, deletedStatusId);
+    } catch(error) {
+      logger.error(
+        `Failed to send status update`
+      );
+      logger.error(error);
+    }
 
     res.status(200).send();
   } catch (error) {
@@ -182,6 +211,15 @@ export const createAction = async (
 
     existingStatus.actions.push({name: actionName});
     existingStatus = await existingStatus.save();
+
+    try {
+      messageAll(SocketEvents.StatusUpdated, existingStatus);
+    } catch(error) {
+      logger.error(
+        `Failed to send status update`
+      );
+      logger.error(error);
+    }
 
     res.status(201).json(existingStatus);
   } catch (error) {
@@ -221,6 +259,15 @@ export const updateAction = async (
     existingStatus.actions[actionIndex].name = actionName;
     existingStatus = await existingStatus.save();
 
+    try {
+      messageAll(SocketEvents.StatusUpdated, existingStatus);
+    } catch(error) {
+      logger.error(
+        `Failed to send status update`
+      );
+      logger.error(error);
+    }
+
     res.status(200).json(existingStatus);
   } catch (error) {
     next(error);
@@ -247,6 +294,15 @@ export const deleteAction = async (
 
     existingStatus.actions.splice(actionIndex, 1);
     existingStatus = await existingStatus.save();
+
+    try {
+      messageAll(SocketEvents.StatusUpdated, existingStatus);
+    } catch(error) {
+      logger.error(
+        `Failed to send status update`
+      );
+      logger.error(error);
+    }
 
     res.status(200).json(existingStatus);
   } catch (error) {

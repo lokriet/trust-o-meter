@@ -16,16 +16,18 @@
 import * as actionTypes from '../actions/actionTypes';
 
 export interface SocketState {
-  socket: any;
+  commonSocket: any;
+  userSocket: any;
 }
 
 const initialState: SocketState = {
-  socket: null
+  commonSocket: null,
+  userSocket: null
 };
 
 export const socketReducer = (state: SocketState = initialState, action) => {
   switch (action.type) {
-    case actionTypes.socket.SET_SOCKET:
+    case actionTypes.socket.SET_SOCKETS:
       return {
         socket: action.socket
       };

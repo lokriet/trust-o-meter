@@ -18,13 +18,17 @@ import socketIo from 'socket.io-client';
 import * as actions from '.';
 import env from '../../secret/environment';
 import { Contact } from '../model/contact';
+import { Status } from '../model/status';
 import { State } from '../reducers/state';
 
 export const SocketActionTypes = {
-  SET_SOCKET: 'SET_SOCKET'
-}
+  SET_SOCKETS: 'SET_SOCKETS'
+};
 
-enum SocketEvents{
+enum SocketEvents {
+  StatusUpdated = 'statusUpdated',
+  StatusDeleted = 'statusDeleted',
+
   ContactUpdate = 'contactUpdate',
   ContactDelete = 'contactDelete'
 }
@@ -38,47 +42,75 @@ export const initSocketConnection = () => {
       if (!profile) {
         //TODO
       } else {
-        const socket = socketIo.connect(`${env.serverUrl}/${profile._id}`, {
-          query: {token: token}
+        const commonSocket = socketIo.connect(env.serverUrl, {
+          query: { token }
         });
-        console.log('Connected to socket io', socket);
-        dispatch(setSocket(socket));
-        socket.on(SocketEvents.ContactUpdate, (updatedContact: Contact)  => {
+        console.log('Connected to common socket io', commonSocket);
+        commonSocket.on(SocketEvents.StatusUpdated, (updatedStatus: Status) => {
+          console.log('Received status update socket message', updatedStatus);
+          dispatch(actions.applyStatusUpdate(updatedStatus));
+        });
+        commonSocket.on(SocketEvents.StatusDeleted, (updatedStatusId: string) => {
+          console.log('Received status delete socket message', updatedStatusId);
+          dispatch(actions.applyStatusDelete(updatedStatusId));
+        });
+
+
+        const userSocket = socketIo.connect(`${env.serverUrl}/${profile._id}`, {
+          query: { token }
+        });
+        console.log('Connected to user socket io', userSocket);
+        userSocket.on(SocketEvents.ContactUpdate, (updatedContact: Contact) => {
           console.log('Received contact update socket message', updatedContact);
           dispatch(actions.applyContactUpdate(updatedContact));
         });
-        socket.on(SocketEvents.ContactDelete, (contactId: string)  => {
+        userSocket.on(SocketEvents.ContactDelete, (contactId: string) => {
           console.log('Received contact delete socket message', contactId);
           dispatch(actions.applyContactDelete(contactId));
         });
-      }
 
+        dispatch(setSockets(commonSocket, userSocket));
+      }
     } catch (error) {
       console.log('Failed to connect to socket io');
     }
-  }
-}
+  };
+};
 
 export const disconnectSocket = () => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
-      const socket = getState().socket.socket;
-      if (socket) {
-        socket.close();
-        console.log('Socket disconnected successfully');
-        dispatch(setSocket(null));
+      const userSocket = getState().socket.userSocket;
+      if (userSocket) {
+        userSocket.close();
+        console.log('User Socket disconnected successfully');
+        dispatch(setSockets(null, null));
       } else {
-        console.log('No socket to disconnect');
+        console.log('No user socket to disconnect');
       }
     } catch (error) {
-      console.log('Failed to disconnect socket');
+      console.log('Failed to disconnect user socket');
     }
-  }
-}
 
-const setSocket = (socket) => {
+    try {
+      const commonSocket = getState().socket.commonSocket;
+      if (commonSocket) {
+        commonSocket.close();
+        console.log('Common Socket disconnected successfully');
+        dispatch(setSockets(null, null));
+      } else {
+        console.log('No common socket to disconnect');
+      }
+    } catch (error) {
+      console.log('Failed to disconnect common socket');
+    }
+  };
+};
+
+const setSockets = (commonSocket, userSocket) => {
   return {
-    type: SocketActionTypes.SET_SOCKET,
-    socket
-  }
-}
+    type: SocketActionTypes.SET_SOCKETS,
+    commonSocket,
+    userSocket
+  };
+};

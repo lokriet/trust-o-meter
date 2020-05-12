@@ -17,7 +17,6 @@ import env from '../../secret/environment';
 import { Status } from '../model/status';
 import { State } from '../reducers/state';
 
- 
 export const StatusActionTypes = {
   FETCH_STATUS_LIST_START: 'FETCH_STATUS_LIST_START',
   FETCH_STATUS_LIST_SUCCESS: 'FETCH_STATUS_LIST_SUCCESS',
@@ -33,6 +32,9 @@ export const StatusActionTypes = {
 
   CREATE_ACTION_FAILED: 'CREATE_ACTION_FAILED',
   UPDATE_ACTION_FAILED: 'UPDATE_ACTION_FAILED',
+
+  APPLY_STATUS_UPDATE: 'APPLY_STATUS_UPDATE',
+  APPLY_STATUS_DELETE: 'APPLY_STATUS_DELETE',
 
   RESET_STATUS_STORE: 'RESET_STATUS_STORE'
 };
@@ -393,6 +395,20 @@ const updateActionFailed = (
     statusId,
     actionId,
     error
+  };
+};
+
+export const applyStatusUpdate = (updatedStatus: Status) => {
+  return {
+    type: StatusActionTypes.APPLY_STATUS_UPDATE,
+    updatedStatus
+  };
+};
+
+export const applyStatusDelete = (updatedStatusId: string) => {
+  return {
+    type: StatusActionTypes.APPLY_STATUS_DELETE,
+    updatedStatusId
   };
 };
 

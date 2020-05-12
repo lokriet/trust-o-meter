@@ -16,7 +16,6 @@
 import * as actionTypes from '../actions/actionTypes';
 import { Status } from '../model/status';
 
- 
 export interface StatusState {
   statusList: Status[];
   error: string | null;
@@ -69,6 +68,11 @@ export const statusReducer = (
     case actionTypes.status.UPDATE_ACTION_FAILED:
       return updateActionFailed(state, action);
 
+    case actionTypes.status.APPLY_STATUS_UPDATE:
+      return applyStatusUpdate(state, action);
+    case actionTypes.status.APPLY_STATUS_DELETE:
+      return applyStatusDelete(state, action);
+
     case actionTypes.status.RESET_STATUS_STORE:
       return initialState;
     default:
@@ -76,10 +80,7 @@ export const statusReducer = (
   }
 };
 
-const fetchStatusListStart = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const fetchStatusListStart = (state: StatusState, action: any): StatusState => {
   return {
     ...state,
     error: null,
@@ -88,7 +89,7 @@ const fetchStatusListStart = (
 };
 
 const fetchStatusListSuccess = (
-  state: StatusState = initialState,
+  state: StatusState,
   action: any
 ): StatusState => {
   return {
@@ -100,7 +101,7 @@ const fetchStatusListSuccess = (
 };
 
 const fetchStatusListFailed = (
-  state: StatusState = initialState,
+  state: StatusState,
   action: any
 ): StatusState => {
   return {
@@ -110,10 +111,7 @@ const fetchStatusListFailed = (
   };
 };
 
-const initStatusOperation = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const initStatusOperation = (state: StatusState, action: any): StatusState => {
   const newStatusErrors = removeItemError(state.statusErrors, action.statusId);
 
   return {
@@ -122,25 +120,29 @@ const initStatusOperation = (
   };
 };
 
-const initActionOperation = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
-  const newActionErrors = removeActionItemError(state.actionErrors, action.statusId, action.actionId);
+const initActionOperation = (state: StatusState, action: any): StatusState => {
+  const newActionErrors = removeActionItemError(
+    state.actionErrors,
+    action.statusId,
+    action.actionId
+  );
   return {
     ...state,
     actionErrors: newActionErrors
   };
 };
 
-const createStatusSuccess = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const createStatusSuccess = (state: StatusState, action: any): StatusState => {
   const newStatusErrors = removeItemError(state.statusErrors, null);
-  const newStatusList = state.statusList
-    .concat(action.status)
-    .sort(statusComparator);
+
+  let newStatusList;
+  if (state.statusList.find(status => status._id === action.status._id)) {
+    newStatusList = state.statusList;
+  } else {
+    newStatusList = state.statusList
+      .concat(action.status)
+      .sort(statusComparator);
+  }
   return {
     ...state,
     statusErrors: newStatusErrors,
@@ -148,10 +150,7 @@ const createStatusSuccess = (
   };
 };
 
-const createStatusFailed = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const createStatusFailed = (state: StatusState, action: any): StatusState => {
   const newStatusErrors = { ...state.statusErrors };
   newStatusErrors.ADD = action.error;
   return {
@@ -160,10 +159,7 @@ const createStatusFailed = (
   };
 };
 
-const updateStatusSuccess = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const updateStatusSuccess = (state: StatusState, action: any): StatusState => {
   const updatedStatus: Status = action.status;
   const newStatusErrors = removeItemError(
     state.statusErrors,
@@ -186,10 +182,7 @@ const updateStatusSuccess = (
   };
 };
 
-const deleteStatusSuccess = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const deleteStatusSuccess = (state: StatusState, action: any): StatusState => {
   const deletedStatusId: string = action.statusId;
   const newStatusErrors = removeItemError(state.statusErrors, deletedStatusId);
   const newStatusList = state.statusList.filter(
@@ -202,10 +195,7 @@ const deleteStatusSuccess = (
   };
 };
 
-const updateStatusFailed = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const updateStatusFailed = (state: StatusState, action: any): StatusState => {
   const newStatusErrors = { ...state.statusErrors };
   newStatusErrors[action.statusId] = action.error;
   return {
@@ -214,10 +204,7 @@ const updateStatusFailed = (
   };
 };
 
-const createActionFailed = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const createActionFailed = (state: StatusState, action: any): StatusState => {
   const newActionErrors = { ...state.actionErrors };
   if (!newActionErrors[action.statusId]) {
     newActionErrors[action.statusId] = {};
@@ -229,10 +216,7 @@ const createActionFailed = (
   };
 };
 
-const updateActionFailed = (
-  state: StatusState = initialState,
-  action: any
-): StatusState => {
+const updateActionFailed = (state: StatusState, action: any): StatusState => {
   const newActionErrors = { ...state.actionErrors };
   if (!newActionErrors[action.statusId]) {
     newActionErrors[action.statusId] = {};
@@ -241,6 +225,35 @@ const updateActionFailed = (
   return {
     ...state,
     actionErrors: newActionErrors
+  };
+};
+
+const applyStatusUpdate = (state: StatusState, action: any): StatusState => {
+  const statusIndex = state.statusList.findIndex(
+    (status) => status._id === action.updatedStatus._id
+  );
+  let newStatusList: Status[];
+  if (statusIndex < 0) {
+    newStatusList = state.statusList.concat(action.updatedStatus);
+  } else {
+    newStatusList = state.statusList.map((status) =>
+      status._id === action.updatedStatus._id ? action.updatedStatus : status
+    );
+  }
+  newStatusList.sort(statusComparator);
+
+  return {
+    ...state,
+    statusList: newStatusList
+  };
+};
+
+const applyStatusDelete = (state: StatusState, action: any): StatusState => {
+  return {
+    ...state,
+    statusList: state.statusList.filter(
+      (status) => status._id !== action.updatedStatusId
+    )
   };
 };
 
@@ -264,24 +277,11 @@ const removeActionItemError = (
   statusId: string,
   actionId: string | null
 ) => {
-  // let newErrors;
-  // const errorId = itemId || 'ADD';
-  // if (errors[errorId] != null) {
-  //   newErrors = { ...errors };
-  //   delete newErrors[errorId];
-  //   if (newErrors == null) {
-  //     newErrors = {};
-  //   }
-  // } else {
-  //   newErrors = errors;
-  // }
-  // return newErrors;
-
   let newErrors;
   const actionErrorId = actionId || 'ADD';
   if (errors[statusId] != null && errors[statusId][actionErrorId] != null) {
     newErrors = { ...errors };
-    newErrors[statusId] = {...errors[statusId]};
+    newErrors[statusId] = { ...errors[statusId] };
     delete newErrors[statusId][actionErrorId];
   } else {
     newErrors = errors;

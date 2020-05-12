@@ -23,6 +23,9 @@ import logger from './logger';
 let io: socketIo.Server = null;
 
 export enum SocketEvents {
+  StatusUpdated = 'statusUpdated',
+  StatusDeleted = 'statusDeleted',
+
   ContactUpdate = 'contactUpdate',
   ContactDelete = 'contactDelete'
 }
@@ -35,7 +38,7 @@ const authenticateSocket = (namespace: string) => {
           socket.handshake.query.token,
           process.env.AUTH_TOKEN_SECRET
         ) as AuthTokenPayload;
-        if (decodedToken.profileId !== namespace) {
+        if (namespace !== null && decodedToken.profileId !== namespace) {
           next(new Error('Authentication error'));
         } else {
           next();
@@ -79,9 +82,24 @@ export const messageUser = (profileId: string, eventName: string, ...args: any) 
   }
 }
 
+export const messageAll = (eventName: string, ...args: any) => {
+  logger.debug(`want to socket message all`);
+  getIo().emit(eventName, ...args);
+  logger.debug('Message successful?');
+}
+
 export const initSocketIo = (server: any) => {
   io = socketIo(server);
   io.origins([`${process.env.CLIENT_URL}`]);
+  io.use(authenticateSocket(null));
+
+  io.on('connection', (socket => {
+    logger.info(`New socket connection on common namespace`);
+    socket.on('disconnect', () => {
+      logger.info(`Socket disconnected on common namespace`);
+    } );
+  }));
+
   logger.info('Socket.IO initialized');
 };
 

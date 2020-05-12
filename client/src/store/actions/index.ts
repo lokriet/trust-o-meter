@@ -65,6 +65,8 @@ export {
   createAction,
   updateAction,
   deleteAction,
+  applyStatusUpdate,
+  applyStatusDelete,
   resetStatusStore
 } from './status';
 
