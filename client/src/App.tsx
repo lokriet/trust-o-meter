@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect } from 'react';
+ import React, { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Route, Switch, withRouter } from 'react-router-dom';
 
@@ -25,6 +25,9 @@ import Login from './components/Auth/Login/Login';
 import PasswordReset from './components/Auth/PasswordResest/PasswordReset';
 import PasswordResetRequest from './components/Auth/PasswordResest/PasswordResetRequest';
 import Register from './components/Auth/Register/Register';
+import ContactsList, {
+  ContactListType
+} from './components/Contacts/ContactsList/ContactsList';
 import FindContacts from './components/Contacts/FindContacts/FindContacts';
 import Home from './components/Home/Home';
 import { InstallPromptContextProvider } from './components/InstallPromptContext/InstallPromptContext';
@@ -34,10 +37,8 @@ import Settings from './components/Settings/Settings';
 import Layout from './components/UI/Layout/Layout';
 import Spinner from './components/UI/Spinner/Spinner';
 import * as actions from './store/actions';
+import { Profile } from './store/model/profile';
 import { State } from './store/reducers/state';
-import ContactsList, {
-  ContactListType
-} from './components/Contacts/ContactsList/ContactsList';
 
 interface AppProps {
   location: any;
@@ -46,8 +47,8 @@ interface AppProps {
   isAdmin: boolean;
   initialAuthCheckDone: boolean;
   waitingForEmailConfirmation: boolean;
+  profile: Profile | null;
   profileInitialized: boolean;
-  profileLoaded: boolean;
 }
 
 const App = (props: AppProps): JSX.Element => {
@@ -61,11 +62,20 @@ const App = (props: AppProps): JSX.Element => {
     }
   }, [props.isLoggedIn, props.initialAuthCheckDone, dispatch]);
 
+  useEffect(() => {
+    if (props.isLoggedIn && props.profile != null) {
+      dispatch(actions.initSocketConnection());
+    }
+    return () => {
+      dispatch(actions.disconnectSocket());
+    };
+  }, [dispatch, props.isLoggedIn, props.profile]);
+
   let view: JSX.Element;
   // let redirect: JSX.Element | null = null;
   if (
     !props.initialAuthCheckDone ||
-    (props.isLoggedIn && !props.profileLoaded)
+    (props.isLoggedIn && props.profile == null)
   ) {
     view = <Spinner />;
   } else {
@@ -121,7 +131,7 @@ const mapStateToProps = (state: State): Partial<AppProps> => {
     isLoggedIn: state.auth.isLoggedIn,
     isAdmin: state.auth.isAdmin,
     initialAuthCheckDone: state.auth.initialCheckDone,
-    profileLoaded: state.profile.profile != null,
+    profile: state.profile.profile,
     profileInitialized:
       state.profile.profile != null &&
       state.profile.profile.initialized !== undefined &&

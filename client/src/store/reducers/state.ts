@@ -18,6 +18,7 @@ import { ContactsState } from './contacts';
 import { ProfileState } from './profile';
 import { StatusState } from './status';
 import { NotificationsState } from './notifications';
+import { SocketState } from './socket';
 
  
 export interface State {
@@ -26,4 +27,5 @@ export interface State {
   contacts: ContactsState;
   status: StatusState;
   notifications: NotificationsState;
+  socket: SocketState;
 }

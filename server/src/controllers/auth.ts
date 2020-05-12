@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { NextFunction, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
+import { initUserSocketNamespace } from '../util/socket';
 
 import Profile, { IProfile } from '../model/Profile';
 import User, { IUser } from '../model/User';
@@ -35,9 +35,10 @@ import {
   resetPasswordErrorSchema,
   resetPasswordRequestSchema,
   sendResetPasswordEmailErrorSchema,
-  sendResetPasswordEmailRequestSchema
+  sendResetPasswordEmailRequestSchema,
 } from '../validators/auth';
 import { validateAndConvert } from '../validators/validationError';
+
 
 export interface AuthTokenPayload {
   userId: string;
@@ -98,6 +99,12 @@ export const registerWithEmailAndPassword = async (
       throw new Error('Failed to send activation email');
     }
 
+    try {
+      initUserSocketNamespace(newProfile._id.toString());
+    } catch (error) {
+      logger.info(`Faield to initialize socket namespace for ${newProfile._id.toString()}`)
+    }
+
     const payload: AuthTokenPayload = {
       userId: newUser._id,
       profileId: newProfile._id
@@ -149,6 +156,12 @@ export const loginWithEmailAndPassword = async (
     }
 
     const profile: IProfile = await Profile.findById(user.profile);
+
+    try {
+      initUserSocketNamespace(profile._id.toString());
+    } catch (error) {
+      logger.info(`Faield to initialize socket namespace for ${profile._id.toString()}`)
+    }
 
     const payload: AuthTokenPayload = {
       userId: user._id,
@@ -224,6 +237,12 @@ export const loginWithGoogle = async (
         await user.save();
       } else {
         profile = await Profile.findById(user.profile);
+      }
+
+      try {
+        initUserSocketNamespace(profile._id.toString());
+      } catch (error) {
+        logger.info(`Faield to initialize socket namespace for ${profile._id.toString()}`)
       }
 
       const payload: AuthTokenPayload = {
@@ -308,6 +327,12 @@ export const loginWithFacebook = async (
       profile = await Profile.findById(user.profile);
     }
 
+    try {
+      initUserSocketNamespace(profile._id.toString());
+    } catch (error) {
+      logger.info(`Faield to initialize socket namespace for ${profile._id.toString()}`)
+    }
+
     const payload: AuthTokenPayload = {
       userId: user._id,
       profileId: profile._id
@@ -348,6 +373,12 @@ export const getAuthDetails = async (
   try {
     const user: IUser = await User.findById(req.userId);
     const profile: IProfile = await Profile.findById(user.profile);
+
+    try {
+      initUserSocketNamespace(profile._id.toString());
+    } catch (error) {
+      logger.info(`Faield to initialize socket namespace for ${profile._id.toString()}`)
+    }
 
     let notifyNewContact = true;
     let notifyTrustUpdate = true;

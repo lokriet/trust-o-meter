@@ -50,6 +50,7 @@ ProfileSchema.methods.toUserProfile = function(isOwnProfile: boolean): any {
   };
   if (isOwnProfile) {
     result.initialized = this.initialized;
+    result._id = this._id.toString();
   };
   if (this.username) {
     result.username = this.username;

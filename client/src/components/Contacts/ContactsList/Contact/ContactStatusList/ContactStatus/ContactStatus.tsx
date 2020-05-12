@@ -46,7 +46,7 @@ const ContactStatus = (props: ContactStatusProps) => {
     <div>
       <div className={classes.StatusHeader}>
         <input type="checkbox" ref={statusCheckbox} disabled />
-        <label>{props.status.name}</label>
+        <label className={classes.StatusName}>{props.status.name}</label>
       </div>
       {props.status.actions.map((action: Action) => (
         <ContactAction

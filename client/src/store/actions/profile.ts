@@ -26,13 +26,6 @@ export const ProfileActionTypes = {
   RESET_PROFILE_STORE: 'RESET_PROFILE_STORE'
 };
 
-export const setProfile = (profile: Profile) => {
-  return {
-    type: ProfileActionTypes.SET_PROFILE,
-    profile
-  };
-};
-
 export const updateProfile = (profileData: Partial<Profile>, onOperationDone: any) => {
   return async (dispatch: (...args: any[]) => void, getState: () => State) => {
     try {
@@ -60,6 +53,13 @@ export const updateProfile = (profileData: Partial<Profile>, onOperationDone: an
       dispatch(profileOperationFailed('Profile update failed'));
       onOperationDone(false);
     }
+  };
+};
+
+export const setProfile = (profile: Profile) => {
+  return {
+    type: ProfileActionTypes.SET_PROFILE,
+    profile
   };
 };
 

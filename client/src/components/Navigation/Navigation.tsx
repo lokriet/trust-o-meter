@@ -62,7 +62,7 @@ const Navigation = (props: NavigationProps) => {
     return () => {
       window.removeEventListener('click', handleHideSubmenu);
     };
-  }, []);
+  }, [handleHideSubmenu]);
 
   return (
     <div className={classes.NavigationBarContainer}>

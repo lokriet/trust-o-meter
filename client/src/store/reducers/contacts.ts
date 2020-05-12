@@ -17,7 +17,6 @@ import * as actionTypes from '../actions/actionTypes';
 import { Contact, ContactStatus } from '../model/contact';
 import { Profile } from '../model/profile';
 
- 
 export interface ContactsState {
   confirmedContacts: Contact[];
   incomingRequests: Contact[];
@@ -82,6 +81,10 @@ export const contactsReducer = (
       return confirmSeenDeletedContact(state, action);
     case actionTypes.contacts.CONTACT_UPDATE_SUCCESS:
       return contactUpdateSuccess(state, action);
+    case actionTypes.contacts.APPLY_CONTACT_UPDATE:
+      return applyContactUpdate(state, action);
+    case actionTypes.contacts.APPLY_CONTACT_DELETE:
+      return deleteContact(state, action);
 
     case actionTypes.contacts.RESET_CONTACTS_STORE:
       return initialState;
@@ -240,7 +243,10 @@ const contactRejectSuccess = (state: ContactsState, action): ContactsState => {
   };
 };
 
-const requestWithdrawSuccess = (state: ContactsState, action): ContactsState => {
+const requestWithdrawSuccess = (
+  state: ContactsState,
+  action
+): ContactsState => {
   const contactId: string = action.contactId;
   const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newOutgoingRequests = state.outgoingRequests.filter(
@@ -253,7 +259,10 @@ const requestWithdrawSuccess = (state: ContactsState, action): ContactsState => 
   };
 };
 
-const confirmSeenRejectedRequestSuccess = (state: ContactsState, action): ContactsState => {
+const confirmSeenRejectedRequestSuccess = (
+  state: ContactsState,
+  action
+): ContactsState => {
   const contactId: string = action.contactId;
   const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newOutgoingRequests = state.outgoingRequests.filter(
@@ -279,7 +288,10 @@ const contactDeleteSuccess = (state: ContactsState, action): ContactsState => {
   };
 };
 
-const confirmSeenDeletedContact = (state: ContactsState, action): ContactsState => {
+const confirmSeenDeletedContact = (
+  state: ContactsState,
+  action
+): ContactsState => {
   const contactId: string = action.contactId;
   const newItemErrors = removeItemError(state.itemErrors, contactId);
   const newConfirmedContacts = state.confirmedContacts.filter(
@@ -302,10 +314,84 @@ const contactUpdateSuccess = (state: ContactsState, action): ContactsState => {
     } else {
       return item;
     }
-  })
+  });
   return {
     ...state,
     itemErrors: newItemErrors,
+    confirmedContacts: newConfirmedContacts
+  };
+};
+
+const applyContactUpdate = (state: ContactsState, action): ContactsState => {
+  const updatedContact: Contact = action.updatedContact;
+
+  switch (updatedContact.status) {
+    case ContactStatus.IncomingRequest:
+      return {
+        ...state,
+        incomingRequests: state.incomingRequests.concat(updatedContact)
+      };
+
+    case ContactStatus.RequestDenied:
+      return {
+        ...state,
+        outgoingRequests: state.outgoingRequests.map((contact) =>
+          contact._id === updatedContact._id ? updatedContact : contact
+        )
+      };
+
+    case ContactStatus.ContactDeleted:
+      return {
+        ...state,
+        confirmedContacts: state.confirmedContacts.map((contact) =>
+          contact._id === updatedContact._id ? updatedContact : contact
+        )
+      };
+
+    case ContactStatus.OutgoingRequest:
+      console.log('got a socket update with status outgoing request :(');
+      return state;
+
+    case ContactStatus.Connected:
+      let newConfirmedContacts;
+      const confirmedContactIndex = state.confirmedContacts.findIndex(
+        (contact) => contact._id === updatedContact._id
+      );
+      if (confirmedContactIndex < 0) {
+        newConfirmedContacts = state.confirmedContacts.concat(updatedContact);
+      } else {
+        newConfirmedContacts = state.confirmedContacts.map((contact) =>
+          contact._id === updatedContact._id ? updatedContact : contact
+        );
+      }
+      return {
+        ...state,
+        confirmedContacts: newConfirmedContacts,
+        incomingRequests: state.incomingRequests.filter(
+          (contact) => contact._id !== updatedContact._id
+        ),
+        outgoingRequests: state.outgoingRequests.filter(
+          (contact) => contact._id !== updatedContact._id
+        )
+      };
+  }
+};
+
+const deleteContact = (state: ContactsState, action): ContactsState => {
+  const newIncomingRequests = state.incomingRequests.filter(
+    (contact: Contact) => contact._id !== action.contactId
+  );
+  const newOutgoingRequests = state.outgoingRequests.filter(
+    (contact: Contact) => contact._id !== action.contactId
+  );
+  const newConfirmedContacts = state.confirmedContacts.filter(
+    (contact: Contact) => contact._id !== action.contactId
+  );
+
+  return {
+    ...state,
+    incomingRequests: newIncomingRequests,
+    outgoingRequests: newOutgoingRequests,
     confirmedContacts: newConfirmedContacts
   };
 };

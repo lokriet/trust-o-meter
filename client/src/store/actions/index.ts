@@ -35,6 +35,7 @@ export {
   fetchUserContacts,
   searchContacts,
   contactsOperationReset,
+  
   createContactRequest,
   approveContactRequest,
   rejectContactRequest,
@@ -42,10 +43,15 @@ export {
   withdrawContactRequest,
   deleteContact,
   confirmSeenDeletedContact,
+  
   updateContactCustomName,
   increaseContactTrust,
   decreaseContactTrust,
   changeContactActionState,
+  
+  applyContactUpdate,
+  applyContactDelete,
+
   resetContactsStore
 } from './contacts';
 
@@ -68,3 +74,8 @@ export {
   setNotificationSettings,
   resetNotificationsStore
 } from './notifications';
+
+export {
+  initSocketConnection,
+  disconnectSocket
+} from './socket';

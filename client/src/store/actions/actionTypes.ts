@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 export { AuthActionTypes as auth } from './auth';
 export { ProfileActionTypes as profile } from './profile';
 export { ContactsActionTypes as contacts } from './contacts';
 export { StatusActionTypes as status } from './status';
 export { NotificationsActionTypes as notifications } from './notifications';
+export { SocketActionTypes as socket } from './socket';

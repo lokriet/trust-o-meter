@@ -40,6 +40,8 @@ export const ContactsActionTypes = {
   CONTACT_DELETE_SUCCESS: 'CONTACT_DELETE_SUCCESS',
   DELETED_CONTACT_SEEN_SUCCESS: 'DELETED_CONTACT_SEEN_SUCCESS',
   CONTACT_UPDATE_SUCCESS: 'CONTACT_UPDATE_SUCCESS',
+  APPLY_CONTACT_UPDATE: 'APPLY_CONTACT_UPDATE',
+  APPLY_CONTACT_DELETE: 'APPLY_CONTACT_DELETE',
 
   RESET_CONTACTS_STORE: 'RESET_CONTACTS_STORE'
 };
@@ -512,6 +514,20 @@ export const contactUpdateSuccess = (contact: Contact) => {
     contact
   };
 };
+
+export const applyContactUpdate = (updatedContact: Contact) => {
+  return {
+    type: ContactsActionTypes.APPLY_CONTACT_UPDATE,
+    updatedContact
+  }
+}
+
+export const applyContactDelete = (contactId: string) => {
+  return {
+    type: ContactsActionTypes.APPLY_CONTACT_DELETE,
+    contactId
+  }
+}
 
 export const resetContactsStore = () => {
   return {

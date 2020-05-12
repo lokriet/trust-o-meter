@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import * as Yup from 'yup';
@@ -51,13 +51,13 @@ const EditProfile = (props: ProfileProps) => {
     if (success && isNew) {
       history.push('/settings');
     }
-  }, []);
+  }, [history, isNew]);
 
   const handleSubmit = useCallback(
     (formValues) => {
       dispatch(actions.updateProfile(formValues, handleProfileUpdated));
     },
-    [dispatch]
+    [dispatch, handleProfileUpdated]
   );
 
   const handleAvatarChange = useCallback(

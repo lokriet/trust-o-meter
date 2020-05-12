@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import './index.scss';
+
+ import './index.scss';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -26,10 +27,10 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { authReducer } from './store/reducers/auth';
 import { contactsReducer } from './store/reducers/contacts';
-import { profileReducer } from './store/reducers/profile';
-import { statusReducer } from './store/reducers/status';
 import { notificationsReducer } from './store/reducers/notifications';
-
+import { profileReducer } from './store/reducers/profile';
+import { socketReducer } from './store/reducers/socket';
+import { statusReducer } from './store/reducers/status';
  
 const composeEnhancers =
   process.env.NODE_ENV === 'development'
@@ -42,7 +43,8 @@ const rootReducer = combineReducers({
   profile: profileReducer,
   contacts: contactsReducer,
   status: statusReducer,
-  notifications: notificationsReducer
+  notifications: notificationsReducer,
+  socket: socketReducer
 });
 
 const store = createStore(

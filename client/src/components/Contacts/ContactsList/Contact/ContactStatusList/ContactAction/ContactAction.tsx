@@ -35,7 +35,7 @@ const ContactAction = ({
   error,
   onActionChange
 }: ContactActionProps) => {
-  const [done, setDone] = useState(actionDone);
+  // const [done, setDone] = useState(actionDone);
   const [loading, setLoading] = useState(false);
   const [savingFailed, setSavingFailed] = useState(false);
 
@@ -46,12 +46,12 @@ const ContactAction = ({
 
   const handleActionChange = useCallback(
     (event) => {
-      setDone(event.target.checked);
+      // setDone(event.target.checked);
       setLoading(true);
       setSavingFailed(false);
-      onActionChange(event.target.checked, handleActionChangeDone);
+      onActionChange(!actionDone, handleActionChangeDone);
     },
-    [onActionChange, handleActionChangeDone]
+    [actionDone, onActionChange, handleActionChangeDone]
   );
 
   return (
@@ -60,11 +60,11 @@ const ContactAction = ({
         <input
           type="checkbox"
           id={action._id}
-          checked={done}
+          checked={actionDone}
           onChange={handleActionChange}
           disabled={loading}
         />
-        <label htmlFor={action._id}>{action.name}</label>
+        <label htmlFor={action._id} className={classes.ActionName}>{action.name}</label>
       </div>
       {savingFailed && error ? <Error>{error}</Error> : null}
     </>

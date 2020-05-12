@@ -24,7 +24,7 @@ if ('function' === typeof importScripts) {
   }
 
   // TODO change to false!
-  workbox.setConfig({ debug: true });
+  workbox.setConfig({ debug: false });
 
   workbox.precaching.precacheAndRoute([], {
     cleanURLs: false
@@ -74,7 +74,7 @@ if ('function' === typeof importScripts) {
         /\/auth\/details$/.test(request.url) ||
         (request.method === 'GET' && /\/status$/.test(request.url)) ||
         /\/contacts$/.test(request.url);
-      console.log('[Service Worker] matching request', result, request);
+      // console.log('[Service Worker] matching request', result, request);
       return result;
     },
     new workbox.strategies.NetworkFirst({

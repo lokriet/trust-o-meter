@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+import * as actionTypes from '../actions/actionTypes';
 
-export enum Gender {
-  Male = 'M',
-  Female = 'F',
-  Other = 'O'
+export interface SocketState {
+  socket: any;
 }
 
-export interface Profile {
-  _id?: string;
-  initialized?: boolean;
-  identificator: string;
-  username?: string;
-  avatarUrl?: string;
-  gender?: Gender;
+const initialState: SocketState = {
+  socket: null
+};
+
+export const socketReducer = (state: SocketState = initialState, action) => {
+  switch (action.type) {
+    case actionTypes.socket.SET_SOCKET:
+      return {
+        socket: action.socket
+      };
+    default:
+      return state;
+  }
 };

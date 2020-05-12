@@ -54,7 +54,7 @@ export const InstallPromptContextProvider = (props) => {
       window.removeEventListener('beforeinstallprompt', listener);
     };
   }, [listener]);
-  console.log('context', showInstallButton);
+  // console.log('context', showInstallButton);
   return (
     <InstallPromptContext.Provider value={{installPrompt, showInstallButton, setShowInstallButton}}>
       {props.children}

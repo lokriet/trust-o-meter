@@ -31,6 +31,7 @@ import initDatabase from './util/database';
 import * as httpErrors from './util/httpErrors';
 import logger from './util/logger';
 import * as responseCodes from './util/responseCodes';
+import {initSocketIo} from './util/socket';
 
 
 initDatabase();
@@ -100,3 +101,4 @@ const server = http.createServer(app);
 server.listen(port);
 server.on('error', connectionUtils.onError(port));
 server.on('listening', connectionUtils.onListening(server));
+initSocketIo(server);
