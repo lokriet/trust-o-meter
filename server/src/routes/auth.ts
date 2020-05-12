@@ -42,6 +42,7 @@ const router = express.Router();
  *     initialized: false
  *     identificator: string
  *   }
+ *   socketsEnabled: boolean
  * }
  *
  * code 422 - validation error
@@ -77,6 +78,7 @@ router.post(
  *     avatarUrl?: string
  *     gender?: string ('F'/'M'/'O')
  *   }
+ *   socketsEnabled: boolean
  * }
  *
  * code 401 - authentication failed
@@ -112,6 +114,7 @@ router.post(
  *     avatarUrl?: string
  *     gender?: string ('F'/'M'/'O')
  *   }
+ *   socketsEnabled: boolean
  * }
  *
  * code 401 - authentication failed
@@ -145,6 +148,7 @@ router.post('/loginWithGoogle', authController.loginWithGoogle);
  *     avatarUrl?: string
  *     gender?: string ('F'/'M'/'O')
  *   }
+ *   socketsEnabled: boolean
  * }
  *
  * code 422 - validation error
@@ -172,6 +176,7 @@ router.post('/loginWithFacebook', authController.loginWithFacebook);
  *     avatarUrl?: string
  *     gender?: string ('F'/'M'/'O')
  *   }
+ *   socketsEnabled: boolean
  * }
  *
  * code 401 - not authenticated

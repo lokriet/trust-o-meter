@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import React, { createContext, useCallback, useEffect, useState } from 'react';
+
 
 export interface InstallPromptContextValue {
   installPrompt: any;
@@ -30,7 +30,7 @@ export const InstallPromptContextProvider = (props) => {
 
   const listener = useCallback((event) => {
     event.preventDefault();
-    console.log('Install Prompt fired');
+    // console.log('Install Prompt fired');
     setInstallPrompt(event);
 
     // See if the app is already installed, in that case, do nothing
@@ -46,11 +46,11 @@ export const InstallPromptContextProvider = (props) => {
   }, []);
 
   useEffect(() => {
-    console.log('Adding install prompt listener');
+    // console.log('Adding install prompt listener');
 
     window.addEventListener('beforeinstallprompt', listener);
     return () => {
-      console.log('Removing install prompt listener');
+      // console.log('Removing install prompt listener');
       window.removeEventListener('beforeinstallprompt', listener);
     };
   }, [listener]);

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2020 Evgenia Lazareva
  *
@@ -14,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
- import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 
 import withAuthCheck from '../../hoc/withAuthCheck';
@@ -27,12 +25,20 @@ import { Error } from '../UI/Error/Error';
 import classes from './Settings.module.scss';
 
 interface SettingsProps {
-  error: string;
+  error: string | null;
   loading: boolean;
   notificationSettings: NotificationSettings;
+  enableSockets: boolean;
 }
 
 const Settings = (props: SettingsProps) => {
+  const [loadingSocketSettings, setLoadingSocketSettings] = useState(false);
+  const [socketSettingsError, setSocketSettingsError] = useState(false);
+
+  useEffect(() => {
+    // console.log('[Settings view] sockets enabled changed to ', props.enableSockets);
+  }, [props.enableSockets])
+
   const dispatch = useDispatch();
 
   const installPromptValues: InstallPromptContextValue = useContext(
@@ -48,20 +54,20 @@ const Settings = (props: SettingsProps) => {
     installPromptValues.installPrompt.userChoice
       .then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the A2HS prompt');
+          // console.log('User accepted the A2HS prompt');
           installPromptValues.setShowInstallButton(false);
         } else {
-          console.log('App not installed');
+          // console.log('App not installed');
         }
       })
       .catch((error) => {
-        console.log('Failed to install app', error);
+        // console.log('Failed to install app', error);
       });
   }, [installPromptValues]);
 
   const handleEnableNotifications = useCallback(() => {
     Notification.requestPermission().then((result: NotificationPermission) => {
-      console.log('Notification permission', result);
+      // console.log('Notification permission', result);
       if (result === 'granted') {
         dispatch(actions.enableNotifications());
       }
@@ -84,8 +90,50 @@ const Settings = (props: SettingsProps) => {
     );
   }, [dispatch, props.notificationSettings.notifyNewContact]);
 
+  const handleSocketsEnabledChangedDone = useCallback((success: boolean) => {
+    setLoadingSocketSettings(false);
+    setSocketSettingsError(!success);
+  }, []);
+
+  const handleSocketsEnabledChanged = useCallback(() => {
+    // console.log('[Settings view] handle socket chekbox changed from', props.enableSockets);
+    setLoadingSocketSettings(true);
+    setSocketSettingsError(false);
+    dispatch(
+      actions.changeSocketEnabledSettings(
+        !props.enableSockets,
+        handleSocketsEnabledChangedDone
+      )
+    );
+  }, [dispatch, props.enableSockets, handleSocketsEnabledChangedDone]);
+
   return (
     <div className={classes.Content}>
+      <div className={classes.PageName}>Settings</div>
+
+      <div>
+        <h1>Receive updates in real time</h1>
+        <div className={classes.CheckboxRow}>
+          <input
+            className={classes.Checkbox}
+            type="checkbox"
+            id="notifyTrustUpdate"
+            checked={props.enableSockets}
+            onChange={handleSocketsEnabledChanged}
+            disabled={loadingSocketSettings}
+          />
+          <label htmlFor="notifyTrustUpdate">Yes, please!</label>
+        </div>
+        {socketSettingsError ? (
+          <Error>
+            Failed to save socket settings in database.<br />Settings were changed in
+            currently opened application, but will reset on applicataion reload.
+            <br />Please check your internet connection and try again in order to
+            update your settings in database.
+          </Error>
+        ) : null}
+      </div>
+
       {installPromptValues.installPrompt &&
       installPromptValues.showInstallButton ? (
         <div>
@@ -113,9 +161,9 @@ const Settings = (props: SettingsProps) => {
           >
             Enable notifications on this device
           </button>
-          <div className={classes.NotificationCheckboxRow}>
+          <div className={classes.CheckboxRow}>
             <input
-              className={classes.NotificationCheckbox}
+              className={classes.Checkbox}
               type="checkbox"
               id="notifyTrustUpdate"
               checked={props.notificationSettings.notifyTrustUpdate}
@@ -126,9 +174,9 @@ const Settings = (props: SettingsProps) => {
               Get contact's trust changes notifications
             </label>
           </div>
-          <div className={classes.NotificationCheckboxRow}>
+          <div className={classes.CheckboxRow}>
             <input
-              className={classes.NotificationCheckbox}
+              className={classes.Checkbox}
               type="checkbox"
               id="notifyNewContact"
               checked={props.notificationSettings.notifyNewContact}
@@ -148,11 +196,12 @@ const Settings = (props: SettingsProps) => {
 
 Settings.propTypes = {};
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: State): SettingsProps => {
   return {
     loading: state.notifications.loading,
     error: state.notifications.error,
-    notificationSettings: state.notifications.notificationSettings
+    notificationSettings: state.notifications.notificationSettings,
+    enableSockets: state.socket.enabled
   };
 };
 

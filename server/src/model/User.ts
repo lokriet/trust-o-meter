@@ -74,6 +74,10 @@ const UserSchema = new Schema({
 
   notificationSettings: {
     type: NotificationSettingsSchema
+  },
+
+  socketsEnabled: {
+    type: Boolean
   }
 });
 
@@ -108,6 +112,7 @@ interface IUserSchema extends Document {
   facebookId?: string;
 
   notificationSettings?: INotificationSettings;
+  socketsEnabled?: boolean;
 }
 
 interface IUserBase extends IUserSchema {

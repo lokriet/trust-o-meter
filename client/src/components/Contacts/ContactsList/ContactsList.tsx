@@ -108,14 +108,14 @@ const ContactsList = (props: ContactsListProps) => {
             <>
               {props.incomingRequests.map((incomingRequest: Contact) => (
                 <IncomingRequest
-                  key={incomingRequest.contactProfile.identificator}
+                  key={incomingRequest._id}
                   contact={incomingRequest}
                   error={props.itemErrors[incomingRequest._id]}
                 />
               ))}
               {props.outgoingRequests.map((outgoingRequest: Contact) => (
                 <OutgoingRequest
-                  key={outgoingRequest.contactProfile.identificator}
+                  key={outgoingRequest._id}
                   contact={outgoingRequest}
                   error={props.itemErrors[outgoingRequest._id]}
                 />
@@ -127,13 +127,13 @@ const ContactsList = (props: ContactsListProps) => {
               {props.confirmedContacts.map((contact: Contact) =>
                 contact.status === ContactStatus.Connected ? (
                   <ConfirmedContact
-                    key={contact.contactProfile.identificator}
+                    key={contact._id}
                     contact={contact}
                     error={props.itemErrors[contact._id]}
                   />
                 ) : (
                   <DeletedContact
-                    key={contact.contactProfile.identificator}
+                    key={contact._id}
                     contact={contact}
                     error={props.itemErrors[contact._id]}
                   />

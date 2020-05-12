@@ -60,6 +60,7 @@ export const checkInitialAuthState = () => {
             const resultData = await result.json();
             dispatch(actions.setProfile(resultData.profile));
             dispatch(actions.setNotificationSettings(resultData.notificationSettings));
+            dispatch(actions.setSocketsEnabled(resultData.socketsEnabled));
             dispatch(
               initialAuthCheckSuccess(
                 true,
@@ -171,6 +172,7 @@ const auth = (authUrl: string, fetchParams: any, onOperationDone?: any) => {
         await firebaseApp.doSignIn();
         dispatch(actions.setProfile(resultData.profile));
         dispatch(actions.setNotificationSettings(resultData.notificationSettings));
+        dispatch(actions.setSocketsEnabled(resultData.socketsEnabled));
         dispatch(
           loginSuccess(
             token,
@@ -180,10 +182,14 @@ const auth = (authUrl: string, fetchParams: any, onOperationDone?: any) => {
         );
         dispatch(actions.fetchStatusList());
       } else {
+        let message = internalError;
+        if (result.status === 422) {
+          message = resultData.data[0].errorMessage;
+        } else if (result.status !== 500) {
+          message = resultData.message;
+        }
         dispatch(
-          loginFailed(
-            result.status !== 500 ? resultData.message : internalError
-          )
+          loginFailed(message)
         );
       }
     } catch (error) {
@@ -213,6 +219,7 @@ export const logout = () => {
       dispatch(actions.resetProfileStore());
       dispatch(actions.resetContactsStore());
       dispatch(actions.resetNotificationsStore());
+      dispatch(actions.resetSocketStore());
       dispatch(logoutSuccess());
     }
   };

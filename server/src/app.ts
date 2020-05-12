@@ -25,13 +25,14 @@ import authRouter from './routes/auth';
 import contactsRouter from './routes/contacts';
 import notificationsRouter from './routes/notifications';
 import profileRouter from './routes/profile';
+import socketRouter from './routes/socket';
 import statusRouter from './routes/status';
 import * as connectionUtils from './util/connectionUtils';
 import initDatabase from './util/database';
 import * as httpErrors from './util/httpErrors';
 import logger from './util/logger';
 import * as responseCodes from './util/responseCodes';
-import {initSocketIo} from './util/socket';
+import { initSocketIo } from './util/socket';
 
 
 initDatabase();
@@ -73,6 +74,7 @@ app.use('/profile', profileRouter);
 app.use('/contacts', contactsRouter);
 app.use('/status', statusRouter);
 app.use('/notifications', notificationsRouter);
+app.use('/socket', socketRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   throw httpErrors.pageNotFoundError();

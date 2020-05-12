@@ -20,12 +20,14 @@ export interface SocketState {
   commonSocket: any;
   userSocket: any;
   updates: SocketContactUpdate[];
+  enabled: boolean;
 }
 
 const initialState: SocketState = {
   commonSocket: null,
   userSocket: null,
-  updates: []
+  updates: [],
+  enabled: false
 };
 
 export const socketReducer = (state: SocketState = initialState, action): SocketState => {
@@ -35,6 +37,11 @@ export const socketReducer = (state: SocketState = initialState, action): Socket
         ...state,
         commonSocket: action.commonSocket,
         userSocket: action.userSocket
+      };
+    case actionTypes.socket.SET_SOCKETS_ENABLED:
+      return {
+        ...state,
+        enabled: action.enabled
       };
     case actionTypes.socket.ADD_UPDATE:
       return {
@@ -46,6 +53,8 @@ export const socketReducer = (state: SocketState = initialState, action): Socket
         ...state,
         updates: state.updates.filter(update => update.id !== action.updateId)
       }
+    case actionTypes.socket.RESET_SOCKET_STORE:
+      return initialState;
     default:
       return state;
   }

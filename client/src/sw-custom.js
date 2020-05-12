@@ -20,7 +20,7 @@ if ('function' === typeof importScripts) {
 
   // Global workbox
   if (workbox) {
-    console.log('Workbox is loaded');
+    // console.log('Workbox is loaded');
   }
 
   // TODO change to false!
@@ -74,7 +74,7 @@ if ('function' === typeof importScripts) {
         /\/auth\/details$/.test(request.url) ||
         (request.method === 'GET' && /\/status$/.test(request.url)) ||
         /\/contacts$/.test(request.url);
-      console.log('[Service Worker] matching request', result, request);
+      // console.log('[Service Worker] matching request', result, request);
       return result;
     },
     new workbox.strategies.NetworkFirst({
@@ -88,7 +88,7 @@ if ('function' === typeof importScripts) {
     const notification = event.notification;
     const action = event.action;
 
-    console.log('[Service Worker] notification clicked', notification);
+    // console.log('[Service Worker] notification clicked', notification);
     if (action === 'confirm' || action === '' || action == null) {
       let urlToOpen;
       if (notification.tag === 'contact-request') {
@@ -144,10 +144,10 @@ if ('function' === typeof importScripts) {
       isClientFocused()
         .then((clientIsFocused) => {
           if (clientIsFocused) {
-            console.log("Don't need to show a notification.");
+            // console.log("Don't need to show a notification.");
             return;
           }
-          console.log("Client isn't focused, we need to show a notification.");
+          // console.log("Client isn't focused, we need to show a notification.");
           // Client isn't focused, we need to show a notification.
           let data = {
             title: 'Something happened!',

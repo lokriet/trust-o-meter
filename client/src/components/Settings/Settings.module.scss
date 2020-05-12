@@ -5,6 +5,12 @@
   width: 80%;
   max-width: 40rem;
 
+  .PageName {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-top: 2rem;
+  }
+
   h1 {
     text-align: left;
     margin-top: 2rem;
@@ -15,10 +21,10 @@
   }
 }
 
-.NotificationCheckboxRow {
+.CheckboxRow {
   margin: 1rem 0 0 1rem;
 }
 
-.NotificationCheckbox {
+.Checkbox {
   margin-right: 0.5rem;
 }

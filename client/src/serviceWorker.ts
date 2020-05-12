@@ -28,7 +28,7 @@ type Config = {
 export function register(config?: Config) {
   if (/*process.env.NODE_ENV === 'production' && */'serviceWorker' in navigator) {
 
-    console.log('I am in register function!');
+    // console.log('I am in register function!');
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(
       process.env.PUBLIC_URL,
@@ -38,7 +38,7 @@ export function register(config?: Config) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
       // from what our page is served on. This might happen if a CDN is used to
       // serve assets; see https://github.com/facebook/create-react-app/issues/2374
-      console.log('Wrong origin, return');
+      // console.log('Wrong origin, return');
       return;
     }
     
@@ -52,10 +52,10 @@ export function register(config?: Config) {
         // Add some additional logging to localhost, pointing developers to the
         // service worker/PWA documentation.
         navigator.serviceWorker.ready.then(() => {
-          console.log(
-            'This web app is being served cache-first by a service ' +
-              'worker. To learn more, visit https://bit.ly/CRA-PWA'
-          );
+          // console.log(
+          //   'This web app is being served cache-first by a service ' +
+          //     'worker. To learn more, visit https://bit.ly/CRA-PWA'
+          // );
         });
       } else {
         // Is not localhost. Just register service worker
@@ -66,11 +66,11 @@ export function register(config?: Config) {
 }
 
 function registerValidSW(swUrl: string, config?: Config) {
-  console.log('I am actually registering something...');
+  // console.log('I am actually registering something...');
   navigator.serviceWorker
     .register(swUrl)
     .then(registration => {
-      console.log('Registered, i think?');
+      // console.log('Registered, i think?');
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (installingWorker == null) {
@@ -95,7 +95,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               // At this point, everything has been precached.
               // It's the perfect time to display a
               // "Content is cached for offline use." message.
-              console.log('Content is cached for offline use.');
+              // console.log('Content is cached for offline use.');
 
               // Execute callback
               if (config && config.onSuccess) {
@@ -123,7 +123,7 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
         response.status === 404 ||
         (contentType != null && contentType.indexOf('javascript') === -1)
       ) {
-        console.log('Wrong content type!', response);
+        // console.log('Wrong content type!', response);
         // No service worker found. Probably a different app. Reload the page.
         navigator.serviceWorker.ready.then(registration => {
           registration.unregister().then(() => {

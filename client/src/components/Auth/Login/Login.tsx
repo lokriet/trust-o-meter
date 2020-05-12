@@ -79,7 +79,7 @@ const Login = (props: LoginProps) => {
   );
 
   const handleGoogleLoginError = useCallback((response: any) => {
-    console.log(response);
+    // console.log(response);
     setGoogleError(true);
     setFacebookError(false);
   }, []);
@@ -97,7 +97,7 @@ const Login = (props: LoginProps) => {
   );
 
   const handleFacebookLoginError = useCallback((response: any) => {
-    console.log(response);
+    // console.log(response);
     setGoogleError(false);
     setFacebookError(true);
   }, []);

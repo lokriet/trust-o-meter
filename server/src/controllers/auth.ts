@@ -17,13 +17,13 @@ import { NextFunction, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
-import { initUserSocketNamespace } from '../util/socket';
 
 import Profile, { IProfile } from '../model/Profile';
 import User, { IUser } from '../model/User';
 import * as httpErrors from '../util/httpErrors';
 import logger from '../util/logger';
 import mailSender from '../util/mailSender';
+import { initUserSocketNamespace } from '../util/socket';
 import { createAuthToken, generateIdentificator } from '../util/utils';
 import {
   facebookLoginErrorSchema,
@@ -85,7 +85,8 @@ export const registerWithEmailAndPassword = async (
       notificationSettings: {
         notifyNewContact: true,
         notifyTrustUpdate: true
-      }
+      },
+      socketsEnabled: true
     });
 
     newUser = await newUser.save();
@@ -118,7 +119,8 @@ export const registerWithEmailAndPassword = async (
         notifyNewContact: newUser.notificationSettings.notifyNewContact,
         notifyTrustUpdate: newUser.notificationSettings.notifyTrustUpdate
       },
-      profile: newProfile.toUserProfile(true)
+      profile: newProfile.toUserProfile(true),
+      socketsEnabled: newUser.socketsEnabled == null || newUser.socketsEnabled === true
     });
   } catch (error) {
     next(error);
@@ -187,7 +189,8 @@ export const loginWithEmailAndPassword = async (
         notifyNewContact,
         notifyTrustUpdate
       },
-      profile: profile.toUserProfile(true)
+      profile: profile.toUserProfile(true),
+      socketsEnabled: user.socketsEnabled == null || user.socketsEnabled === true
     });
   } catch (error) {
     next(error);
@@ -232,7 +235,8 @@ export const loginWithGoogle = async (
           notificationSettings: {
             notifyNewContact: true,
             notifyTrustUpdate: true
-          }
+          },
+          socketsEnabled: true
         });
         await user.save();
       } else {
@@ -270,7 +274,8 @@ export const loginWithGoogle = async (
           notifyNewContact,
           notifyTrustUpdate
         },
-        profile: profile.toUserProfile(true)
+        profile: profile.toUserProfile(true),
+        socketsEnabled: user.socketsEnabled == null || user.socketsEnabled === true
       });
     } else {
       return next(httpErrors.notAuthenticatedError('Login with google failed'));
@@ -320,7 +325,8 @@ export const loginWithFacebook = async (
         notificationSettings: {
           notifyNewContact: true,
           notifyTrustUpdate: true
-        }
+        },
+        socketsEnabled: true
       });
       await user.save();
     } else {
@@ -358,7 +364,8 @@ export const loginWithFacebook = async (
         notifyNewContact,
         notifyTrustUpdate
       },
-      profile: profile.toUserProfile(true)
+      profile: profile.toUserProfile(true),
+      socketsEnabled: user.socketsEnabled == null || user.socketsEnabled === true
     });
   } catch (error) {
     next(error);
@@ -398,7 +405,8 @@ export const getAuthDetails = async (
         notifyNewContact,
         notifyTrustUpdate
       },
-      profile: profile.toUserProfile(true)
+      profile: profile.toUserProfile(true),
+      socketsEnabled: user.socketsEnabled == null || user.socketsEnabled === true
     });
   } catch (error) {
     next(error);

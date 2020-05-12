@@ -49,6 +49,7 @@ interface AppProps {
   waitingForEmailConfirmation: boolean;
   profile: Profile | null;
   profileInitialized: boolean;
+  socketsEnabled: boolean;
 }
 
 const App = (props: AppProps): JSX.Element => {
@@ -63,13 +64,13 @@ const App = (props: AppProps): JSX.Element => {
   }, [props.isLoggedIn, props.initialAuthCheckDone, dispatch]);
 
   useEffect(() => {
-    if (props.isLoggedIn && props.profile != null) {
+    if (props.isLoggedIn && props.profile != null && props.socketsEnabled) {
       dispatch(actions.initSocketConnection());
     }
     return () => {
       dispatch(actions.disconnectSocket());
     };
-  }, [dispatch, props.isLoggedIn, props.profile]);
+  }, [dispatch, props.isLoggedIn, props.profile, props.socketsEnabled]);
 
   let view: JSX.Element;
   // let redirect: JSX.Element | null = null;
@@ -136,7 +137,8 @@ const mapStateToProps = (state: State): Partial<AppProps> => {
       state.profile.profile != null &&
       state.profile.profile.initialized !== undefined &&
       state.profile.profile.initialized,
-    waitingForEmailConfirmation: state.auth.waitingForEmailConfirmation
+    waitingForEmailConfirmation: state.auth.waitingForEmailConfirmation,
+    socketsEnabled: state.socket.enabled
   };
 };
 

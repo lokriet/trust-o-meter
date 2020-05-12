@@ -80,5 +80,8 @@ export {
 export {
   initSocketConnection,
   disconnectSocket,
-  pickUpdateForShowing
+  pickUpdateForShowing,
+  setSocketsEnabled,
+  resetSocketStore,
+  changeSocketEnabledSettings
 } from './socket';

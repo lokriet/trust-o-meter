@@ -323,7 +323,7 @@ const contactUpdateSuccess = (state: ContactsState, action): ContactsState => {
 };
 
 const applyContactUpdate = (state: ContactsState, action): ContactsState => {
-  console.log('apply contact update', action);
+  // console.log('apply contact update', action);
   
   const updatedContact: Contact = action.updatedContact;
 
@@ -351,7 +351,7 @@ const applyContactUpdate = (state: ContactsState, action): ContactsState => {
       };
 
     case ContactStatus.OutgoingRequest:
-      console.log('got a socket update with status outgoing request :(');
+      // console.log('got a socket update with status outgoing request :(');
       return state;
 
     case ContactStatus.Connected:
