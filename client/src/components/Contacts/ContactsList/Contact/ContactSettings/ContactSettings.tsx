@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import PropTypes from 'prop-types';
+
+ import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import * as actions from '../../../../../store/actions';
 import { Contact } from '../../../../../store/model/contact';
+import ConfirmAction from '../../../../ConfirmAction/ConfirmAction';
 import { Error } from '../../../../UI/Error/Error';
 import classes from './ContactSettings.module.scss';
 
- 
 interface ContactSettingsProps {
   contact: Contact;
   error: string | null;
@@ -48,9 +49,7 @@ const ContactSettings = (props: ContactSettingsProps) => {
     setLoading(true);
     setDeleteError(false);
     setChangeNameError(false);
-    dispatch(
-      actions.deleteContact(props.contact._id, handleDeleteFailed)
-    );
+    dispatch(actions.deleteContact(props.contact._id, handleDeleteFailed));
   }, [props.contact, dispatch, handleDeleteFailed]);
 
   const handleCancelNameChange = useCallback(() => {
@@ -84,13 +83,20 @@ const ContactSettings = (props: ContactSettingsProps) => {
     <div className={classes.ExtraDetailsContainer}>
       <div className={classes.ExtraDetailsCard}>
         <div className={classes.ActionButtons}>
-          <button
-            className={`${classes.ActionButton} ${classes.DangerActionButton}`}
-            onClick={handleDelete}
-            disabled={loading}
+          <ConfirmAction
+            onConfirm={handleDelete}
+            text={`Are you sure you want to delete ${
+              props.contact.contactCustomName ||
+              props.contact.contactProfile.username
+            } from your contact list?\n\nAll trust points and unlocked activities will be lost.`}
           >
-            Delete contact
-          </button>
+            <button
+              className={`${classes.ActionButton} ${classes.DangerActionButton}`}
+              disabled={loading}
+            >
+              Delete contact
+            </button>
+          </ConfirmAction>
           <button
             className={classes.ActionButton}
             onClick={() => setShowCustomNameForm(true)}
@@ -118,7 +124,9 @@ const ContactSettings = (props: ContactSettingsProps) => {
                 onChange={(event) => setMyCustomName(event.target.value)}
               />
             </div>
-            {changeNameError && props.error ? <Error>{props.error}</Error> : null}
+            {changeNameError && props.error ? (
+              <Error>{props.error}</Error>
+            ) : null}
             <div className={classes.ActionButtons}>
               <button
                 className={`${classes.ActionButton} ${classes.DangerActionButton}`}

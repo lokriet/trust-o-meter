@@ -21,6 +21,7 @@ import { useDispatch } from 'react-redux';
 
 import * as actions from '../../../store/actions';
 import { Action } from '../../../store/model/status';
+import ConfirmAction from '../../ConfirmAction/ConfirmAction';
 import { Error } from '../../UI/Error/Error';
 import classes from './EditAction.module.scss';
 
@@ -101,14 +102,15 @@ const EditAction = ({
           placeholder="Activity"
           disabled={loading}
         />
-        <button
-          className={classes.DeleteButton}
-          type="button"
-          onClick={handleDeleteAction}
-          disabled={loading}
-        >
-          <FontAwesomeIcon icon={faTrashAlt} />
-        </button>
+        <ConfirmAction onConfirm={handleDeleteAction} text={`Are you sure you want to delete the action?`} >
+          <button
+            className={classes.DeleteButton}
+            type="button"
+            disabled={loading}
+          >
+            <FontAwesomeIcon icon={faTrashAlt} />
+          </button>
+        </ConfirmAction>
       </div>
       {validationError ? <Error>{validationError}</Error> : null}
       {error ? <Error>{error}</Error> : null}

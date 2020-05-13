@@ -25,6 +25,7 @@ import { Error } from '../../UI/Error/Error';
 import AddAction from '../AddAction/AddAction';
 import EditAction from '../EditAction/EditAction';
 import classes from './EditStatus.module.scss';
+import ConfirmAction from '../../ConfirmAction/ConfirmAction';
 
 
 
@@ -114,14 +115,16 @@ const EditStatus = ({
           // onBlur={handleSaveStatusChanges}
           disabled={loading}
         />
-        <button
-          className={classes.DeleteButton}
-          type="button"
-          onClick={handleDeleteStatus}
-          disabled={loading}
-        >
-          <FontAwesomeIcon icon={faTrashAlt} />
-        </button>
+        
+        <ConfirmAction onConfirm={handleDeleteStatus} text={`Are you sure you want to delete ${status.name} status?`}>
+          <button
+            className={classes.DeleteButton}
+            type="button"
+            disabled={loading}
+          >
+            <FontAwesomeIcon icon={faTrashAlt} />
+          </button>
+        </ConfirmAction>
       </div>
       {validationError ? <Error>{validationError}</Error> : null}
       {error ? <Error>{error}</Error> : null}

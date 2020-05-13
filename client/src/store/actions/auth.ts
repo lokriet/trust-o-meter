@@ -215,7 +215,6 @@ export const logout = () => {
       if ('caches' in window) {
         caches.delete('app-details');
       }
-      //TODO reset other stores
       dispatch(actions.resetProfileStore());
       dispatch(actions.resetContactsStore());
       dispatch(actions.resetNotificationsStore());

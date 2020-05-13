@@ -23,8 +23,7 @@ if ('function' === typeof importScripts) {
     // console.log('Workbox is loaded');
   }
 
-  // TODO change to false!
-  workbox.setConfig({ debug: true });
+  workbox.setConfig({ debug: false });
 
   workbox.precaching.precacheAndRoute(self.__WB_MANIFEST, {
     cleanURLs: false
