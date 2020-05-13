@@ -35,6 +35,7 @@ import ProfileIcon from './NavigationItem/ProfileIcon/ProfileIcon';
 interface NavigationProps {
   isAdmin: boolean;
   username: string;
+  hasPendingRequests: boolean;
 }
 
 const Navigation = (props: NavigationProps) => {
@@ -71,6 +72,7 @@ const Navigation = (props: NavigationProps) => {
         <NavigationItem
           link="/pendingContacts"
           text="Pending"
+          hasNewItems={props.hasPendingRequests}
           faIcon={faUserClock}
         />
         <NavigationItem
@@ -118,7 +120,8 @@ const Navigation = (props: NavigationProps) => {
 const mapStateToProps = (state: State): NavigationProps => {
   return {
     isAdmin: state.auth.isAdmin,
-    username: state.profile.profile?.username || 'Guest'
+    username: state.profile.profile?.username || 'Guest',
+    hasPendingRequests: state.contacts.incomingRequests.length > 0
   };
 };
 

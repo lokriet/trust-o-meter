@@ -109,11 +109,9 @@ const ContactSettings = (props: ContactSettingsProps) => {
         {showCustomNameForm ? (
           <>
             <div className={classes.ChangeCustomNameHeader}>
-              My name for{' '}
               {props.contact.contactCustomName ||
                 props.contact.contactProfile.username ||
-                '<noname>'}
-              :
+                '<noname>'} will see my name as:
             </div>
             <div className={classes.Details}>
               <input

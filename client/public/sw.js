@@ -163,7 +163,7 @@ if ('function' === typeof importScripts) {
             icon: `/icons/icon96.png`,
             badge: `/icons/iconBadge.png`,
             tag: data.tag,
-            renotify: false
+            renotify: true
           };
           return self.registration.showNotification(data.title, options);
         })

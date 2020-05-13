@@ -283,26 +283,6 @@ export const approveContactRequest = async (
       contactSocketEventType: ContactEventTypes.ContactRequestApproved
     });
 
-    // try {
-    //   const otherSideProfileId =
-    //     updatedContact.sides[0].profile.toString() === req.profileId
-    //       ? updatedContact.sides[1].profile.toString()
-    //       : updatedContact.sides[0].profile.toString();
-    //   const otherSideResult = await updatedContact.toUserContact(
-    //     otherSideProfileId
-    //   );
-    //   messageUser(
-    //     otherSideProfileId,
-    //     SocketEvents.ContactUpdate,
-    //     otherSideResult
-    //   );
-    // } catch (error) {
-    //   logger.error(
-    //     `Failed to send approve contact request socket update for contact id ${req.params.contactId}`
-    //   );
-    //   logger.error(error);
-    // }
-
     const userContact: UserContact = await updatedContact.toUserContact(
       req.profileId
     );
@@ -329,26 +309,6 @@ export const rejectContactRequest = async (
       contactSocketEventType: ContactEventTypes.ContactRequestRejected
     });
 
-    // try {
-    //   const otherSideProfileId =
-    //     updatedContact.sides[0].profile.toString() === req.profileId
-    //       ? updatedContact.sides[1].profile.toString()
-    //       : updatedContact.sides[0].profile.toString();
-    //   const otherSideResult = await updatedContact.toUserContact(
-    //     otherSideProfileId
-    //   );
-    //   messageUser(
-    //     otherSideProfileId,
-    //     SocketEvents.ContactUpdate,
-    //     otherSideResult
-    //   );
-    // } catch (error) {
-    //   logger.error(
-    //     `Failed to send reject contact request socket update for contact id ${req.params.contactId}`
-    //   );
-    //   logger.error(error);
-    // }
-
     res.status(200).send();
   } catch (error) {
     next(error);
@@ -371,24 +331,6 @@ export const withdrawContactRequest = async (
       socketEvent: SocketEvents.ContactDelete,
       contactSocketEventType: ContactEventTypes.ContactRequestWithdrawn
     });
-
-    // try {
-    //   const otherSideProfileId =
-    //     updatedContact.sides[0].profile.toString() === req.profileId
-    //       ? updatedContact.sides[1].profile.toString()
-    //       : updatedContact.sides[0].profile.toString();
-
-    //   messageUser(
-    //     otherSideProfileId,
-    //     SocketEvents.ContactDelete,
-    //     req.params.contactId
-    //   );
-    // } catch (error) {
-    //   logger.error(
-    //     `Failed to send withdraw contact request socket update for contact id ${req.params.contactId}`
-    //   );
-    //   logger.error(error);
-    // }
 
     res.status(200).send();
   } catch (error) {
@@ -435,26 +377,6 @@ export const deleteContact = async (
       socketEvent: SocketEvents.ContactUpdate,
       contactSocketEventType: ContactEventTypes.ContactDeleted
     });
-
-    // try {
-    //   const otherSideProfileId =
-    //     updatedContact.sides[0].profile.toString() === req.profileId
-    //       ? updatedContact.sides[1].profile.toString()
-    //       : updatedContact.sides[0].profile.toString();
-    //   const otherSideResult = await updatedContact.toUserContact(
-    //     otherSideProfileId
-    //   );
-    //   messageUser(
-    //     otherSideProfileId,
-    //     SocketEvents.ContactUpdate,
-    //     otherSideResult
-    //   );
-    // } catch (error) {
-    //   logger.error(
-    //     `Failed to send delete contact socket update for contact id ${req.params.contactId}`
-    //   );
-    //   logger.error(error);
-    // }
 
     res.status(200).send();
   } catch (error) {

@@ -30,6 +30,7 @@ interface NavigationItemProps {
   icon?: JSX.Element;
   faIcon?: IconDefinition;
   text?: string;
+  hasNewItems?: boolean;
 }
 
 const NavigationItem = (props: NavigationItemProps) => {
@@ -42,6 +43,7 @@ const NavigationItem = (props: NavigationItemProps) => {
         // </div>
         <div className={`NavigationItemIcon ${props.text ? 'SpacedIcon' : ''}`}>
           {React.cloneElement(props.icon)}
+          {props.hasNewItems ? <div className='NavigationItemRedDot'></div> : null}
         </div>
       ) : null}
       {props.faIcon ? (
@@ -50,11 +52,13 @@ const NavigationItem = (props: NavigationItemProps) => {
             icon={props.faIcon}
             className='NavigationItemFontawesome'
           />
+          {props.hasNewItems ? <div className='NavigationItemRedDot'></div> : null}
         </div>
       ) : null}
       {props.text ? (
         <div className='NavigationItemText'>{props.text}</div>
       ) : null}
+      
     </>
   );
 
@@ -82,7 +86,8 @@ NavigationItem.propTypes = {
   link: PropTypes.string,
   onClick: PropTypes.any,
   icon: PropTypes.any,
-  text: PropTypes.string
+  text: PropTypes.string,
+  hasNewItems: PropTypes.bool
 };
 
 export default NavigationItem;

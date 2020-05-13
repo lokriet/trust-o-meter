@@ -30,6 +30,7 @@
 }
 
 .NavigationItemIcon {
+  position: relative;
   width: 2rem;
   height: 2rem;
   display: flex;
@@ -39,6 +40,16 @@
 
 .NavigationItemFontawesome {
   font-size: 1.2rem;
+}
+
+.NavigationItemRedDot {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--accent-color);
 }
 
 .NavigationItemText {

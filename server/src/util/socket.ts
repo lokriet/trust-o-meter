@@ -101,7 +101,7 @@ export const messageAll = (eventName: string, ...args: any) => {
 
 export const initSocketIo = (server: any) => {
   io = socketIo(server);
-  io.origins([`${process.env.CLIENT_URL}`]);
+  io.origins('*:*');
   io.use(authenticateSocket(null));
 
   io.on('connection', (socket => {
