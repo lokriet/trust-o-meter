@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
- import './index.scss';
+import './index.scss';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -24,6 +23,7 @@ import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
 
 import App from './App';
+import { ErrorBoundary } from './hoc/ErrorBoundary';
 import * as serviceWorker from './serviceWorker';
 import { authReducer } from './store/reducers/auth';
 import { contactsReducer } from './store/reducers/contacts';
@@ -31,6 +31,8 @@ import { notificationsReducer } from './store/reducers/notifications';
 import { profileReducer } from './store/reducers/profile';
 import { socketReducer } from './store/reducers/socket';
 import { statusReducer } from './store/reducers/status';
+
+
  
 const composeEnhancers =
   process.env.NODE_ENV === 'development'
@@ -54,9 +56,11 @@ const store = createStore(
 
 ReactDOM.render(
   <Provider store={store}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ErrorBoundary>
   </Provider>,
   document.getElementById('root')
 );
