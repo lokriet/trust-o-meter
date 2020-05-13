@@ -74,6 +74,8 @@ router.post('/search', isAuthenticated, contactsController.searchContacts);
  *   identificator: string
  * }
  *
+ * Sends push notification & socket update
+ *
  * response:
  * code: 200
  * {
@@ -92,48 +94,214 @@ router.post('/search', isAuthenticated, contactsController.searchContacts);
  * code 500 - internal error
  */
 router.post('/request', isAuthenticated, contactsController.requestContact);
+
+/**
+ * POST /contacts/:contactId/approve
+ *
+ * Sends socket update
+ *
+ * response:
+ * code: 200
+ * {
+ *   _id: string;
+ *   status: ContactStatus;
+ *   contactProfile: any;
+ *   myCustomName: string | null;
+ *   contactCustomName: string | null;
+ *   myTrustPoints: number;
+ *   contactTrustPoints: number;
+ *   doneActions: string[];
+ * }
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/approve',
   isAuthenticated,
   contactsController.approveContactRequest
 );
 
+/**
+ * POST /contacts/:contactId/reject
+ *
+ * Sends socket update
+ *
+ * response:
+ * code: 200
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/reject',
   isAuthenticated,
   contactsController.rejectContactRequest
 );
+
+/**
+ * POST /contacts/:contactId/withdraw
+ *
+ * Sends socket delete
+ *
+ * response:
+ * code: 200
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/withdraw',
   isAuthenticated,
   contactsController.withdrawContactRequest
 );
+
+/**
+ * POST /contacts/:contactId/seenRequestReject
+ *
+ * response:
+ * code: 200
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/seenRequestReject',
   isAuthenticated,
   contactsController.confirmRequestRejectSeen
 );
+
+/**
+ * POST /contacts/:contactId/delete
+ *
+ * Sends socket update
+ *
+ * response:
+ * code: 200
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/delete',
   isAuthenticated,
   contactsController.deleteContact
 );
+
+/**
+ * POST /contacts/:contactId/seenContactDelete
+ *
+ * response:
+ * code: 200
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/seenContactDelete',
   isAuthenticated,
   contactsController.confirmDeletedContactSeen
 );
 
+/**
+ * POST /contacts/:contactId/updateCustomName
+ * request: {
+ *   customName: string
+ * }
+ *
+ * Sends socket update
+ *
+ * response:
+ * code: 200
+ * {
+ *   _id: string;
+ *   status: ContactStatus;
+ *   contactProfile: any;
+ *   myCustomName: string | null;
+ *   contactCustomName: string | null;
+ *   myTrustPoints: number;
+ *   contactTrustPoints: number;
+ *   doneActions: string[];
+ * }
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/updateCustomName',
   isAuthenticated,
   contactsController.updateContactCustomName
 );
+
+/**
+ * POST /contacts/:contactId/updateTrust
+ * request: {
+ *   increase: boolean
+ * }
+ *
+ * Sends push notification
+ * Sends socket update
+ *
+ * response:
+ * code: 200
+ * {
+ *   _id: string;
+ *   status: ContactStatus;
+ *   contactProfile: any;
+ *   myCustomName: string | null;
+ *   contactCustomName: string | null;
+ *   myTrustPoints: number;
+ *   contactTrustPoints: number;
+ *   doneActions: string[];
+ * }
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/updateTrust',
   isAuthenticated,
   contactsController.updateContactTrust
 );
+
+/**
+ * POST /contacts/:contactId/updateTrust
+ * request: {
+ *   statusId: string
+ *   actionId: string
+ *   actionDone: boolean
+ * }
+ *
+ * Sends socket update
+ *
+ * response:
+ * code: 200
+ * {
+ *   _id: string;
+ *   status: ContactStatus;
+ *   contactProfile: any;
+ *   myCustomName: string | null;
+ *   contactCustomName: string | null;
+ *   myTrustPoints: number;
+ *   contactTrustPoints: number;
+ *   doneActions: string[];
+ * }
+ *
+ * code 401 - not authenticated
+ * code 404 - page not found
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post(
   '/:contactId/changeActionState',
   isAuthenticated,

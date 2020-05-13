@@ -28,6 +28,15 @@ export const addNotificationsSubscription = async (
   try {
     const subscription = req.body;
 
+    if (!subscription) {
+      next(
+        httpErrors.customValidationError(
+          'subscription',
+          'Subscription settings are required'
+        )
+      );
+    }
+
     const user = await User.findById(req.userId);
     if (
       !user.notificationSettings ||

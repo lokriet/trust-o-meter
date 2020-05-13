@@ -21,11 +21,44 @@ import isAuthenticated from '../middleware/auth';
 
 const router = express.Router();
 
+/**
+ * Subscribe for push notifications for current user and current device
+ * POST '/notifications/subscription'
+ *
+ * request: {
+ *  subscription: subscription object
+ * }
+ *
+ * response:
+ * code: 200
+ *
+ *
+ * code 401 - not authenticated
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post(
   '/subscription', isAuthenticated,
   notificationsController.addNotificationsSubscription
 );
 
+/**
+ * Configure which push notifications to receive
+ * POST '/notifications/settings'
+ *
+ * request: {
+ *  notifyTrustUpdate?: boolean
+ *  notifyNewContact?: boolean
+ * }
+ *
+ * response:
+ * code: 200
+ *
+ *
+ * code 401 - not authenticated
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post(
   '/settings', isAuthenticated,
   notificationsController.updateNotificationSettings

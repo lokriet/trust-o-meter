@@ -21,6 +21,21 @@ import isAuthenticated from '../middleware/auth';
 
 const router = express.Router();
 
+/**
+ * Enable/disable socket updates
+ * POST '/socket/updateSocketEnabled'
+ *
+ * request: {
+ *  enabled: boolean
+ * }
+ *
+ * response:
+ * code: 200
+ *
+ * code 401 - not authenticated
+ * code 422 - validation error
+ * code 500 - internal error
+ */
 router.post('/updateSocketEnabled', isAuthenticated, socketController.updateSocketEnabled);
 
 export default router;
