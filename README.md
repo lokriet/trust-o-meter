@@ -1,6 +1,6 @@
 ### Trust-o-Meter
 
-This is a MERN stack based social network project.
+This is a MERN stack social network PWA, that uses sockets for auto updates.
 
 Working demo can be found here: https://trust-o-meter.firebaseapp.com/
 
