@@ -6,17 +6,12 @@ Working demo can be found here: https://trust-o-meter.firebaseapp.com/
 
 ### Technologies used
 
-React, TypeScript, Redux, Formik
-
-Socket IO
-
-PWA, Workbox
-
-Node JS + Express, TypeScript
-
-MongoDB Atlas
-
-Firebase as image storage
+* React, TypeScript, Redux, Formik
+* Socket IO
+* PWA, Workbox
+* Node JS + Express, TypeScript
+* MongoDB Atlas
+* Firebase as image storage
 
 ### License
 Copyright (C) 2020 Evgenia Lazareva
