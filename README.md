@@ -1,6 +1,7 @@
 ### Trust-o-Meter
+A social network for tracking mutual trust level, created for characters of an online RPG.
 
-This is a MERN stack social network PWA, that uses sockets for auto updates.
+This is a MERN stack PWA, that uses sockets for auto updates.
 
 Working demo can be found here: https://trust-o-meter.firebaseapp.com/
 
