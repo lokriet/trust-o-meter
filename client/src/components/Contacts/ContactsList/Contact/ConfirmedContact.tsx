@@ -65,9 +65,7 @@ const ConfirmedContact = (props: ConfirmedContactProps) => {
   const profile: Profile = useProfile();
 
   const getTrustPoints = useCallback(() => {
-    return Math.floor(
-      (props.contact.myTrustPoints + props.contact.contactTrustPoints) / 2
-    );
+    return Math.min(props.contact.myTrustPoints, props.contact.contactTrustPoints);
   }, [props.contact.myTrustPoints, props.contact.contactTrustPoints]);
 
   useEffect(() => {

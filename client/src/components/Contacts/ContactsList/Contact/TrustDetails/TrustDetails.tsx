@@ -28,7 +28,7 @@ interface TrustDetailsProps {
 const TrustDetails = (props: TrustDetailsProps) => {
   const mutualTrust = useCallback(
     (): number => {
-      return Math.floor((props.contact.myTrustPoints + props.contact.contactTrustPoints) / 2);
+      return Math.min(props.contact.myTrustPoints, props.contact.contactTrustPoints);
     },
     [props.contact],
   )
