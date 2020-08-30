@@ -1,8 +1,18 @@
 ### Trust-o-Meter
+A social network for tracking mutual trust level, created for characters of an online RPG.
 
-This is a MERN stack social network PWA, that uses sockets for auto updates.
+This is a MERN stack PWA, that uses sockets for auto updates.
 
 Working demo can be found here: https://trust-o-meter.firebaseapp.com/
+
+### Technologies used
+
+* React, TypeScript, Redux, Formik
+* Socket IO
+* PWA, Workbox
+* Node JS + Express, TypeScript
+* MongoDB Atlas
+* Firebase as image storage
 
 ### License
 Copyright (C) 2020 Evgenia Lazareva
